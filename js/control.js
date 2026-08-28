@@ -6,260 +6,94 @@ import * as THREE from
 // ALICIA AI
 // CONTROL SYSTEM
 // PROTOCOL 2
+// DEBUG VERSION
 // ==========================================
-
 
 export function createControls(player, camera) {
 
+    console.log("CONTROLS: module loaded");
+
     const keys = {};
 
+    window.addEventListener("keydown", (event) => {
 
-    // ======================================
-    // KEYBOARD
-    // ======================================
+        keys[event.code] = true;
 
-    window.addEventListener(
-        "keydown",
-        (event) => {
+        console.log("KEY DOWN:", event.code);
 
-            keys[event.code] = true;
+    });
 
-        }
-    );
+    window.addEventListener("keyup", (event) => {
 
+        keys[event.code] = false;
 
-    window.addEventListener(
-        "keyup",
-        (event) => {
+    });
 
-            keys[event.code] = false;
-
-        }
-    );
-
-
-    // ======================================
-    // MOUSE LOOK
-    // ======================================
-
-    let mouseLocked = false;
-
-
-    document.addEventListener(
-        "click",
-        () => {
-
-            if (!mouseLocked) {
-
-                document.body.requestPointerLock();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        "pointerlockchange",
-        () => {
-
-            mouseLocked =
-                document.pointerLockElement ===
-                document.body;
-
-        }
-    );
-
-
-    document.addEventListener(
-        "mousemove",
-        (event) => {
-
-            if (!mouseLocked) {
-                return;
-            }
-
-
-            const sensitivity = 0.002;
-
-
-            player.yaw -=
-                event.movementX *
-                sensitivity;
-
-
-            player.pitch -=
-                event.movementY *
-                sensitivity;
-
-
-            // Ограничение вертикального взгляда
-
-            const limit =
-                Math.PI / 2 - 0.05;
-
-
-            player.pitch =
-                Math.max(
-                    -limit,
-                    Math.min(
-                        limit,
-                        player.pitch
-                    )
-                );
-
-
-            camera.rotation.order =
-                "YXZ";
-
-
-            camera.rotation.y =
-                player.yaw;
-
-
-            camera.rotation.x =
-                player.pitch;
-
-        }
-    );
-
-
-    // ======================================
-    // UPDATE
-    // ======================================
 
     function update(delta) {
 
         let forward = 0;
         let right = 0;
 
+        if (keys["KeyW"]) forward += 1;
+        if (keys["KeyS"]) forward -= 1;
 
-        if (keys["KeyW"]) {
-            forward += 1;
-        }
-
-
-        if (keys["KeyS"]) {
-            forward -= 1;
-        }
+        if (keys["KeyD"]) right += 1;
+        if (keys["KeyA"]) right -= 1;
 
 
-        if (keys["KeyD"]) {
-            right += 1;
-        }
-
-
-        if (keys["KeyA"]) {
-            right -= 1;
-        }
-
-
-        // Если игрок не нажал клавишу
-
-        if (
-            forward === 0 &&
-            right === 0
-        ) {
-
+        if (forward === 0 && right === 0) {
             return;
-
         }
 
-
-        // ==================================
-        // NORMALIZE
-        // ==================================
-
-        const length =
-            Math.sqrt(
-                forward * forward +
-                right * right
-            );
-
-
-        forward /= length;
-        right /= length;
-
-
-        // ==================================
-        // CAMERA DIRECTION
-        // ==================================
 
         const direction =
-            camera.getWorldDirection(
-                _direction
-            );
+            new THREE.Vector3();
 
+        camera.getWorldDirection(direction);
 
         direction.y = 0;
-
         direction.normalize();
 
 
-        // ==================================
-        // RIGHT VECTOR
-        // ==================================
+        const rightVector =
+            new THREE.Vector3();
 
-        _right.crossVectors(
+        rightVector.crossVectors(
             direction,
-            _up
+            new THREE.Vector3(0, 1, 0)
         );
 
+        rightVector.normalize();
 
-        _right.normalize();
-
-
-        // ==================================
-        // MOVEMENT
-        // ==================================
 
         player.position.addScaledVector(
             direction,
-            forward *
-            player.speed *
-            delta
+            forward * player.speed * delta
         );
-
 
         player.position.addScaledVector(
-            _right,
-            right *
-            player.speed *
-            delta
+            rightVector,
+            right * player.speed * delta
         );
 
 
-        // ==================================
-        // ROOM BOUNDARIES
-        // ==================================
-
-        const limitX = 6.5;
-        const limitZ = 4.5;
-
+        // Границы комнаты
 
         player.position.x =
-            Math.max(
-                -limitX,
-                Math.min(
-                    limitX,
-                    player.position.x
-                )
+            THREE.MathUtils.clamp(
+                player.position.x,
+                -6.3,
+                6.3
             );
-
 
         player.position.z =
-            Math.max(
-                -limitZ,
-                Math.min(
-                    limitZ,
-                    player.position.z
-                )
+            THREE.MathUtils.clamp(
+                player.position.z,
+                -4.3,
+                4.3
             );
 
-
-        // ==================================
-        // CAMERA POSITION
-        // ==================================
 
         camera.position.copy(
             player.position
@@ -268,32 +102,8 @@ export function createControls(player, camera) {
     }
 
 
-    // ======================================
-    // RETURN
-    // ======================================
-
     return {
         update
     };
 
 }
-
-
-// ==========================================
-// TEMPORARY VECTORS
-// ==========================================
-
-const _direction =
-    new THREE.Vector3();
-
-
-const _right =
-    new THREE.Vector3();
-
-
-const _up =
-    new THREE.Vector3(
-        0,
-        1,
-        0
-    );
