@@ -2,222 +2,167 @@
 <html lang="ru">
 
 <head>
-
 <meta charset="UTF-8">
 
 <meta name="viewport"
 content="width=device-width,
 initial-scale=1.0,
 maximum-scale=1.0,
-user-scalable=no">
+user-scalable=no,
+viewport-fit=cover">
 
-<title>Alicia AI — Apartment</title>
+<title>Alicia AI — SAO Cottage</title>
 
 <style>
 
-html, body {
-
-    margin: 0;
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-    background: #15181b;
-
-    touch-action: none;
-
-    user-select: none;
-
-    -webkit-user-select: none;
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#111;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
 }
 
-
-canvas {
-
-    display: block;
-
-    width: 100%;
-    height: 100%;
+canvas{
+    display:block;
+    width:100%;
+    height:100%;
 }
 
+/* --------------------------
+   JOYSTICK
+-------------------------- */
 
-/* ==============================
-   ДЖОЙСТИК
-============================== */
+#joystick{
+    position:fixed;
+    left:34px;
+    bottom:30px;
 
-#joystick {
+    width:125px;
+    height:125px;
 
-    position: fixed;
+    border-radius:50%;
 
-    left: 32px;
+    background:rgba(255,255,255,.08);
+    border:2px solid rgba(255,255,255,.22);
 
-    bottom: 38px;
+    backdrop-filter:blur(7px);
 
-    width: 125px;
-
-    height: 125px;
-
-    border-radius: 50%;
-
-    background:
-    rgba(255,255,255,0.08);
-
-    border:
-    2px solid
-    rgba(255,255,255,0.18);
-
-    backdrop-filter:
-    blur(5px);
-
-    z-index: 20;
-
-    touch-action: none;
+    z-index:20;
 }
 
+#stick{
+    position:absolute;
 
-#stick {
+    width:52px;
+    height:52px;
 
-    position: absolute;
+    left:36px;
+    top:36px;
 
-    left: 36px;
+    border-radius:50%;
 
-    top: 36px;
+    background:rgba(255,255,255,.30);
 
-    width: 52px;
+    border:2px solid rgba(255,255,255,.42);
 
-    height: 52px;
-
-    border-radius: 50%;
-
-    background:
-    rgba(255,255,255,0.30);
-
-    border:
-    2px solid
-    rgba(255,255,255,0.40);
-
-    box-sizing: border-box;
+    box-sizing:border-box;
 }
 
+/* --------------------------
+   HELP
+-------------------------- */
 
-/* ==============================
-   ПОДСКАЗКА
-============================== */
+#hint{
+    position:fixed;
 
-#hint {
+    top:18px;
+    left:50%;
 
-    position: fixed;
+    transform:translateX(-50%);
 
-    top: 18px;
+    padding:9px 16px;
 
-    left: 50%;
+    border-radius:20px;
 
-    transform:
-    translateX(-50%);
+    color:white;
 
-    padding:
-    9px 16px;
+    font-family:Arial,sans-serif;
+    font-size:13px;
 
-    color: white;
+    background:rgba(0,0,0,.30);
 
-    font-family:
-    Arial, sans-serif;
+    backdrop-filter:blur(7px);
 
-    font-size: 13px;
+    z-index:20;
 
-    background:
-    rgba(0,0,0,0.35);
+    opacity:.85;
 
-    border-radius: 20px;
+    pointer-events:none;
 
-    backdrop-filter:
-    blur(5px);
-
-    z-index: 20;
-
-    pointer-events: none;
-
-    opacity: 0.85;
-
-    transition:
-    opacity 2s;
+    transition:opacity 2s;
 }
 
 </style>
-
 </head>
-
 
 <body>
 
-
 <div id="hint">
-
-🕹️ движение • 👆 обзор
-
+🕹️ движение&nbsp;&nbsp; • &nbsp;&nbsp;👆 обзор
 </div>
-
 
 <div id="joystick">
-
-<div id="stick"></div>
-
+    <div id="stick"></div>
 </div>
 
-
 <script type="module">
-
 
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
 
 // ============================================================
-// СЦЕНА
+// SCENE
 // ============================================================
 
 const scene =
 new THREE.Scene();
 
-
 scene.background =
-new THREE.Color(
-    0x20252b
-);
+new THREE.Color(0x182027);
 
 
 // ============================================================
-// РАЗМЕР КВАРТИРЫ
+// HOUSE
 // ============================================================
 
-const W = 34;
+const HOUSE_W = 32;
+const HOUSE_D = 22;
+const HOUSE_H = 5.5;
 
-const D = 24;
-
-const H = 5.5;
-
-const WALL = 0.22;
+const WALL = .22;
 
 
 // ============================================================
-// КАМЕРА
+// CAMERA
 // ============================================================
 
 const camera =
 new THREE.PerspectiveCamera(
 
-    72,
+    78,
 
     window.innerWidth /
     window.innerHeight,
 
-    0.05,
+    .05,
 
-    100
+    120
 );
-
 
 camera.position.set(
     0,
@@ -227,47 +172,43 @@ camera.position.set(
 
 
 // ============================================================
-// РЕНДЕР
+// RENDERER
 // ============================================================
 
 const renderer =
 new THREE.WebGLRenderer({
 
-    antialias: true,
+    antialias:true,
 
     powerPreference:
     "high-performance"
 });
 
-
 renderer.setSize(
-
     window.innerWidth,
-
     window.innerHeight
 );
 
-
 renderer.setPixelRatio(
-
     Math.min(
         window.devicePixelRatio,
-        1.6
+        2
     )
 );
 
-
-renderer.shadowMap.enabled =
-true;
-
+renderer.shadowMap.enabled = true;
 
 renderer.shadowMap.type =
 THREE.PCFSoftShadowMap;
 
-
 renderer.outputColorSpace =
 THREE.SRGBColorSpace;
 
+renderer.toneMapping =
+THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure =
+1.05;
 
 document.body.appendChild(
     renderer.domElement
@@ -275,75 +216,95 @@ document.body.appendChild(
 
 
 // ============================================================
-// ТЕКСТУРА ДЕРЕВА
+// HIGH QUALITY WOOD TEXTURE
 // ============================================================
 
-function woodTexture() {
+function makeWood(){
 
     const c =
-    document.createElement(
-        "canvas"
-    );
+    document.createElement("canvas");
 
-    c.width = 512;
-
-    c.height = 512;
-
+    c.width=1024;
+    c.height=1024;
 
     const ctx =
     c.getContext("2d");
 
-
-    ctx.fillStyle =
-    "#765038";
+    ctx.fillStyle="#765238";
 
     ctx.fillRect(
-        0,
-        0,
-        512,
-        512
+        0,0,1024,1024
     );
 
 
-    for (
-        let y = 0;
-        y < 512;
-        y += 38
-    ) {
+    // planks
 
-        ctx.fillStyle =
-        y % 76 === 0
-        ? "#835b3f"
-        : "#69452f";
+    for(
+        let y=0;
+        y<1024;
+        y+=80
+    ){
 
+        const variation =
+        Math.random()*25;
+
+        ctx.fillStyle=
+        `rgb(
+            ${105+variation},
+            ${69+variation*.6},
+            ${42+variation*.4}
+        )`;
 
         ctx.fillRect(
             0,
             y,
-            512,
-            34
+            1024,
+            74
         );
+
+        ctx.strokeStyle=
+        "rgba(30,15,8,.55)";
+
+        ctx.lineWidth=3;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y+75
+        );
+
+        ctx.lineTo(
+            1024,
+            y+75
+        );
+
+        ctx.stroke();
     }
 
 
-    for (
-        let i = 0;
-        i < 180;
+    // grain
+
+    for(
+        let i=0;
+        i<900;
         i++
-    ) {
+    ){
 
-        const y =
-        Math.random() * 512;
+        const x=
+        Math.random()*1024;
 
-        const x =
-        Math.random() * 512;
+        const y=
+        Math.random()*1024;
 
-        ctx.strokeStyle =
-        "rgba(45,25,15,0.22)";
+        const length=
+        30+Math.random()*180;
 
-        ctx.lineWidth =
-        Math.random() * 2 + 0.5;
+        ctx.strokeStyle=
+        "rgba(35,18,9,.20)";
 
+        ctx.lineWidth=
+        .5+Math.random()*2;
 
         ctx.beginPath();
 
@@ -352,13 +313,16 @@ function woodTexture() {
             y
         );
 
-        ctx.lineTo(
+        ctx.bezierCurveTo(
 
-            x +
-            Math.random() * 100,
+            x+length*.25,
+            y-4,
 
-            y +
-            (Math.random() - 0.5) * 10
+            x+length*.7,
+            y+5,
+
+            x+length,
+            y
         );
 
         ctx.stroke();
@@ -368,88 +332,82 @@ function woodTexture() {
     const texture =
     new THREE.CanvasTexture(c);
 
-
-    texture.wrapS =
+    texture.wrapS=
     THREE.RepeatWrapping;
 
-    texture.wrapT =
+    texture.wrapT=
     THREE.RepeatWrapping;
-
 
     texture.repeat.set(
-        5,
+        4,
         3
     );
 
+    texture.anisotropy =
+    renderer.capabilities
+    .getMaxAnisotropy();
 
     return texture;
 }
 
 
 // ============================================================
-// ТЕКСТУРА ПОЛА
+// FLOOR TEXTURE
 // ============================================================
 
-function floorTexture() {
+function makeFloor(){
 
     const c =
-    document.createElement(
-        "canvas"
-    );
+    document.createElement("canvas");
 
-    c.width = 512;
-
-    c.height = 512;
-
+    c.width=1024;
+    c.height=1024;
 
     const ctx =
     c.getContext("2d");
 
-
-    ctx.fillStyle =
-    "#3b2920";
+    ctx.fillStyle="#3c2920";
 
     ctx.fillRect(
-        0,
-        0,
-        512,
-        512
+        0,0,1024,1024
     );
 
 
-    for (
-        let x = 0;
-        x < 512;
-        x += 64
-    ) {
+    for(
+        let x=0;
+        x<1024;
+        x+=92
+    ){
 
-        ctx.fillStyle =
-        x % 128 === 0
-        ? "#493126"
-        : "#34231c";
+        const v=
+        Math.random()*20;
 
+        ctx.fillStyle=
+        `rgb(
+            ${55+v},
+            ${38+v*.6},
+            ${29+v*.4}
+        )`;
 
         ctx.fillRect(
             x,
             0,
-            60,
-            512
+            86,
+            1024
         );
     }
 
 
-    ctx.strokeStyle =
-    "rgba(10,7,5,0.45)";
+    for(
+        let x=0;
+        x<1024;
+        x+=92
+    ){
 
+        ctx.strokeStyle=
+        "rgba(15,8,5,.55)";
 
-    ctx.lineWidth = 2;
-
-
-    for (
-        let x = 0;
-        x < 512;
-        x += 64
-    ) {
+        ctx.lineWidth=3;
 
         ctx.beginPath();
 
@@ -460,196 +418,210 @@ function floorTexture() {
 
         ctx.lineTo(
             x,
-            512
+            1024
         );
 
         ctx.stroke();
     }
 
 
+    // small imperfections
+
+    for(
+        let i=0;
+        i<500;
+        i++
+    ){
+
+        ctx.fillStyle=
+        "rgba(15,8,5,.15)";
+
+        ctx.fillRect(
+
+            Math.random()*1024,
+            Math.random()*1024,
+
+            Math.random()*8+1,
+            Math.random()*2+1
+        );
+    }
+
+
     const texture =
     new THREE.CanvasTexture(c);
 
-
-    texture.wrapS =
+    texture.wrapS=
     THREE.RepeatWrapping;
 
-    texture.wrapT =
+    texture.wrapT=
     THREE.RepeatWrapping;
-
 
     texture.repeat.set(
         8,
         6
     );
 
+    texture.anisotropy =
+    renderer.capabilities
+    .getMaxAnisotropy();
 
     return texture;
 }
 
 
 const woodMap =
-woodTexture();
-
+makeWood();
 
 const floorMap =
-floorTexture();
+makeFloor();
 
 
 // ============================================================
-// МАТЕРИАЛЫ
+// MATERIALS
 // ============================================================
 
 const wood =
 new THREE.MeshStandardMaterial({
 
-    map: woodMap,
+    map:woodMap,
 
-    roughness: 0.82
+    roughness:.72
 });
 
 
 const floorMat =
 new THREE.MeshStandardMaterial({
 
-    map: floorMap,
+    map:floorMap,
 
-    roughness: 0.92
+    roughness:.82
 });
 
 
 const darkWood =
 new THREE.MeshStandardMaterial({
 
-    color:
-    0x432c20,
+    color:0x422a1c,
 
-    roughness:
-    0.85
+    roughness:.72
+});
+
+
+const lightWood =
+new THREE.MeshStandardMaterial({
+
+    color:0x967052,
+
+    roughness:.78
 });
 
 
 const fabric =
 new THREE.MeshStandardMaterial({
 
-    color:
-    0x62545a,
+    color:0x61545a,
 
-    roughness:
-    1
+    roughness:.96
 });
 
 
 const cream =
 new THREE.MeshStandardMaterial({
 
-    color:
-    0xb9a58e,
+    color:0xc8b9a3,
 
-    roughness:
-    0.95
+    roughness:.95
+});
+
+
+const stone =
+new THREE.MeshStandardMaterial({
+
+    color:0x58534e,
+
+    roughness:.9
 });
 
 
 const metal =
 new THREE.MeshStandardMaterial({
 
-    color:
-    0x777777,
+    color:0x777777,
 
-    metalness:
-    0.55,
+    metalness:.65,
 
-    roughness:
-    0.35
+    roughness:.3
 });
 
 
 const glass =
 new THREE.MeshPhysicalMaterial({
 
-    color:
-    0x86c9e8,
+    color:0x82c9e8,
 
-    transparent:
-    true,
+    transparent:true,
 
-    opacity:
-    0.55,
+    opacity:.38,
 
-    roughness:
-    0.08,
+    roughness:.05,
 
-    metalness:
-    0.05
+    transmission:.25,
+
+    metalness:.05
 });
 
 
 // ============================================================
-// СОЗДАНИЕ КУБА
+// CUBE
 // ============================================================
 
 function cube(
 
-    w,
-    h,
-    d,
-    x,
-    y,
-    z,
-    material
+    w,h,d,
+    x,y,z,
+    material,
+    shadows=true
 
-) {
+){
 
-    const object =
+    const o =
     new THREE.Mesh(
 
         new THREE.BoxGeometry(
-            w,
-            h,
-            d
+            w,h,d
         ),
 
         material
     );
 
-
-    object.position.set(
-        x,
-        y,
-        z
+    o.position.set(
+        x,y,z
     );
 
+    if(shadows){
 
-    object.castShadow =
-    true;
+        o.castShadow=true;
+        o.receiveShadow=true;
+    }
 
+    scene.add(o);
 
-    object.receiveShadow =
-    true;
-
-
-    scene.add(
-        object
-    );
-
-
-    return object;
+    return o;
 }
 
 
 // ============================================================
-// ПОЛ
+// FLOOR
 // ============================================================
 
 cube(
 
-    W,
-    0.2,
-    D,
+    HOUSE_W,
+    .2,
+    HOUSE_D,
 
     0,
-    -0.1,
+    -.1,
     0,
 
     floorMat
@@ -657,17 +629,17 @@ cube(
 
 
 // ============================================================
-// ПОТОЛОК
+// CEILING
 // ============================================================
 
 cube(
 
-    W,
-    0.2,
-    D,
+    HOUSE_W,
+    .2,
+    HOUSE_D,
 
     0,
-    H,
+    HOUSE_H,
     0,
 
     darkWood
@@ -675,59 +647,56 @@ cube(
 
 
 // ============================================================
-// НАРУЖНЫЕ СТЕНЫ
+// WALLS
 // ============================================================
 
 cube(
 
-    W,
-    H,
+    HOUSE_W,
+    HOUSE_H,
     WALL,
 
     0,
-    H/2,
-    -D/2,
+    HOUSE_H/2,
+    -HOUSE_D/2,
 
     wood
 );
 
-
 cube(
 
-    W,
-    H,
+    HOUSE_W,
+    HOUSE_H,
     WALL,
 
     0,
-    H/2,
-    D/2,
+    HOUSE_H/2,
+    HOUSE_D/2,
 
     wood
 );
 
-
 cube(
 
     WALL,
-    H,
-    D,
+    HOUSE_H,
+    HOUSE_D,
 
-    -W/2,
-    H/2,
+    -HOUSE_W/2,
+    HOUSE_H/2,
     0,
 
     wood
 );
 
-
 cube(
 
     WALL,
-    H,
-    D,
+    HOUSE_H,
+    HOUSE_D,
 
-    W/2,
-    H/2,
+    HOUSE_W/2,
+    HOUSE_H/2,
     0,
 
     wood
@@ -735,313 +704,337 @@ cube(
 
 
 // ============================================================
-// ПЕРЕГОРОДКА СПАЛЬНИ
+// ROOF BEAMS
 // ============================================================
 
-cube(
-
-    0.18,
-    H,
-    8,
-
-    -4,
-    H/2,
-    -8,
-
-    wood
-);
-
-
-// ============================================================
-// ПЕРЕГОРОДКА КУХНИ
-// ============================================================
-
-cube(
-
-    0.18,
-    H,
-    6,
-
-    10,
-    H/2,
-    -8,
-
-    wood
-);
-
-
-// ============================================================
-// ОКНА
-// ============================================================
-
-function createWindow(
-    x,
-    y,
-    z,
-    width,
-    height
-) {
+for(
+    let x=-14;
+    x<=14;
+    x+=7
+){
 
     cube(
 
-        width,
-        height,
-        0.08,
+        .32,
+        .32,
+        HOUSE_D-.5,
 
         x,
-        y,
-        z,
+        HOUSE_H-.35,
+        0,
 
+        darkWood
+    );
+}
+
+
+// ============================================================
+// BIG WINDOWS
+// ============================================================
+
+function windowFrame(
+    x,z,w,h
+){
+
+    cube(
+        w,
+        h,
+        .08,
+        x,
+        3.1,
+        z,
         glass
     );
 
 
     cube(
-
-        width + 0.3,
-        0.16,
-        0.18,
-
+        w+.35,
+        .18,
+        .20,
         x,
-        y + height/2,
-        z + 0.08,
-
+        3.1+h/2,
+        z+.08,
         darkWood
     );
 
-
     cube(
-
-        width + 0.3,
-        0.16,
-        0.18,
-
+        w+.35,
+        .18,
+        .20,
         x,
-        y - height/2,
-        z + 0.08,
-
+        3.1-h/2,
+        z+.08,
         darkWood
     );
 
-
     cube(
-
-        0.16,
-        height,
-        0.18,
-
-        x - width/2,
-        y,
-        z + 0.08,
-
+        .18,
+        h,
+        .20,
+        x-w/2,
+        3.1,
+        z+.08,
         darkWood
     );
 
+    cube(
+        .18,
+        h,
+        .20,
+        x+w/2,
+        3.1,
+        z+.08,
+        darkWood
+    );
 
     cube(
-
-        0.16,
-        height,
-        0.18,
-
-        x + width/2,
-        y,
-        z + 0.08,
-
+        .12,
+        h,
+        .20,
+        x,
+        3.1,
+        z+.08,
         darkWood
     );
 }
 
 
-createWindow(
-    6,
-    3.2,
-    -11.8,
-    8,
-    3.4
+windowFrame(
+    -8,
+    -10.9,
+    10,
+    3.7
 );
 
-
-createWindow(
-    -10,
-    3.2,
-    -11.8,
+windowFrame(
     7,
-    3.4
+    -10.9,
+    8,
+    3.7
 );
 
 
 // ============================================================
-// ДИВАН
+// FIREPLACE
+// ============================================================
+
+cube(
+
+    4.2,
+    3.5,
+    .7,
+
+    5,
+    1.75,
+    -10.5,
+
+    stone
+);
+
+
+// fireplace opening
+
+cube(
+
+    2.4,
+    1.6,
+    .12,
+
+    5,
+    1.1,
+    -10.08,
+
+    new THREE.MeshStandardMaterial({
+        color:0x17110d
+    })
+);
+
+
+// fire
+
+const fire =
+new THREE.PointLight(
+    0xff8a38,
+    28,
+    8
+);
+
+fire.position.set(
+    5,
+    1.1,
+    -9.6
+);
+
+scene.add(fire);
+
+
+// ============================================================
+// SOFA
 // ============================================================
 
 cube(
 
     6,
-    0.55,
-    2.2,
+    .55,
+    2.3,
 
-    3,
-    0.7,
+    2,
+    .72,
     5,
 
     fabric
 );
 
-
 cube(
 
     6,
-    2.2,
-    0.35,
+    2.1,
+    .35,
 
-    3,
-    1.75,
+    2,
+    1.7,
     6,
 
     fabric
 );
 
 
-for (
-    const x of [0.7, 5.3]
-) {
+// cushions
+
+for(
+    const x of [-.2,2,4.2]
+){
 
     cube(
 
-        0.35,
-        0.9,
-        2,
+        1.6,
+        .55,
+        1.7,
 
         x,
-        1.1,
-        5,
+        1.15,
+        4.8,
 
-        darkWood
+        cream
     );
 }
 
 
 // ============================================================
-// ЖУРНАЛЬНЫЙ СТОЛ
+// COFFEE TABLE
 // ============================================================
 
 cube(
 
-    3,
-    0.2,
-    1.5,
+    3.2,
+    .22,
+    1.6,
 
-    3,
-    0.9,
-    1.5,
+    2,
+    .9,
+    1.8,
 
     darkWood
 );
 
 
-for (
-    const x of [1.8, 4.2]
-) {
+for(
+    const x of [.7,3.3]
+){
 
-    for (
-        const z of [1, 2]
-    ) {
+    cube(
 
-        cube(
+        .15,
+        .9,
+        .15,
 
-            0.12,
-            0.9,
-            0.12,
+        x,
+        .45,
+        1.2,
 
-            x,
-            0.45,
-            z,
+        darkWood
+    );
 
-            darkWood
-        );
-    }
+    cube(
+
+        .15,
+        .9,
+        .15,
+
+        x,
+        .45,
+        2.4,
+
+        darkWood
+    );
 }
 
 
 // ============================================================
-// КРОВАТЬ
+// BEDROOM
 // ============================================================
 
 cube(
 
-    5,
-    0.5,
+    5.2,
+    .5,
     7,
 
     -10,
-    0.55,
+    .6,
     -5,
 
     darkWood
 );
 
-
 cube(
 
-    4.7,
-    0.45,
+    4.9,
+    .45,
     6.6,
 
     -10,
-    1,
+    1.02,
     -5,
 
     cream
 );
 
 
-// подушки
+// pillows
+
+for(
+    const x of [-11.3,-8.7]
+){
+
+    cube(
+
+        1.7,
+        .3,
+        1.25,
+
+        x,
+        1.35,
+        -7.1,
+
+        new THREE.MeshStandardMaterial({
+            color:0xd9cfc2,
+            roughness:1
+        })
+    );
+}
+
+
+// headboard
 
 cube(
 
-    1.8,
-    0.3,
-    1.3,
-
-    -11.3,
-    1.35,
-    -7.2,
-
-    new THREE.MeshStandardMaterial({
-        color: 0xd4c7bb,
-        roughness: 1
-    })
-);
-
-
-cube(
-
-    1.8,
-    0.3,
-    1.3,
-
-    -8.7,
-    1.35,
-    -7.2,
-
-    new THREE.MeshStandardMaterial({
-        color: 0xd4c7bb,
-        roughness: 1
-    })
-);
-
-
-// изголовье
-
-cube(
-
-    5,
-    2.7,
-    0.3,
+    5.2,
+    2.6,
+    .28,
 
     -10,
-    1.65,
+    1.7,
     -1.6,
 
     darkWood
@@ -1049,51 +1042,129 @@ cube(
 
 
 // ============================================================
-// РАБОЧИЙ СТОЛ
+// DESK
 // ============================================================
 
 cube(
 
     5,
-    0.25,
-    1.8,
+    .25,
+    1.7,
 
     -1,
     1.35,
-    -8.8,
+    -8.7,
+
+    lightWood
+);
+
+
+// legs
+
+for(
+    const x of [-3,1]
+){
+
+    cube(
+        .18,
+        1.35,
+        .18,
+        x,
+        .65,
+        -9.3,
+        darkWood
+    );
+
+    cube(
+        .18,
+        1.35,
+        .18,
+        x,
+        .65,
+        -8.1,
+        darkWood
+    );
+}
+
+
+// ============================================================
+// CHAIR
+// ============================================================
+
+cube(
+
+    2,
+    .3,
+    2,
+
+    -1,
+    .8,
+    -6.1,
+
+    fabric
+);
+
+cube(
+
+    2,
+    2.2,
+    .3,
+
+    -1,
+    1.85,
+    -5.25,
+
+    fabric
+);
+
+
+// ============================================================
+// KITCHEN
+// ============================================================
+
+cube(
+
+    7,
+    1.2,
+    1.4,
+
+    12,
+    .6,
+    -7.8,
 
     darkWood
 );
 
+cube(
 
-// ножки
+    7,
+    .22,
+    1.5,
 
-for (
-    const x of [-3, 1]
-) {
+    12,
+    1.32,
+    -7.8,
+
+    cream
+);
+
+
+// cabinets
+
+for(
+    let i=0;
+    i<4;
+    i++
+){
 
     cube(
 
-        0.18,
-        1.35,
-        0.18,
+        1.5,
+        2.2,
+        .7,
 
-        x,
-        0.65,
-        -9.4,
-
-        darkWood
-    );
-
-
-    cube(
-
-        0.18,
-        1.35,
-        0.18,
-
-        x,
-        0.65,
+        9.5+i*1.7,
+        2.5,
         -8.2,
 
         darkWood
@@ -1102,95 +1173,8 @@ for (
 
 
 // ============================================================
-// КРЕСЛО
+// FRIDGE
 // ============================================================
-
-cube(
-
-    2,
-    0.3,
-    2,
-
-    -1,
-    0.8,
-    -6.2,
-
-    fabric
-);
-
-
-cube(
-
-    2,
-    2.3,
-    0.3,
-
-    -1,
-    1.9,
-    -5.35,
-
-    fabric
-);
-
-
-// ============================================================
-// КУХНЯ
-// ============================================================
-
-cube(
-
-    7,
-    1.2,
-    1.3,
-
-    13,
-    0.6,
-    -8.8,
-
-    darkWood
-);
-
-
-cube(
-
-    7,
-    0.25,
-    1.45,
-
-    13,
-    1.3,
-    -8.8,
-
-    cream
-);
-
-
-// шкафчики
-
-for (
-    let i = 0;
-    i < 4;
-    i++
-) {
-
-    cube(
-
-        1.45,
-        2.2,
-        0.75,
-
-        10.5 +
-        i * 1.7,
-
-        2.5,
-        -9,
-
-        darkWood
-    );
-}
-
-
-// холодильник
 
 cube(
 
@@ -1198,145 +1182,130 @@ cube(
     4,
     1.5,
 
-    16,
+    15.5,
     2,
-    -5,
+    -5.2,
 
     metal
 );
 
 
 // ============================================================
-// КНИЖНЫЙ ШКАФ
+// BOOKCASE
 // ============================================================
 
 cube(
 
-    3.8,
-    3.8,
-    0.5,
+    4,
+    4,
+    .5,
 
     6,
-    1.9,
-    -11.1,
+    2,
+    -10.9,
 
     darkWood
 );
 
 
-for (
-    let i = 0;
-    i < 4;
-    i++
-) {
+for(
+    let y=.8;
+    y<4.2;
+    y+=.85
+){
 
     cube(
 
-        3.4,
-        0.12,
-        0.65,
+        3.6,
+        .12,
+        .55,
 
         6,
-        0.8 +
-        i * 0.85,
+        y,
+        -10.55,
 
-        -10.75,
-
-        cream
+        lightWood
     );
 }
 
 
-// ============================================================
-// КНИГИ
-// ============================================================
+// books
 
-const bookMaterials = [
-
-    new THREE.MeshStandardMaterial({
-        color: 0x6b3540
-    }),
-
-    new THREE.MeshStandardMaterial({
-        color: 0x304d57
-    }),
-
-    new THREE.MeshStandardMaterial({
-        color: 0x7b6542
-    }),
-
-    new THREE.MeshStandardMaterial({
-        color: 0x4e3d62
-    })
+const bookColors=[
+    0x713b42,
+    0x34535e,
+    0x76603f,
+    0x514367,
+    0x7b4f34
 ];
 
-
-for (
-    let shelf = 0;
-    shelf < 4;
+for(
+    let shelf=0;
+    shelf<4;
     shelf++
-) {
+){
 
-    for (
-        let i = 0;
-        i < 6;
+    for(
+        let i=0;
+        i<6;
         i++
-    ) {
-
-        const height =
-        0.35 +
-        Math.random() * 0.25;
-
+    ){
 
         cube(
 
-            0.25,
-            height,
-            0.45,
+            .24,
+            .45+
+            Math.random()*.22,
 
-            4.6 +
-            i * 0.55,
+            .42,
 
-            0.95 +
-            shelf * 0.85,
+            4.55+
+            i*.55,
 
-            -10.35,
+            1.02+
+            shelf*.85,
 
-            bookMaterials[
-                Math.floor(
-                    Math.random() *
-                    bookMaterials.length
-                )
-            ]
+            -10.25,
+
+            new THREE.MeshStandardMaterial({
+                color:
+                bookColors[
+                    Math.floor(
+                        Math.random()*
+                        bookColors.length
+                    )
+                ],
+                roughness:.9
+            })
         );
     }
 }
 
 
 // ============================================================
-// РАСТЕНИЕ
+// PLANT
 // ============================================================
 
 const pot =
 new THREE.Mesh(
 
     new THREE.CylinderGeometry(
-        0.5,
-        0.4,
-        0.7,
-        16
+        .5,
+        .38,
+        .7,
+        20
     ),
 
     darkWood
 );
 
-
 pot.position.set(
-    13,
-    0.35,
+    10,
+    .35,
     4
 );
 
+pot.castShadow=true;
 
 scene.add(pot);
 
@@ -1345,193 +1314,185 @@ const leaves =
 new THREE.Mesh(
 
     new THREE.SphereGeometry(
-        1.2,
-        12,
+        1.25,
+        16,
         12
     ),
 
     new THREE.MeshStandardMaterial({
-        color: 0x466b4a,
-        roughness: 1
+
+        color:0x3e6546,
+
+        roughness:1
     })
 );
 
-
 leaves.position.set(
-    13,
-    1.7,
+    10,
+    1.65,
     4
 );
 
+leaves.castShadow=true;
 
 scene.add(leaves);
 
 
 // ============================================================
-// ОСВЕЩЕНИЕ
+// RUG
+// ============================================================
+
+cube(
+
+    8,
+    .04,
+    5,
+
+    2,
+    .025,
+    3,
+
+    new THREE.MeshStandardMaterial({
+
+        color:0x725a4e,
+
+        roughness:1
+    })
+);
+
+
+// ============================================================
+// LIGHTING
 // ============================================================
 
 scene.add(
 
     new THREE.HemisphereLight(
 
-        0xbfdcff,
+        0xcfe5ff,
+        0x3a2014,
 
-        0x3b2418,
-
-        0.65
+        .72
     )
 );
 
 
-// главный свет
+// main warm light
 
 const mainLight =
 new THREE.PointLight(
 
-    0xffd8ad,
+    0xffd6a3,
 
     45,
-
-    24
+    25
 );
 
-
 mainLight.position.set(
-
-    3,
+    1,
     4.8,
     2
 );
 
+mainLight.castShadow=true;
 
-mainLight.castShadow =
-true;
+mainLight.shadow.mapSize.width=2048;
+mainLight.shadow.mapSize.height=2048;
 
+mainLight.shadow.camera.near=.1;
+mainLight.shadow.camera.far=30;
 
-mainLight.shadow.mapSize.width =
-1024;
-
-mainLight.shadow.mapSize.height =
-1024;
-
-
-scene.add(
-    mainLight
-);
+scene.add(mainLight);
 
 
-// второй свет
+// bedroom
 
-const warmLight =
+const bedroomLight =
 new THREE.PointLight(
 
-    0xffb477,
+    0xffbd88,
 
-    22,
-
-    15
+    20,
+    13
 );
 
-
-warmLight.position.set(
-
+bedroomLight.position.set(
     -10,
-    3,
+    3.4,
     -4
 );
 
-
 scene.add(
-    warmLight
+    bedroomLight
 );
 
 
-// свет кухни
+// kitchen
 
 const kitchenLight =
 new THREE.PointLight(
 
-    0xffe0b0,
+    0xffdfb0,
 
-    18,
-
-    12
+    25,
+    13
 );
 
-
 kitchenLight.position.set(
-
-    13,
+    12,
     4,
     -7
 );
-
 
 scene.add(
     kitchenLight
 );
 
 
-// свет окна
+// window light
 
-const windowLight =
+const moonLight =
 new THREE.PointLight(
 
-    0x8bd3ff,
+    0x8bcfff,
 
-    30,
-
-    20
+    35,
+    22
 );
 
-
-windowLight.position.set(
-
+moonLight.position.set(
     6,
     3,
     -10
 );
 
-
 scene.add(
-    windowLight
+    moonLight
 );
 
 
 // ============================================================
-// ДВИЖЕНИЕ
+// CAMERA CONTROL
 // ============================================================
 
-let yaw = 0;
+let yaw=0;
+let pitch=0;
 
-let pitch = 0;
+let targetYaw=0;
+let targetPitch=0;
 
+let velocityX=0;
+let velocityZ=0;
 
-let targetYaw = 0;
+const acceleration=.015;
 
-let targetPitch = 0;
+const friction=.84;
 
-
-let velocityX = 0;
-
-let velocityZ = 0;
-
-
-const acceleration =
-0.018;
-
-
-const friction =
-0.82;
-
-
-const maxSpeed =
-0.105;
+const maxSpeed=.11;
 
 
 // ============================================================
-// ДЖОЙСТИК
+// JOYSTICK
 // ============================================================
 
 const joystick =
@@ -1539,93 +1500,67 @@ document.getElementById(
     "joystick"
 );
 
-
 const stick =
 document.getElementById(
     "stick"
 );
 
+let joyX=0;
+let joyY=0;
 
-let joyX = 0;
-
-let joyY = 0;
-
-let joystickID = null;
+let joyID=null;
 
 
-function joystickMove(
-    touch
-) {
+function moveJoystick(t){
 
-    const rect =
+    const r =
     joystick.getBoundingClientRect();
 
-
     let x =
-    touch.clientX -
+    t.clientX -
     (
-        rect.left +
-        rect.width / 2
+        r.left+r.width/2
     );
-
 
     let y =
-    touch.clientY -
+    t.clientY -
     (
-        rect.top +
-        rect.height / 2
+        r.top+r.height/2
     );
 
+    const max=43;
 
-    const max =
-    43;
-
-
-    const length =
+    const len =
     Math.sqrt(
-        x*x + y*y
+        x*x+y*y
     );
 
+    if(len>max){
 
-    if (
-        length > max
-    ) {
-
-        x =
-        x / length *
-        max;
-
-        y =
-        y / length *
-        max;
+        x=x/len*max;
+        y=y/len*max;
     }
 
+    joyX=x/max;
+    joyY=y/max;
 
-    joyX =
-    x / max;
-
-    joyY =
-    y / max;
-
-
-    stick.style.transform =
+    stick.style.transform=
     `translate(${x}px,${y}px)`;
 }
 
 
 joystick.addEventListener(
     "touchstart",
-    e => {
+    e=>{
 
         e.preventDefault();
 
-        const t =
+        const t=
         e.changedTouches[0];
 
-        joystickID =
-        t.identifier;
+        joyID=t.identifier;
 
-        joystickMove(t);
+        moveJoystick(t);
     },
     {passive:false}
 );
@@ -1633,21 +1568,21 @@ joystick.addEventListener(
 
 joystick.addEventListener(
     "touchmove",
-    e => {
+    e=>{
 
         e.preventDefault();
 
-        for (
+        for(
             const t
             of e.changedTouches
-        ) {
+        ){
 
-            if (
-                t.identifier ===
-                joystickID
-            ) {
+            if(
+                t.identifier===
+                joyID
+            ){
 
-                joystickMove(t);
+                moveJoystick(t);
             }
         }
     },
@@ -1657,26 +1592,24 @@ joystick.addEventListener(
 
 joystick.addEventListener(
     "touchend",
-    e => {
+    e=>{
 
-        for (
+        for(
             const t
             of e.changedTouches
-        ) {
+        ){
 
-            if (
-                t.identifier ===
-                joystickID
-            ) {
+            if(
+                t.identifier===
+                joyID
+            ){
 
-                joystickID =
-                null;
+                joyID=null;
 
-                joyX = 0;
+                joyX=0;
+                joyY=0;
 
-                joyY = 0;
-
-                stick.style.transform =
+                stick.style.transform=
                 "translate(0,0)";
             }
         }
@@ -1685,106 +1618,84 @@ joystick.addEventListener(
 
 
 // ============================================================
-// ОБЗОР
+// LOOK
 // ============================================================
 
-let lookID = null;
+let lookID=null;
 
-let lastX = 0;
-
-let lastY = 0;
+let lastLookX=0;
+let lastLookY=0;
 
 
 renderer.domElement.addEventListener(
     "touchstart",
-    e => {
+    e=>{
 
-        if (
-            e.touches.length !== 1
+        if(
+            e.touches.length!==1
         )
-            return;
+        return;
 
+        const t=e.touches[0];
 
-        const t =
-        e.touches[0];
-
-
-        if (
-            t.clientX <
-            window.innerWidth * 0.38
+        if(
+            t.clientX<
+            window.innerWidth*.35
         )
-            return;
+        return;
 
+        lookID=t.identifier;
 
-        lookID =
-        t.identifier;
-
-
-        lastX =
-        t.clientX;
-
-        lastY =
-        t.clientY;
+        lastLookX=t.clientX;
+        lastLookY=t.clientY;
     }
 );
 
 
 renderer.domElement.addEventListener(
     "touchmove",
-    e => {
+    e=>{
 
-        if (
-            e.touches.length !== 1
+        if(
+            e.touches.length!==1
         )
-            return;
+        return;
 
-
-        for (
+        for(
             const t
             of e.changedTouches
-        ) {
+        ){
 
-            if (
-                t.identifier !==
+            if(
+                t.identifier===
                 lookID
-            )
-                continue;
+            ){
 
+                const dx=
+                t.clientX-lastLookX;
 
-            const dx =
-            t.clientX -
-            lastX;
+                const dy=
+                t.clientY-lastLookY;
 
+                targetYaw -=
+                dx*.0032;
 
-            const dy =
-            t.clientY -
-            lastY;
+                targetPitch -=
+                dy*.0025;
 
+                targetPitch=
+                THREE.MathUtils.clamp(
+                    targetPitch,
+                    -1.1,
+                    1.1
+                );
 
-            targetYaw -=
-            dx * 0.003;
+                lastLookX=
+                t.clientX;
 
-
-            targetPitch -=
-            dy * 0.0025;
-
-
-            targetPitch =
-            Math.max(
-                -1.1,
-                Math.min(
-                    1.1,
-                    targetPitch
-                )
-            );
-
-
-            lastX =
-            t.clientX;
-
-
-            lastY =
-            t.clientY;
+                lastLookY=
+                t.clientY;
+            }
         }
     }
 );
@@ -1792,20 +1703,19 @@ renderer.domElement.addEventListener(
 
 renderer.domElement.addEventListener(
     "touchend",
-    e => {
+    e=>{
 
-        for (
+        for(
             const t
             of e.changedTouches
-        ) {
+        ){
 
-            if (
-                t.identifier ===
+            if(
+                t.identifier===
                 lookID
-            ) {
+            ){
 
-                lookID =
-                null;
+                lookID=null;
             }
         }
     }
@@ -1813,98 +1723,70 @@ renderer.domElement.addEventListener(
 
 
 // ============================================================
-// ДВИЖЕНИЕ
+// MOVEMENT
 // ============================================================
 
-function movement() {
+function movement(){
 
-    const forwardX =
+    const forwardX=
     Math.sin(yaw);
 
-
-    const forwardZ =
+    const forwardZ=
     -Math.cos(yaw);
 
-
-    const rightX =
+    const rightX=
     Math.cos(yaw);
 
-
-    const rightZ =
+    const rightZ=
     Math.sin(yaw);
 
 
-    const wantedX =
-
-    (
-        forwardX *
-        (-joyY)
-    )
+    const wantedX=
+    forwardX*(-joyY)
     +
-    (
-        rightX *
-        joyX
-    );
+    rightX*joyX;
 
 
-    const wantedZ =
-
-    (
-        forwardZ *
-        (-joyY)
-    )
+    const wantedZ=
+    forwardZ*(-joyY)
     +
-    (
-        rightZ *
-        joyX
-    );
+    rightZ*joyX;
 
 
     velocityX +=
-    (
-        wantedX *
-        acceleration
-    );
-
+    wantedX*
+    acceleration;
 
     velocityZ +=
-    (
-        wantedZ *
-        acceleration
-    );
+    wantedZ*
+    acceleration;
 
 
-    velocityX *=
-    friction;
+    velocityX*=friction;
+    velocityZ*=friction;
 
 
-    velocityZ *=
-    friction;
-
-
-    const speed =
+    const speed=
     Math.sqrt(
-        velocityX *
-        velocityX +
-
-        velocityZ *
+        velocityX*
+        velocityX+
+        velocityZ*
         velocityZ
     );
 
 
-    if (
-        speed > maxSpeed
-    ) {
+    if(
+        speed>maxSpeed
+    ){
 
-        velocityX =
-        velocityX /
-        speed *
+        velocityX=
+        velocityX/
+        speed*
         maxSpeed;
 
-
-        velocityZ =
-        velocityZ /
-        speed *
+        velocityZ=
+        velocityZ/
+        speed*
         maxSpeed;
     }
 
@@ -1912,144 +1794,148 @@ function movement() {
     camera.position.x +=
     velocityX;
 
-
     camera.position.z +=
     velocityZ;
 
 
-    // границы
+    // house boundaries
 
-    const margin =
-    1;
+    const margin=1;
 
 
-    camera.position.x =
+    camera.position.x=
     THREE.MathUtils.clamp(
 
         camera.position.x,
 
-        -W/2 + margin,
+        -HOUSE_W/2+margin,
 
-        W/2 - margin
+        HOUSE_W/2-margin
     );
 
 
-    camera.position.z =
+    camera.position.z=
     THREE.MathUtils.clamp(
 
         camera.position.z,
 
-        -D/2 + margin,
+        -HOUSE_D/2+margin,
 
-        D/2 - margin
+        HOUSE_D/2-margin
     );
 }
 
 
 // ============================================================
-// КАМЕРА
+// CAMERA
 // ============================================================
 
-let time = 0;
+let time=0;
 
 
-function updateCamera() {
+function updateCamera(){
 
-    time += 0.016;
+    time+=.016;
 
 
     yaw +=
     (
-        targetYaw -
-        yaw
-    ) * 0.10;
+        targetYaw-yaw
+    )*.095;
 
 
     pitch +=
     (
-        targetPitch -
-        pitch
-    ) * 0.10;
+        targetPitch-pitch
+    )*.095;
 
 
-    const speed =
+    const speed=
     Math.sqrt(
-
-        velocityX *
-        velocityX +
-
-        velocityZ *
+        velocityX*
+        velocityX+
+        velocityZ*
         velocityZ
     );
 
 
-    const walking =
-    speed > 0.008;
+    const walking=
+    speed>.008;
 
 
-    let bob = 0;
+    let bob=0;
 
 
-    if (
-        walking
-    ) {
+    if(walking){
 
-        bob =
-        Math.sin(
-            time * 9
-        ) *
-        0.025 *
+        bob=
+        Math.sin(time*9)*
+        .026*
         Math.min(
-            speed / maxSpeed,
+            speed/maxSpeed,
             1
         );
     }
 
 
-    camera.position.y =
-    2.05 +
-    bob;
+    camera.position.y=
+    2.05+bob;
 
 
-    const lookX =
-    Math.sin(yaw) *
+    const lx=
+    Math.sin(yaw)*
     Math.cos(pitch);
 
 
-    const lookY =
+    const ly=
     Math.sin(pitch);
 
 
-    const lookZ =
-    -Math.cos(yaw) *
+    const lz=
+    -Math.cos(yaw)*
     Math.cos(pitch);
 
 
-    const target =
+    const target=
     new THREE.Vector3(
 
-        camera.position.x +
-        lookX * 10,
+        camera.position.x+
+        lx*10,
 
-        camera.position.y +
-        lookY * 10,
+        camera.position.y+
+        ly*10,
 
-        camera.position.z +
-        lookZ * 10
+        camera.position.z+
+        lz*10
     );
 
 
-    camera.lookAt(
-        target
-    );
+    camera.lookAt(target);
 }
 
 
 // ============================================================
-// АНИМАЦИЯ
+// FIRE ANIMATION
 // ============================================================
 
-function animate() {
+function animateFire(){
+
+    fire.intensity=
+    24+
+    Math.sin(
+        time*11
+    )*5+
+    Math.sin(
+        time*17
+    )*3;
+}
+
+
+// ============================================================
+// LOOP
+// ============================================================
+
+function animate(){
 
     requestAnimationFrame(
         animate
@@ -2059,6 +1945,8 @@ function animate() {
     movement();
 
     updateCamera();
+
+    animateFire();
 
 
     renderer.render(
@@ -2072,35 +1960,42 @@ animate();
 
 
 // ============================================================
-// RESIZE
+// ORIENTATION / RESIZE
 // ============================================================
 
+function resize(){
+
+    camera.aspect=
+    window.innerWidth/
+    window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+}
+
+
 window.addEventListener(
-
     "resize",
-
-    () => {
-
-        camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
+    resize
+);
 
 
-        camera.updateProjectionMatrix();
+window.addEventListener(
+    "orientationchange",
+    ()=>{
 
-
-        renderer.setSize(
-
-            window.innerWidth,
-
-            window.innerHeight
+        setTimeout(
+            resize,
+            150
         );
     }
 );
 
-
 </script>
 
 </body>
-
 </html>
