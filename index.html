@@ -1,7 +1,10 @@
-<!DOCTYPE html>
+
+
+    <!DOCTYPE html>
 <html lang="ru">
 
 <head>
+
 <meta charset="UTF-8">
 
 <meta name="viewport"
@@ -10,7 +13,7 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>Alicia AI — Room</title>
+<title>Alicia AI — World</title>
 
 <style>
 
@@ -19,44 +22,113 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #20252a;
+    background: #171a1c;
     touch-action: none;
+    font-family: Arial, sans-serif;
 }
 
 canvas {
     display: block;
-    width: 100%;
-    height: 100%;
 }
 
-#hint {
-    position: fixed;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
 
-    padding: 10px 16px;
+/* =========================
+   ВИРТУАЛЬНЫЙ ДЖОЙСТИК
+   ========================= */
+
+#joystick {
+    position: fixed;
+
+    left: 25px;
+    bottom: 35px;
+
+    width: 130px;
+    height: 130px;
+
+    border-radius: 50%;
+
+    background:
+    rgba(255,255,255,0.10);
+
+    border:
+    2px solid
+    rgba(255,255,255,0.20);
+
+    z-index: 10;
+}
+
+
+#stick {
+    position: absolute;
+
+    left: 40px;
+    top: 40px;
+
+    width: 50px;
+    height: 50px;
+
+    border-radius: 50%;
+
+    background:
+    rgba(255,255,255,0.30);
+
+    border:
+    2px solid
+    rgba(255,255,255,0.40);
+}
+
+
+/* =========================
+   ПОДСКАЗКА
+   ========================= */
+
+#hint {
+
+    position: fixed;
+
+    top: 18px;
+    left: 50%;
+
+    transform:
+    translateX(-50%);
+
+    padding:
+    9px 15px;
+
+    border-radius: 20px;
+
+    background:
+    rgba(0,0,0,0.35);
 
     color: white;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
 
-    background: rgba(0,0,0,0.35);
-    border-radius: 20px;
+    font-size: 13px;
+
+    z-index: 10;
 
     pointer-events: none;
 
-    opacity: 0.8;
+    transition:
+    opacity 1s;
 }
 
 </style>
+
 </head>
 
 
 <body>
 
+
 <div id="hint">
-Свайп — осмотр • Два пальца — приближение
+Левая часть — движение • Правая — обзор
+</div>
+
+
+<div id="joystick">
+
+    <div id="stick"></div>
+
 </div>
 
 
@@ -70,21 +142,24 @@ import * as THREE from
 // СЦЕНА
 // =====================================================
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
 
 scene.background =
-new THREE.Color(0x20252a);
+new THREE.Color(
+    0x182027
+);
 
 
 // =====================================================
-// РАЗМЕРЫ КОМНАТЫ
+// РАЗМЕРЫ МИРА
 // =====================================================
 
-const ROOM_WIDTH = 20;
-const ROOM_DEPTH = 12;
-const ROOM_HEIGHT = 5;
+const ROOM_WIDTH = 40;
 
-const WALL = 0.2;
+const ROOM_DEPTH = 24;
+
+const ROOM_HEIGHT = 6;
 
 
 // =====================================================
@@ -93,20 +168,17 @@ const WALL = 0.2;
 
 const camera =
 new THREE.PerspectiveCamera(
-    70,
+    72,
     window.innerWidth /
     window.innerHeight,
     0.1,
-    100
+    150
 );
-
-
-// Позиция наблюдателя
 
 camera.position.set(
     0,
-    2.1,
-    3
+    2.0,
+    7
 );
 
 
@@ -127,11 +199,12 @@ renderer.setSize(
 renderer.setPixelRatio(
     Math.min(
         window.devicePixelRatio,
-        2
+        1.8
     )
 );
 
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled =
+true;
 
 renderer.shadowMap.type =
 THREE.PCFSoftShadowMap;
@@ -142,84 +215,370 @@ document.body.appendChild(
 
 
 // =====================================================
-// ОСВЕЩЕНИЕ
+// ПРОЦЕДУРНАЯ ТЕКСТУРА ДЕРЕВА
 // =====================================================
 
-const ambient =
-new THREE.AmbientLight(
-    0xffffff,
-    0.65
-);
+function createWoodTexture() {
 
-scene.add(ambient);
+    const canvas =
+    document.createElement("canvas");
 
+    canvas.width = 512;
+    canvas.height = 512;
 
-const ceilingLight =
-new THREE.PointLight(
-    0xffd7a5,
-    35,
-    18
-);
+    const ctx =
+    canvas.getContext("2d");
 
-ceilingLight.position.set(
-    0,
-    4.4,
-    0
-);
+    ctx.fillStyle =
+    "#70452d";
 
-ceilingLight.castShadow = true;
-
-scene.add(ceilingLight);
+    ctx.fillRect(
+        0,
+        0,
+        512,
+        512
+    );
 
 
-// Свет из окна
+    // Деревянные доски
 
-const windowLight =
-new THREE.PointLight(
-    0x9ed8ff,
-    18,
-    12
-);
+    for (
+        let y = 0;
+        y < 512;
+        y += 64
+    ) {
 
-windowLight.position.set(
-    -6,
-    3,
-    -5
-);
+        ctx.fillStyle =
+        "#805438";
 
-scene.add(windowLight);
+        ctx.fillRect(
+            0,
+            y,
+            512,
+            60
+        );
+
+
+        ctx.strokeStyle =
+        "rgba(40,20,10,0.35)";
+
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            512,
+            y
+        );
+
+        ctx.stroke();
+
+
+        // Волокна
+
+        for (
+            let i = 0;
+            i < 12;
+            i++
+        ) {
+
+            const startX =
+            Math.random() * 512;
+
+            ctx.strokeStyle =
+            "rgba(45,25,12,0.20)";
+
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                startX,
+                y + 10
+            );
+
+            ctx.bezierCurveTo(
+                startX + 40,
+                y + 20,
+                startX - 30,
+                y + 40,
+                startX + 80,
+                y + 55
+            );
+
+            ctx.stroke();
+        }
+    }
+
+
+    const texture =
+    new THREE.CanvasTexture(
+        canvas
+    );
+
+    texture.wrapS =
+    THREE.RepeatWrapping;
+
+    texture.wrapT =
+    THREE.RepeatWrapping;
+
+    texture.repeat.set(
+        3,
+        3
+    );
+
+    return texture;
+}
+
+
+// =====================================================
+// ТЕКСТУРА ПОЛА
+// =====================================================
+
+function createFloorTexture() {
+
+    const canvas =
+    document.createElement("canvas");
+
+    canvas.width = 512;
+    canvas.height = 512;
+
+    const ctx =
+    canvas.getContext("2d");
+
+    ctx.fillStyle =
+    "#4a3023";
+
+    ctx.fillRect(
+        0,
+        0,
+        512,
+        512
+    );
+
+
+    for (
+        let x = 0;
+        x < 512;
+        x += 64
+    ) {
+
+        ctx.fillStyle =
+        "#56392a";
+
+        ctx.fillRect(
+            x,
+            0,
+            58,
+            512
+        );
+
+
+        ctx.strokeStyle =
+        "rgba(25,15,10,0.35)";
+
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x,
+            0
+        );
+
+        ctx.lineTo(
+            x,
+            512
+        );
+
+        ctx.stroke();
+
+
+        for (
+            let i = 0;
+            i < 8;
+            i++
+        ) {
+
+            ctx.strokeStyle =
+            "rgba(20,10,5,0.15)";
+
+            ctx.beginPath();
+
+            const y =
+            Math.random() * 512;
+
+            ctx.moveTo(
+                x + 5,
+                y
+            );
+
+            ctx.lineTo(
+                x + 55,
+                y + 3
+            );
+
+            ctx.stroke();
+        }
+    }
+
+
+    const texture =
+    new THREE.CanvasTexture(
+        canvas
+    );
+
+    texture.wrapS =
+    THREE.RepeatWrapping;
+
+    texture.wrapT =
+    THREE.RepeatWrapping;
+
+    texture.repeat.set(
+        5,
+        3
+    );
+
+    return texture;
+}
+
+
+const woodTexture =
+createWoodTexture();
+
+const floorTexture =
+createFloorTexture();
 
 
 // =====================================================
 // МАТЕРИАЛЫ
 // =====================================================
 
-const floorMaterial =
-new THREE.MeshStandardMaterial({
-    color: 0x3d2920,
-    roughness: 0.8
-});
-
-
 const wallMaterial =
 new THREE.MeshStandardMaterial({
-    color: 0x70452c,
-    roughness: 0.8
+
+    map: woodTexture,
+
+    roughness: 0.82
+
 });
 
 
-const ceilingMaterial =
+const floorMaterial =
 new THREE.MeshStandardMaterial({
-    color: 0x4d3427,
+
+    map: floorTexture,
+
     roughness: 0.9
+
 });
 
 
-const woodMaterial =
+const darkWood =
 new THREE.MeshStandardMaterial({
-    color: 0x80502f,
-    roughness: 0.75
+
+    color: 0x39251b,
+
+    roughness: 0.9
+
 });
+
+
+const metal =
+new THREE.MeshStandardMaterial({
+
+    color: 0x454545,
+
+    metalness: 0.6,
+
+    roughness: 0.4
+
+});
+
+
+const fabric =
+new THREE.MeshStandardMaterial({
+
+    color: 0x65514a,
+
+    roughness: 1
+
+});
+
+
+// =====================================================
+// ОСВЕЩЕНИЕ
+// =====================================================
+
+scene.add(
+    new THREE.HemisphereLight(
+        0xbfdfff,
+        0x362218,
+        1.1
+    )
+);
+
+
+const ceilingLight =
+new THREE.PointLight(
+    0xffd6a0,
+    40,
+    25
+);
+
+ceilingLight.position.set(
+    0,
+    5.2,
+    0
+);
+
+ceilingLight.castShadow =
+true;
+
+scene.add(
+    ceilingLight
+);
+
+
+const warmLight =
+new THREE.PointLight(
+    0xff9d58,
+    25,
+    15
+);
+
+warmLight.position.set(
+    8,
+    3,
+    5
+);
+
+scene.add(
+    warmLight
+);
+
+
+const windowLight =
+new THREE.PointLight(
+    0x8fcfff,
+    35,
+    20
+);
+
+windowLight.position.set(
+    -10,
+    3,
+    -10
+);
+
+scene.add(
+    windowLight
+);
 
 
 // =====================================================
@@ -236,11 +595,15 @@ new THREE.Mesh(
     floorMaterial
 );
 
-floor.position.y = -0.1;
+floor.position.y =
+-0.1;
 
-floor.receiveShadow = true;
+floor.receiveShadow =
+true;
 
-scene.add(floor);
+scene.add(
+    floor
+);
 
 
 // =====================================================
@@ -254,218 +617,266 @@ new THREE.Mesh(
         0.2,
         ROOM_DEPTH
     ),
-    ceilingMaterial
+    darkWood
 );
 
 ceiling.position.y =
 ROOM_HEIGHT;
 
-scene.add(ceiling);
-
-
-// =====================================================
-// ЗАДНЯЯ СТЕНА
-// =====================================================
-
-const backWall =
-new THREE.Mesh(
-    new THREE.BoxGeometry(
-        ROOM_WIDTH,
-        ROOM_HEIGHT,
-        WALL
-    ),
-    wallMaterial
+scene.add(
+    ceiling
 );
 
-backWall.position.set(
+
+// =====================================================
+// СТЕНЫ
+// =====================================================
+
+function createWall(
+    width,
+    height,
+    depth,
+    x,
+    y,
+    z
+) {
+
+    const wall =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            width,
+            height,
+            depth
+        ),
+        wallMaterial
+    );
+
+    wall.position.set(
+        x,
+        y,
+        z
+    );
+
+    wall.receiveShadow =
+    true;
+
+    scene.add(
+        wall
+    );
+
+    return wall;
+}
+
+
+createWall(
+    ROOM_WIDTH,
+    ROOM_HEIGHT,
+    0.25,
     0,
     ROOM_HEIGHT / 2,
     -ROOM_DEPTH / 2
 );
 
-backWall.receiveShadow = true;
 
-scene.add(backWall);
-
-
-// =====================================================
-// ПЕРЕДНЯЯ СТЕНА
-// =====================================================
-
-const frontWall =
-new THREE.Mesh(
-    new THREE.BoxGeometry(
-        ROOM_WIDTH,
-        ROOM_HEIGHT,
-        WALL
-    ),
-    wallMaterial
-);
-
-frontWall.position.set(
+createWall(
+    ROOM_WIDTH,
+    ROOM_HEIGHT,
+    0.25,
     0,
     ROOM_HEIGHT / 2,
     ROOM_DEPTH / 2
 );
 
-scene.add(frontWall);
 
-
-// =====================================================
-// ЛЕВАЯ СТЕНА
-// =====================================================
-
-const leftWall =
-new THREE.Mesh(
-    new THREE.BoxGeometry(
-        WALL,
-        ROOM_HEIGHT,
-        ROOM_DEPTH
-    ),
-    wallMaterial
-);
-
-leftWall.position.set(
+createWall(
+    0.25,
+    ROOM_HEIGHT,
+    ROOM_DEPTH,
     -ROOM_WIDTH / 2,
     ROOM_HEIGHT / 2,
     0
 );
 
-scene.add(leftWall);
 
-
-// =====================================================
-// ПРАВАЯ СТЕНА
-// =====================================================
-
-const rightWall =
-new THREE.Mesh(
-    new THREE.BoxGeometry(
-        WALL,
-        ROOM_HEIGHT,
-        ROOM_DEPTH
-    ),
-    wallMaterial
-);
-
-rightWall.position.set(
+createWall(
+    0.25,
+    ROOM_HEIGHT,
+    ROOM_DEPTH,
     ROOM_WIDTH / 2,
     ROOM_HEIGHT / 2,
     0
 );
-
-scene.add(rightWall);
 
 
 // =====================================================
 // ОКНО
 // =====================================================
 
-const windowGlass =
+const glass =
 new THREE.MeshStandardMaterial({
-    color: 0x78b6d8,
-    roughness: 0.2,
-    metalness: 0.05
+
+    color: 0x78bce0,
+
+    roughness: 0.15,
+
+    metalness: 0.1
+
 });
 
-
-const windowFrame =
-new THREE.MeshStandardMaterial({
-    color: 0x40291f
-});
-
-
-const windowWidth = 4;
-const windowHeight = 2.5;
-
-
-// Стекло
 
 const windowMesh =
 new THREE.Mesh(
     new THREE.BoxGeometry(
-        windowWidth,
-        windowHeight,
+        6,
+        3,
         0.08
     ),
-    windowGlass
+    glass
 );
 
 windowMesh.position.set(
-    -5,
-    3,
-    -5.85
+    -8,
+    3.2,
+    -11.82
 );
 
-scene.add(windowMesh);
+scene.add(
+    windowMesh
+);
 
 
-// Рамки
+// Рамы
 
-function createFrame(
-    width,
-    height,
+function frame(
     x,
-    y
+    y,
+    width,
+    height
 ) {
 
-    const frame =
+    const object =
     new THREE.Mesh(
         new THREE.BoxGeometry(
             width,
             height,
-            0.15
+            0.18
         ),
-        windowFrame
+        darkWood
     );
 
-    frame.position.set(
+    object.position.set(
         x,
         y,
-        -5.75
+        -11.7
     );
 
-    scene.add(frame);
+    scene.add(
+        object
+    );
 }
 
 
-// верх
+frame(
+    -8,
+    4.75,
+    6.4,
+    0.2
+);
 
-createFrame(
-    4.3,
-    0.15,
-    -5,
-    4.3
+frame(
+    -8,
+    1.65,
+    6.4,
+    0.2
+);
+
+frame(
+    -11.1,
+    3.2,
+    0.2,
+    3.2
+);
+
+frame(
+    -4.9,
+    3.2,
+    0.2,
+    3.2
 );
 
 
-// низ
+// =====================================================
+// КРОВАТЬ
+// =====================================================
 
-createFrame(
-    4.3,
-    0.15,
-    -5,
-    1.7
+const bed =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        5,
+        0.6,
+        2.5
+    ),
+    darkWood
+);
+
+bed.position.set(
+    -12,
+    0.45,
+    4
+);
+
+bed.castShadow =
+true;
+
+scene.add(
+    bed
 );
 
 
-// левая
+const mattress =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        4.7,
+        0.35,
+        2.25
+    ),
+    fabric
+);
 
-createFrame(
-    0.15,
-    2.7,
-    -7.1,
-    3
+mattress.position.set(
+    -12,
+    0.92,
+    4
+);
+
+scene.add(
+    mattress
 );
 
 
-// правая
+// Подушка
 
-createFrame(
-    0.15,
-    2.7,
-    -2.9,
-    3
+const pillow =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        1.5,
+        0.3,
+        1.8
+    ),
+    new THREE.MeshStandardMaterial({
+        color: 0x9a8b80,
+        roughness: 1
+    })
+);
+
+pillow.position.set(
+    -13.3,
+    1.15,
+    4
+);
+
+scene.add(
+    pillow
 );
 
 
@@ -476,60 +887,57 @@ createFrame(
 const table =
 new THREE.Mesh(
     new THREE.BoxGeometry(
-        4,
+        4.5,
         0.25,
         1.8
     ),
-    woodMaterial
+    darkWood
 );
 
 table.position.set(
-    2,
-    1.35,
-    -3
+    7,
+    1.4,
+    -6
 );
 
-table.castShadow = true;
+table.castShadow =
+true;
 
-scene.add(table);
+scene.add(
+    table
+);
 
 
-// =====================================================
-// НОЖКИ СТОЛА
-// =====================================================
-
-const legPositions = [
-    [0.5, -3.6],
-    [3.5, -3.6],
-    [0.5, -2.4],
-    [3.5, -2.4]
-];
-
+// Ножки
 
 for (
-    const position
-    of legPositions
+    const x of [5.2, 8.8]
 ) {
 
-    const leg =
-    new THREE.Mesh(
-        new THREE.BoxGeometry(
-            0.18,
-            1.35,
-            0.18
-        ),
-        woodMaterial
-    );
+    for (
+        const z of [-6.65, -5.35]
+    ) {
 
-    leg.position.set(
-        position[0],
-        0.675,
-        position[1]
-    );
+        const leg =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                0.2,
+                1.4,
+                0.2
+            ),
+            darkWood
+        );
 
-    leg.castShadow = true;
+        leg.position.set(
+            x,
+            0.7,
+            z
+        );
 
-    scene.add(leg);
+        scene.add(
+            leg
+        );
+    }
 }
 
 
@@ -540,73 +948,179 @@ for (
 const chairSeat =
 new THREE.Mesh(
     new THREE.BoxGeometry(
-        1.5,
-        0.25,
-        1.5
+        1.6,
+        0.3,
+        1.6
     ),
-    woodMaterial
+    fabric
 );
 
 chairSeat.position.set(
-    2,
-    0.8,
-    0
+    7,
+    0.85,
+    -3.8
 );
 
-chairSeat.castShadow = true;
-
-scene.add(chairSeat);
+scene.add(
+    chairSeat
+);
 
 
 const chairBack =
 new THREE.Mesh(
     new THREE.BoxGeometry(
-        1.5,
+        1.6,
         2,
-        0.2
+        0.25
     ),
-    woodMaterial
+    fabric
 );
 
 chairBack.position.set(
-    2,
-    1.7,
-    0.65
+    7,
+    1.8,
+    -3.1
 );
 
-chairBack.castShadow = true;
-
-scene.add(chairBack);
+scene.add(
+    chairBack
+);
 
 
 // =====================================================
-// КОВЁР
+// КУХОННЫЙ БЛОК
 // =====================================================
 
-const carpet =
+const kitchen =
 new THREE.Mesh(
     new THREE.BoxGeometry(
-        6,
-        0.03,
-        4
+        7,
+        1.1,
+        1.5
+    ),
+    darkWood
+);
+
+kitchen.position.set(
+    10,
+    0.55,
+    7
+);
+
+scene.add(
+    kitchen
+);
+
+
+// Столешница
+
+const counter =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        7.2,
+        0.18,
+        1.65
+    ),
+    woodTexture ?
+    new THREE.MeshStandardMaterial({
+        map: woodTexture,
+        roughness: 0.75
+    }) :
+    darkWood
+);
+
+counter.position.set(
+    10,
+    1.15,
+    7
+);
+
+scene.add(
+    counter
+);
+
+
+// =====================================================
+// ШКАФЫ
+// =====================================================
+
+for (
+    let i = 0;
+    i < 4;
+    i++
+) {
+
+    const cabinet =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            1.5,
+            2,
+            1.4
+        ),
+        darkWood
+    );
+
+    cabinet.position.set(
+        7.75 + i * 1.5,
+        1.0,
+        7
+    );
+
+    scene.add(
+        cabinet
+    );
+}
+
+
+// =====================================================
+// ЛАМПА
+// =====================================================
+
+const lampShade =
+new THREE.Mesh(
+    new THREE.CylinderGeometry(
+        0.7,
+        0.95,
+        0.7,
+        20
     ),
     new THREE.MeshStandardMaterial({
-        color: 0x513a32,
-        roughness: 1
+        color: 0x8b674a,
+        roughness: 0.8
     })
 );
 
-carpet.position.set(
-    -1,
-    0.02,
-    1
+lampShade.position.set(
+    7,
+    4.1,
+    -6
 );
 
-scene.add(carpet);
+scene.add(
+    lampShade
+);
+
+
+const bulb =
+new THREE.PointLight(
+    0xffc27d,
+    18,
+    8
+);
+
+bulb.position.set(
+    7,
+    3.8,
+    -6
+);
+
+scene.add(
+    bulb
+);
 
 
 // =====================================================
-// КАМЕРА — ЕСТЕСТВЕННОЕ ДВИЖЕНИЕ
+// КАМЕРА И ДВИЖЕНИЕ
 // =====================================================
 
 let yaw = 0;
@@ -618,286 +1132,604 @@ let targetYaw = 0;
 let targetPitch = 0;
 
 
-// Плавность
+// Позиция игрока
 
-const smoothness = 0.09;
-
-
-// Ограничения взгляда
-
-const maxPitch = 1.15;
-
-
-// =====================================================
-// TOUCH
-// =====================================================
-
-let touching = false;
-
-let lastX = 0;
-
-let lastY = 0;
+const player =
+new THREE.Vector3(
+    0,
+    2,
+    7
+);
 
 
-// Для pinch
+// Скорость
 
-let pinchDistance = 0;
-
-let targetFOV = 70;
+const WALK_SPEED = 0.085;
 
 
 // =====================================================
-// TOUCH START
+// ДЖОЙСТИК
 // =====================================================
+
+const joystick =
+document.getElementById(
+    "joystick"
+);
+
+const stick =
+document.getElementById(
+    "stick"
+);
+
+
+let joystickActive =
+false;
+
+let joystickX = 0;
+
+let joystickY = 0;
+
+
+joystick.addEventListener(
+    "touchstart",
+    event => {
+
+        event.preventDefault();
+
+        joystickActive =
+        true;
+
+        updateJoystick(
+            event.touches[0]
+        );
+
+    },
+    { passive: false }
+);
+
+
+joystick.addEventListener(
+    "touchmove",
+    event => {
+
+        event.preventDefault();
+
+        if (
+            joystickActive
+        ) {
+
+            updateJoystick(
+                event.touches[0]
+            );
+        }
+
+    },
+    { passive: false }
+);
+
+
+joystick.addEventListener(
+    "touchend",
+    event => {
+
+        event.preventDefault();
+
+        joystickActive =
+        false;
+
+        joystickX = 0;
+        joystickY = 0;
+
+        stick.style.transform =
+        "translate(0px, 0px)";
+
+    },
+    { passive: false }
+);
+
+
+function updateJoystick(
+    touch
+) {
+
+    const rect =
+    joystick.getBoundingClientRect();
+
+    const centerX =
+    rect.left +
+    rect.width / 2;
+
+    const centerY =
+    rect.top +
+    rect.height / 2;
+
+
+    let dx =
+    touch.clientX -
+    centerX;
+
+    let dy =
+    touch.clientY -
+    centerY;
+
+
+    const max =
+    42;
+
+
+    const distance =
+    Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
+
+    if (
+        distance > max
+    ) {
+
+        dx =
+        dx / distance *
+        max;
+
+        dy =
+        dy / distance *
+        max;
+    }
+
+
+    joystickX =
+    dx / max;
+
+    joystickY =
+    dy / max;
+
+
+    stick.style.transform =
+    `translate(${dx}px, ${dy}px)`;
+}
+
+
+// =====================================================
+// УПРАВЛЕНИЕ ВЗГЛЯДОМ
+// =====================================================
+
+let looking = false;
+
+let lastLookX = 0;
+
+let lastLookY = 0;
+
 
 renderer.domElement.addEventListener(
     "touchstart",
-    (event) => {
-
-        event.preventDefault();
-
+    event => {
 
         if (
-            event.touches.length === 1
-        ) {
+            event.touches.length !== 1
+        )
+            return;
 
-            touching = true;
 
-            lastX =
-            event.touches[0].clientX;
+        const touch =
+        event.touches[0];
 
-            lastY =
-            event.touches[0].clientY;
-        }
 
+        // Правая половина
+        // экрана = обзор
 
         if (
-            event.touches.length === 2
+            touch.clientX >
+            window.innerWidth / 2
         ) {
 
-            touching = false;
+            looking = true;
 
-            pinchDistance =
-            getDistance(
-                event.touches[0],
-                event.touches[1]
-            );
+            lastLookX =
+            touch.clientX;
+
+            lastLookY =
+            touch.clientY;
         }
 
-    },
-    { passive: false }
+    }
 );
 
-
-// =====================================================
-// TOUCH MOVE
-// =====================================================
 
 renderer.domElement.addEventListener(
     "touchmove",
-    (event) => {
-
-        event.preventDefault();
-
-
-        // ОДИН ПАЛЕЦ
+    event => {
 
         if (
-            event.touches.length === 1 &&
-            touching
-        ) {
-
-            const x =
-            event.touches[0].clientX;
-
-            const y =
-            event.touches[0].clientY;
+            !looking ||
+            event.touches.length !== 1
+        )
+            return;
 
 
-            const dx =
-            x - lastX;
-
-            const dy =
-            y - lastY;
+        const touch =
+        event.touches[0];
 
 
-            targetYaw -=
-            dx * 0.004;
+        const dx =
+        touch.clientX -
+        lastLookX;
 
 
-            targetPitch -=
-            dy * 0.003;
+        const dy =
+        touch.clientY -
+        lastLookY;
 
 
-            targetPitch =
-            Math.max(
-                -maxPitch,
-                Math.min(
-                    maxPitch,
-                    targetPitch
-                )
-            );
+        targetYaw -=
+        dx * 0.004;
 
 
-            lastX = x;
-
-            lastY = y;
-        }
+        targetPitch -=
+        dy * 0.003;
 
 
-        // ДВА ПАЛЬЦА
-
-        if (
-            event.touches.length === 2
-        ) {
-
-            const distance =
-            getDistance(
-                event.touches[0],
-                event.touches[1]
-            );
+        targetPitch =
+        Math.max(
+            -1.2,
+            Math.min(
+                1.2,
+                targetPitch
+            )
+        );
 
 
-            const difference =
-            distance -
-            pinchDistance;
+        lastLookX =
+        touch.clientX;
 
-
-            targetFOV -=
-            difference * 0.03;
-
-
-            targetFOV =
-            Math.max(
-                50,
-                Math.min(
-                    80,
-                    targetFOV
-                )
-            );
-
-
-            pinchDistance =
-            distance;
-        }
-
-    },
-    { passive: false }
+        lastLookY =
+        touch.clientY;
+    }
 );
 
-
-// =====================================================
-// TOUCH END
-// =====================================================
 
 renderer.domElement.addEventListener(
     "touchend",
     () => {
 
-        touching = false;
+        looking = false;
 
     }
 );
 
 
 // =====================================================
-// РАССТОЯНИЕ МЕЖДУ ПАЛЬЦАМИ
+// ПК — WASD
 // =====================================================
 
-function getDistance(a, b) {
+const keys = {};
 
-    const dx =
-    a.clientX -
-    b.clientX;
 
-    const dy =
-    a.clientY -
-    b.clientY;
+window.addEventListener(
+    "keydown",
+    event => {
 
-    return Math.sqrt(
-        dx * dx +
-        dy * dy
+        keys[
+            event.key.toLowerCase()
+        ] = true;
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    event => {
+
+        keys[
+            event.key.toLowerCase()
+        ] = false;
+
+    }
+);
+
+
+// =====================================================
+// МЫШЬ
+// =====================================================
+
+let mouseDown = false;
+
+let mouseX = 0;
+
+let mouseY = 0;
+
+
+renderer.domElement.addEventListener(
+    "mousedown",
+    event => {
+
+        mouseDown = true;
+
+        mouseX =
+        event.clientX;
+
+        mouseY =
+        event.clientY;
+
+    }
+);
+
+
+window.addEventListener(
+    "mouseup",
+    () => {
+
+        mouseDown = false;
+
+    }
+);
+
+
+window.addEventListener(
+    "mousemove",
+    event => {
+
+        if (!mouseDown)
+            return;
+
+
+        const dx =
+        event.clientX -
+        mouseX;
+
+        const dy =
+        event.clientY -
+        mouseY;
+
+
+        targetYaw -=
+        dx * 0.004;
+
+
+        targetPitch -=
+        dy * 0.003;
+
+
+        targetPitch =
+        Math.max(
+            -1.2,
+            Math.min(
+                1.2,
+                targetPitch
+            )
+        );
+
+
+        mouseX =
+        event.clientX;
+
+        mouseY =
+        event.clientY;
+
+    }
+);
+
+
+// =====================================================
+// ДВИЖЕНИЕ
+// =====================================================
+
+function movePlayer() {
+
+    let forward = 0;
+
+    let strafe = 0;
+
+
+    // Джойстик
+
+    forward -=
+    joystickY;
+
+    strafe +=
+    joystickX;
+
+
+    // WASD
+
+    if (keys["w"])
+        forward += 1;
+
+    if (keys["s"])
+        forward -= 1;
+
+    if (keys["a"])
+        strafe -= 1;
+
+    if (keys["d"])
+        strafe += 1;
+
+
+    if (
+        forward === 0 &&
+        strafe === 0
+    ) {
+
+        return false;
+
+    }
+
+
+    const length =
+    Math.sqrt(
+        forward * forward +
+        strafe * strafe
     );
+
+
+    forward /= length;
+
+    strafe /= length;
+
+
+    const direction =
+    new THREE.Vector3(
+        Math.sin(yaw),
+        0,
+        -Math.cos(yaw)
+    );
+
+
+    const right =
+    new THREE.Vector3(
+        Math.cos(yaw),
+        0,
+        Math.sin(yaw)
+    );
+
+
+    const movement =
+    new THREE.Vector3();
+
+
+    movement.addScaledVector(
+        direction,
+        forward * WALK_SPEED
+    );
+
+
+    movement.addScaledVector(
+        right,
+        strafe * WALK_SPEED
+    );
+
+
+    const newX =
+    player.x +
+    movement.x;
+
+
+    const newZ =
+    player.z +
+    movement.z;
+
+
+    // Ограничение стенами
+
+    const limitX =
+    ROOM_WIDTH / 2 - 0.7;
+
+
+    const limitZ =
+    ROOM_DEPTH / 2 - 0.7;
+
+
+    player.x =
+    THREE.MathUtils.clamp(
+        newX,
+        -limitX,
+        limitX
+    );
+
+
+    player.z =
+    THREE.MathUtils.clamp(
+        newZ,
+        -limitZ,
+        limitZ
+    );
+
+
+    return true;
 }
 
 
 // =====================================================
-// ОБНОВЛЕНИЕ КАМЕРЫ
+// КАМЕРА
 // =====================================================
 
-let time = 0;
+let walkTime = 0;
 
 
-function updateCamera() {
-
-    time += 0.01;
-
-
-    // Плавность
+function updateCamera(
+    moving
+) {
 
     yaw +=
     (targetYaw - yaw) *
-    smoothness;
+    0.12;
 
 
     pitch +=
     (targetPitch - pitch) *
-    smoothness;
+    0.12;
 
 
-    camera.fov +=
-    (targetFOV -
-    camera.fov) *
-    0.08;
+    if (moving) {
 
-    camera.updateProjectionMatrix();
+        walkTime += 0.13;
 
-
-    // Небольшое естественное
-    // движение головы
-
-    const breathing =
-    Math.sin(time) *
-    0.008;
+    }
 
 
-    const lookX =
-    Math.sin(yaw) *
-    Math.cos(pitch);
+    const bob =
+    moving
+    ? Math.sin(
+        walkTime
+      ) * 0.025
+    : 0;
 
 
-    const lookY =
-    Math.sin(pitch);
+    const sway =
+    moving
+    ? Math.sin(
+        walkTime * 0.5
+      ) * 0.012
+    : 0;
 
 
-    const lookZ =
-    -Math.cos(yaw) *
-    Math.cos(pitch);
+    camera.position.x =
+    player.x +
+    sway;
 
 
-    const lookDistance = 10;
+    camera.position.y =
+    player.y +
+    bob;
 
 
-    const target =
+    camera.position.z =
+    player.z;
+
+
+    const lookDirection =
     new THREE.Vector3(
-        camera.position.x +
-        lookX * lookDistance,
+        Math.sin(yaw) *
+        Math.cos(pitch),
 
-        camera.position.y +
-        lookY * lookDistance +
-        breathing,
+        Math.sin(pitch),
 
-        camera.position.z +
-        lookZ * lookDistance
+        -Math.cos(yaw) *
+        Math.cos(pitch)
     );
 
 
-    camera.lookAt(target);
+    const target =
+    new THREE.Vector3();
+
+    target.copy(
+        camera.position
+    );
+
+    target.add(
+        lookDirection
+    );
+
+
+    camera.lookAt(
+        target
+    );
 }
 
 
 // =====================================================
-// АНИМАЦИЯ
+// ЦИКЛ
 // =====================================================
 
 function animate() {
@@ -907,13 +1739,20 @@ function animate() {
     );
 
 
-    updateCamera();
+    const moving =
+    movePlayer();
+
+
+    updateCamera(
+        moving
+    );
 
 
     renderer.render(
         scene,
         camera
     );
+
 }
 
 
@@ -932,7 +1771,9 @@ window.addEventListener(
         window.innerWidth /
         window.innerHeight;
 
+
         camera.updateProjectionMatrix();
+
 
         renderer.setSize(
             window.innerWidth,
@@ -942,7 +1783,24 @@ window.addEventListener(
     }
 );
 
+
+// =====================================================
+// УБИРАЕМ ПОДСКАЗКУ
+// =====================================================
+
+setTimeout(
+    () => {
+
+        document.getElementById(
+            "hint"
+        ).style.opacity = "0";
+
+    },
+    5000
+);
+
 </script>
 
 </body>
+
 </html>
