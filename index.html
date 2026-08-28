@@ -11,7 +11,7 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>Alicia AI — World</title>
+<title>Alicia AI — Apartment</title>
 
 <style>
 
@@ -24,7 +24,7 @@ html, body {
 
     overflow: hidden;
 
-    background: #15191c;
+    background: #15181b;
 
     touch-action: none;
 
@@ -43,31 +43,35 @@ canvas {
 }
 
 
-/* =========================
+/* ==============================
    ДЖОЙСТИК
-========================= */
+============================== */
 
 #joystick {
 
     position: fixed;
 
-    left: 35px;
-    bottom: 45px;
+    left: 32px;
 
-    width: 120px;
-    height: 120px;
+    bottom: 38px;
+
+    width: 125px;
+
+    height: 125px;
 
     border-radius: 50%;
 
     background:
-    rgba(255,255,255,0.10);
+    rgba(255,255,255,0.08);
 
     border:
-    2px solid rgba(255,255,255,0.20);
+    2px solid
+    rgba(255,255,255,0.18);
 
-    box-sizing: border-box;
+    backdrop-filter:
+    blur(5px);
 
-    z-index: 10;
+    z-index: 20;
 
     touch-action: none;
 }
@@ -77,40 +81,44 @@ canvas {
 
     position: absolute;
 
-    left: 35px;
-    top: 35px;
+    left: 36px;
 
-    width: 50px;
-    height: 50px;
+    top: 36px;
+
+    width: 52px;
+
+    height: 52px;
 
     border-radius: 50%;
 
     background:
-    rgba(255,255,255,0.35);
+    rgba(255,255,255,0.30);
 
     border:
-    2px solid rgba(255,255,255,0.45);
+    2px solid
+    rgba(255,255,255,0.40);
 
     box-sizing: border-box;
 }
 
 
-/* =========================
+/* ==============================
    ПОДСКАЗКА
-========================= */
+============================== */
 
 #hint {
 
     position: fixed;
 
-    top: 20px;
+    top: 18px;
+
     left: 50%;
 
     transform:
     translateX(-50%);
 
     padding:
-    9px 15px;
+    9px 16px;
 
     color: white;
 
@@ -122,14 +130,19 @@ canvas {
     background:
     rgba(0,0,0,0.35);
 
-    border-radius: 18px;
+    border-radius: 20px;
 
-    z-index: 10;
+    backdrop-filter:
+    blur(5px);
+
+    z-index: 20;
 
     pointer-events: none;
 
+    opacity: 0.85;
+
     transition:
-    opacity 1s;
+    opacity 2s;
 }
 
 </style>
@@ -142,7 +155,7 @@ canvas {
 
 <div id="hint">
 
-Левая сторона — движение • Правая — обзор
+🕹️ движение • 👆 обзор
 
 </div>
 
@@ -161,9 +174,9 @@ import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
 
-// =====================================================
+// ============================================================
 // СЦЕНА
-// =====================================================
+// ============================================================
 
 const scene =
 new THREE.Scene();
@@ -171,26 +184,26 @@ new THREE.Scene();
 
 scene.background =
 new THREE.Color(
-    0x20262b
+    0x20252b
 );
 
 
-// =====================================================
-// РАЗМЕР МИРА
-// =====================================================
+// ============================================================
+// РАЗМЕР КВАРТИРЫ
+// ============================================================
 
-const ROOM_WIDTH = 40;
+const W = 34;
 
-const ROOM_DEPTH = 24;
+const D = 24;
 
-const ROOM_HEIGHT = 6;
+const H = 5.5;
 
-const WALL = 0.25;
+const WALL = 0.22;
 
 
-// =====================================================
+// ============================================================
 // КАМЕРА
-// =====================================================
+// ============================================================
 
 const camera =
 new THREE.PerspectiveCamera(
@@ -202,23 +215,20 @@ new THREE.PerspectiveCamera(
 
     0.05,
 
-    150
+    100
 );
 
 
 camera.position.set(
-
     0,
-
-    2.0,
-
+    2.05,
     7
 );
 
 
-// =====================================================
+// ============================================================
 // РЕНДЕР
-// =====================================================
+// ============================================================
 
 const renderer =
 new THREE.WebGLRenderer({
@@ -242,7 +252,7 @@ renderer.setPixelRatio(
 
     Math.min(
         window.devicePixelRatio,
-        1.7
+        1.6
     )
 );
 
@@ -255,33 +265,37 @@ renderer.shadowMap.type =
 THREE.PCFSoftShadowMap;
 
 
+renderer.outputColorSpace =
+THREE.SRGBColorSpace;
+
+
 document.body.appendChild(
     renderer.domElement
 );
 
 
-// =====================================================
-// ПРОЦЕДУРНАЯ ТЕКСТУРА ДЕРЕВА
-// =====================================================
+// ============================================================
+// ТЕКСТУРА ДЕРЕВА
+// ============================================================
 
-function createWoodTexture() {
+function woodTexture() {
 
-    const canvas =
+    const c =
     document.createElement(
         "canvas"
     );
 
-    canvas.width = 512;
+    c.width = 512;
 
-    canvas.height = 512;
+    c.height = 512;
 
 
     const ctx =
-    canvas.getContext("2d");
+    c.getContext("2d");
 
 
     ctx.fillStyle =
-    "#70462e";
+    "#765038";
 
     ctx.fillRect(
         0,
@@ -291,33 +305,30 @@ function createWoodTexture() {
     );
 
 
-    // деревянные полосы
-
     for (
         let y = 0;
         y < 512;
-        y += 32
+        y += 38
     ) {
 
         ctx.fillStyle =
-        y % 64 === 0
-        ? "#815537"
-        : "#674129";
+        y % 76 === 0
+        ? "#835b3f"
+        : "#69452f";
+
 
         ctx.fillRect(
             0,
             y,
             512,
-            28
+            34
         );
     }
 
 
-    // волокна
-
     for (
         let i = 0;
-        i < 120;
+        i < 180;
         i++
     ) {
 
@@ -327,17 +338,11 @@ function createWoodTexture() {
         const x =
         Math.random() * 512;
 
-        const length =
-        20 +
-        Math.random() * 100;
-
-
         ctx.strokeStyle =
-        "rgba(45,25,15,0.25)";
+        "rgba(45,25,15,0.22)";
 
         ctx.lineWidth =
-        1 +
-        Math.random() * 2;
+        Math.random() * 2 + 0.5;
 
 
         ctx.beginPath();
@@ -348,8 +353,12 @@ function createWoodTexture() {
         );
 
         ctx.lineTo(
-            x + length,
-            y + (Math.random()-0.5)*8
+
+            x +
+            Math.random() * 100,
+
+            y +
+            (Math.random() - 0.5) * 10
         );
 
         ctx.stroke();
@@ -357,9 +366,7 @@ function createWoodTexture() {
 
 
     const texture =
-    new THREE.CanvasTexture(
-        canvas
-    );
+    new THREE.CanvasTexture(c);
 
 
     texture.wrapS =
@@ -370,8 +377,8 @@ function createWoodTexture() {
 
 
     texture.repeat.set(
-        4,
-        2
+        5,
+        3
     );
 
 
@@ -379,24 +386,24 @@ function createWoodTexture() {
 }
 
 
-// =====================================================
+// ============================================================
 // ТЕКСТУРА ПОЛА
-// =====================================================
+// ============================================================
 
-function createFloorTexture() {
+function floorTexture() {
 
-    const canvas =
+    const c =
     document.createElement(
         "canvas"
     );
 
-    canvas.width = 512;
+    c.width = 512;
 
-    canvas.height = 512;
+    c.height = 512;
 
 
     const ctx =
-    canvas.getContext("2d");
+    c.getContext("2d");
 
 
     ctx.fillStyle =
@@ -410,8 +417,6 @@ function createFloorTexture() {
     );
 
 
-    // доски
-
     for (
         let x = 0;
         x < 512;
@@ -421,22 +426,21 @@ function createFloorTexture() {
         ctx.fillStyle =
         x % 128 === 0
         ? "#493126"
-        : "#34241d";
+        : "#34231c";
 
 
         ctx.fillRect(
             x,
             0,
-            58,
+            60,
             512
         );
     }
 
 
-    // линии досок
-
     ctx.strokeStyle =
-    "rgba(15,10,7,0.5)";
+    "rgba(10,7,5,0.45)";
+
 
     ctx.lineWidth = 2;
 
@@ -464,9 +468,7 @@ function createFloorTexture() {
 
 
     const texture =
-    new THREE.CanvasTexture(
-        canvas
-    );
+    new THREE.CanvasTexture(c);
 
 
     texture.wrapS =
@@ -478,7 +480,7 @@ function createFloorTexture() {
 
     texture.repeat.set(
         8,
-        5
+        6
     );
 
 
@@ -486,37 +488,33 @@ function createFloorTexture() {
 }
 
 
-// =====================================================
+const woodMap =
+woodTexture();
+
+
+const floorMap =
+floorTexture();
+
+
+// ============================================================
 // МАТЕРИАЛЫ
-// =====================================================
+// ============================================================
 
-const woodTexture =
-createWoodTexture();
-
-
-const floorTexture =
-createFloorTexture();
-
-
-const wallMaterial =
+const wood =
 new THREE.MeshStandardMaterial({
 
-    map:
-    woodTexture,
+    map: woodMap,
 
-    roughness:
-    0.85
+    roughness: 0.82
 });
 
 
-const floorMaterial =
+const floorMat =
 new THREE.MeshStandardMaterial({
 
-    map:
-    floorTexture,
+    map: floorMap,
 
-    roughness:
-    0.95
+    roughness: 0.92
 });
 
 
@@ -524,10 +522,10 @@ const darkWood =
 new THREE.MeshStandardMaterial({
 
     color:
-    0x40281d,
+    0x432c20,
 
     roughness:
-    0.9
+    0.85
 });
 
 
@@ -535,332 +533,67 @@ const fabric =
 new THREE.MeshStandardMaterial({
 
     color:
-    0x57494a,
+    0x62545a,
 
     roughness:
     1
 });
 
 
-// =====================================================
-// ПОЛ
-// =====================================================
-
-const floor =
-new THREE.Mesh(
-
-    new THREE.BoxGeometry(
-
-        ROOM_WIDTH,
-
-        0.2,
-
-        ROOM_DEPTH
-    ),
-
-    floorMaterial
-);
-
-
-floor.position.y =
--0.1;
-
-
-floor.receiveShadow =
-true;
-
-
-scene.add(
-    floor
-);
-
-
-// =====================================================
-// ПОТОЛОК
-// =====================================================
-
-const ceiling =
-new THREE.Mesh(
-
-    new THREE.BoxGeometry(
-
-        ROOM_WIDTH,
-
-        0.2,
-
-        ROOM_DEPTH
-    ),
-
-    darkWood
-);
-
-
-ceiling.position.y =
-ROOM_HEIGHT;
-
-
-scene.add(
-    ceiling
-);
-
-
-// =====================================================
-// СТЕНЫ
-// =====================================================
-
-function createWall(
-
-    width,
-    height,
-    depth,
-    x,
-    y,
-    z
-
-) {
-
-    const wall =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            width,
-            height,
-            depth
-        ),
-
-        wallMaterial
-    );
-
-
-    wall.position.set(
-        x,
-        y,
-        z
-    );
-
-
-    wall.receiveShadow =
-    true;
-
-
-    scene.add(
-        wall
-    );
-
-
-    return wall;
-}
-
-
-// задняя
-
-createWall(
-
-    ROOM_WIDTH,
-
-    ROOM_HEIGHT,
-
-    WALL,
-
-    0,
-
-    ROOM_HEIGHT / 2,
-
-    -ROOM_DEPTH / 2
-);
-
-
-// передняя
-
-createWall(
-
-    ROOM_WIDTH,
-
-    ROOM_HEIGHT,
-
-    WALL,
-
-    0,
-
-    ROOM_HEIGHT / 2,
-
-    ROOM_DEPTH / 2
-);
-
-
-// левая
-
-createWall(
-
-    WALL,
-
-    ROOM_HEIGHT,
-
-    ROOM_DEPTH,
-
-    -ROOM_WIDTH / 2,
-
-    ROOM_HEIGHT / 2,
-
-    0
-);
-
-
-// правая
-
-createWall(
-
-    WALL,
-
-    ROOM_HEIGHT,
-
-    ROOM_DEPTH,
-
-    ROOM_WIDTH / 2,
-
-    ROOM_HEIGHT / 2,
-
-    0
-);
-
-
-// =====================================================
-// ОКНО
-// =====================================================
-
-const glass =
-new THREE.MeshBasicMaterial({
+const cream =
+new THREE.MeshStandardMaterial({
 
     color:
-    0x79b9d8,
+    0xb9a58e,
+
+    roughness:
+    0.95
+});
+
+
+const metal =
+new THREE.MeshStandardMaterial({
+
+    color:
+    0x777777,
+
+    metalness:
+    0.55,
+
+    roughness:
+    0.35
+});
+
+
+const glass =
+new THREE.MeshPhysicalMaterial({
+
+    color:
+    0x86c9e8,
 
     transparent:
     true,
 
     opacity:
-    0.85
+    0.55,
+
+    roughness:
+    0.08,
+
+    metalness:
+    0.05
 });
 
 
-const windowObject =
-new THREE.Mesh(
+// ============================================================
+// СОЗДАНИЕ КУБА
+// ============================================================
 
-    new THREE.BoxGeometry(
-        7,
-        3.5,
-        0.08
-    ),
+function cube(
 
-    glass
-);
-
-
-windowObject.position.set(
-
-    -8,
-
-    3.4,
-
-    -11.8
-);
-
-
-scene.add(
-    windowObject
-);
-
-
-// рама
-
-function frame(
-
-    width,
-    height,
-    x,
-    y
-) {
-
-    const object =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-
-            width,
-
-            height,
-
-            0.18
-        ),
-
-        darkWood
-    );
-
-
-    object.position.set(
-
-        x,
-
-        y,
-
-        -11.65
-    );
-
-
-    scene.add(
-        object
-    );
-}
-
-
-frame(
-    7.4,
-    0.2,
-    -8,
-    5.2
-);
-
-
-frame(
-    7.4,
-    0.2,
-    -8,
-    1.6
-);
-
-
-frame(
-    0.2,
-    3.6,
-    -11.6,
-    3.4
-);
-
-
-frame(
-    0.2,
-    3.6,
-    -4.4,
-    3.4
-);
-
-
-frame(
-    0.15,
-    3.5,
-    -8,
-    3.4
-);
-
-
-// =====================================================
-// ФУНКЦИЯ КУБА
-// =====================================================
-
-function box(
-
-    width,
-    height,
-    depth,
+    w,
+    h,
+    d,
     x,
     y,
     z,
@@ -872,10 +605,9 @@ function box(
     new THREE.Mesh(
 
         new THREE.BoxGeometry(
-
-            width,
-            height,
-            depth
+            w,
+            h,
+            d
         ),
 
         material
@@ -906,94 +638,324 @@ function box(
 }
 
 
-// =====================================================
-// КРОВАТЬ
-// =====================================================
+// ============================================================
+// ПОЛ
+// ============================================================
 
-box(
+cube(
 
-    4.5,
-    0.5,
-    7,
+    W,
+    0.2,
+    D,
 
-    -12,
+    0,
+    -0.1,
+    0,
 
-    0.65,
+    floorMat
+);
 
-    2,
+
+// ============================================================
+// ПОТОЛОК
+// ============================================================
+
+cube(
+
+    W,
+    0.2,
+    D,
+
+    0,
+    H,
+    0,
 
     darkWood
 );
 
 
-box(
+// ============================================================
+// НАРУЖНЫЕ СТЕНЫ
+// ============================================================
 
-    4.2,
-    0.45,
-    6.7,
+cube(
 
-    -12,
+    W,
+    H,
+    WALL,
 
-    1.05,
+    0,
+    H/2,
+    -D/2,
 
-    2,
+    wood
+);
+
+
+cube(
+
+    W,
+    H,
+    WALL,
+
+    0,
+    H/2,
+    D/2,
+
+    wood
+);
+
+
+cube(
+
+    WALL,
+    H,
+    D,
+
+    -W/2,
+    H/2,
+    0,
+
+    wood
+);
+
+
+cube(
+
+    WALL,
+    H,
+    D,
+
+    W/2,
+    H/2,
+    0,
+
+    wood
+);
+
+
+// ============================================================
+// ПЕРЕГОРОДКА СПАЛЬНИ
+// ============================================================
+
+cube(
+
+    0.18,
+    H,
+    8,
+
+    -4,
+    H/2,
+    -8,
+
+    wood
+);
+
+
+// ============================================================
+// ПЕРЕГОРОДКА КУХНИ
+// ============================================================
+
+cube(
+
+    0.18,
+    H,
+    6,
+
+    10,
+    H/2,
+    -8,
+
+    wood
+);
+
+
+// ============================================================
+// ОКНА
+// ============================================================
+
+function createWindow(
+    x,
+    y,
+    z,
+    width,
+    height
+) {
+
+    cube(
+
+        width,
+        height,
+        0.08,
+
+        x,
+        y,
+        z,
+
+        glass
+    );
+
+
+    cube(
+
+        width + 0.3,
+        0.16,
+        0.18,
+
+        x,
+        y + height/2,
+        z + 0.08,
+
+        darkWood
+    );
+
+
+    cube(
+
+        width + 0.3,
+        0.16,
+        0.18,
+
+        x,
+        y - height/2,
+        z + 0.08,
+
+        darkWood
+    );
+
+
+    cube(
+
+        0.16,
+        height,
+        0.18,
+
+        x - width/2,
+        y,
+        z + 0.08,
+
+        darkWood
+    );
+
+
+    cube(
+
+        0.16,
+        height,
+        0.18,
+
+        x + width/2,
+        y,
+        z + 0.08,
+
+        darkWood
+    );
+}
+
+
+createWindow(
+    6,
+    3.2,
+    -11.8,
+    8,
+    3.4
+);
+
+
+createWindow(
+    -10,
+    3.2,
+    -11.8,
+    7,
+    3.4
+);
+
+
+// ============================================================
+// ДИВАН
+// ============================================================
+
+cube(
+
+    6,
+    0.55,
+    2.2,
+
+    3,
+    0.7,
+    5,
 
     fabric
 );
 
 
-// изголовье
+cube(
 
-box(
+    6,
+    2.2,
+    0.35,
 
-    4.5,
-    2.5,
-    0.3,
+    3,
+    1.75,
+    6,
 
-    -12,
-
-    1.7,
-
-    -1.25,
-
-    darkWood
+    fabric
 );
 
 
-// =====================================================
-// СТОЛ
-// =====================================================
+for (
+    const x of [0.7, 5.3]
+) {
 
-box(
+    cube(
 
-    5,
-    0.3,
-    2,
+        0.35,
+        0.9,
+        2,
 
-    7,
-    1.4,
-    -5,
+        x,
+        1.1,
+        5,
+
+        darkWood
+    );
+}
+
+
+// ============================================================
+// ЖУРНАЛЬНЫЙ СТОЛ
+// ============================================================
+
+cube(
+
+    3,
+    0.2,
+    1.5,
+
+    3,
+    0.9,
+    1.5,
 
     darkWood
 );
 
 
 for (
-    const x of [5, 9]
+    const x of [1.8, 4.2]
 ) {
 
     for (
-        const z of [-5.7, -4.3]
+        const z of [1, 2]
     ) {
 
-        box(
+        cube(
 
-            0.2,
-            1.4,
-            0.2,
+            0.12,
+            0.9,
+            0.12,
 
             x,
-            0.7,
+            0.45,
             z,
 
             darkWood
@@ -1002,73 +964,208 @@ for (
 }
 
 
-// =====================================================
-// КРЕСЛО
-// =====================================================
+// ============================================================
+// КРОВАТЬ
+// ============================================================
 
-box(
+cube(
 
-    2,
-    0.3,
-    2,
-
+    5,
+    0.5,
     7,
-    0.9,
-    -1,
 
-    fabric
-);
-
-
-box(
-
-    2,
-    2.5,
-    0.3,
-
-    7,
-    2.0,
-    0,
-
-    fabric
-);
-
-
-// =====================================================
-// КУХОННАЯ ЗОНА
-// =====================================================
-
-box(
-
-    7,
-    1.2,
-    1.2,
-
-    12,
-    0.6,
-    -8,
+    -10,
+    0.55,
+    -5,
 
     darkWood
 );
 
 
-box(
+cube(
+
+    4.7,
+    0.45,
+    6.6,
+
+    -10,
+    1,
+    -5,
+
+    cream
+);
+
+
+// подушки
+
+cube(
+
+    1.8,
+    0.3,
+    1.3,
+
+    -11.3,
+    1.35,
+    -7.2,
+
+    new THREE.MeshStandardMaterial({
+        color: 0xd4c7bb,
+        roughness: 1
+    })
+);
+
+
+cube(
+
+    1.8,
+    0.3,
+    1.3,
+
+    -8.7,
+    1.35,
+    -7.2,
+
+    new THREE.MeshStandardMaterial({
+        color: 0xd4c7bb,
+        roughness: 1
+    })
+);
+
+
+// изголовье
+
+cube(
+
+    5,
+    2.7,
+    0.3,
+
+    -10,
+    1.65,
+    -1.6,
+
+    darkWood
+);
+
+
+// ============================================================
+// РАБОЧИЙ СТОЛ
+// ============================================================
+
+cube(
+
+    5,
+    0.25,
+    1.8,
+
+    -1,
+    1.35,
+    -8.8,
+
+    darkWood
+);
+
+
+// ножки
+
+for (
+    const x of [-3, 1]
+) {
+
+    cube(
+
+        0.18,
+        1.35,
+        0.18,
+
+        x,
+        0.65,
+        -9.4,
+
+        darkWood
+    );
+
+
+    cube(
+
+        0.18,
+        1.35,
+        0.18,
+
+        x,
+        0.65,
+        -8.2,
+
+        darkWood
+    );
+}
+
+
+// ============================================================
+// КРЕСЛО
+// ============================================================
+
+cube(
+
+    2,
+    0.3,
+    2,
+
+    -1,
+    0.8,
+    -6.2,
+
+    fabric
+);
+
+
+cube(
+
+    2,
+    2.3,
+    0.3,
+
+    -1,
+    1.9,
+    -5.35,
+
+    fabric
+);
+
+
+// ============================================================
+// КУХНЯ
+// ============================================================
+
+cube(
+
+    7,
+    1.2,
+    1.3,
+
+    13,
+    0.6,
+    -8.8,
+
+    darkWood
+);
+
+
+cube(
 
     7,
     0.25,
-    1.3,
+    1.45,
 
-    12,
+    13,
     1.3,
-    -8,
+    -8.8,
 
-    woodTexture ?
-    wallMaterial :
-    darkWood
+    cream
 );
 
 
-// шкафы
+// шкафчики
 
 for (
     let i = 0;
@@ -1076,80 +1173,235 @@ for (
     i++
 ) {
 
-    box(
+    cube(
 
-        1.5,
+        1.45,
         2.2,
-        0.7,
+        0.75,
 
-        9.5 + i * 1.7,
+        10.5 +
+        i * 1.7,
 
         2.5,
-        -8,
+        -9,
 
         darkWood
     );
 }
 
 
-// =====================================================
-// КОВЁР
-// =====================================================
+// холодильник
 
-box(
+cube(
 
-    8,
-    0.04,
-    5,
+    1.8,
+    4,
+    1.5,
 
-    -1,
-    0.03,
-    3,
+    16,
+    2,
+    -5,
+
+    metal
+);
+
+
+// ============================================================
+// КНИЖНЫЙ ШКАФ
+// ============================================================
+
+cube(
+
+    3.8,
+    3.8,
+    0.5,
+
+    6,
+    1.9,
+    -11.1,
+
+    darkWood
+);
+
+
+for (
+    let i = 0;
+    i < 4;
+    i++
+) {
+
+    cube(
+
+        3.4,
+        0.12,
+        0.65,
+
+        6,
+        0.8 +
+        i * 0.85,
+
+        -10.75,
+
+        cream
+    );
+}
+
+
+// ============================================================
+// КНИГИ
+// ============================================================
+
+const bookMaterials = [
 
     new THREE.MeshStandardMaterial({
+        color: 0x6b3540
+    }),
 
-        color:
-        0x55413b,
+    new THREE.MeshStandardMaterial({
+        color: 0x304d57
+    }),
 
-        roughness:
-        1
+    new THREE.MeshStandardMaterial({
+        color: 0x7b6542
+    }),
+
+    new THREE.MeshStandardMaterial({
+        color: 0x4e3d62
+    })
+];
+
+
+for (
+    let shelf = 0;
+    shelf < 4;
+    shelf++
+) {
+
+    for (
+        let i = 0;
+        i < 6;
+        i++
+    ) {
+
+        const height =
+        0.35 +
+        Math.random() * 0.25;
+
+
+        cube(
+
+            0.25,
+            height,
+            0.45,
+
+            4.6 +
+            i * 0.55,
+
+            0.95 +
+            shelf * 0.85,
+
+            -10.35,
+
+            bookMaterials[
+                Math.floor(
+                    Math.random() *
+                    bookMaterials.length
+                )
+            ]
+        );
+    }
+}
+
+
+// ============================================================
+// РАСТЕНИЕ
+// ============================================================
+
+const pot =
+new THREE.Mesh(
+
+    new THREE.CylinderGeometry(
+        0.5,
+        0.4,
+        0.7,
+        16
+    ),
+
+    darkWood
+);
+
+
+pot.position.set(
+    13,
+    0.35,
+    4
+);
+
+
+scene.add(pot);
+
+
+const leaves =
+new THREE.Mesh(
+
+    new THREE.SphereGeometry(
+        1.2,
+        12,
+        12
+    ),
+
+    new THREE.MeshStandardMaterial({
+        color: 0x466b4a,
+        roughness: 1
     })
 );
 
 
-// =====================================================
-// СВЕТ
-// =====================================================
+leaves.position.set(
+    13,
+    1.7,
+    4
+);
+
+
+scene.add(leaves);
+
+
+// ============================================================
+// ОСВЕЩЕНИЕ
+// ============================================================
 
 scene.add(
 
-    new THREE.AmbientLight(
+    new THREE.HemisphereLight(
 
-        0xffffff,
+        0xbfdcff,
 
-        0.55
+        0x3b2418,
+
+        0.65
     )
 );
 
 
+// главный свет
+
 const mainLight =
 new THREE.PointLight(
 
-    0xffd8a5,
+    0xffd8ad,
 
-    40,
+    45,
 
-    25
+    24
 );
 
 
 mainLight.position.set(
 
-    0,
-
-    5.3,
-
-    0
+    3,
+    4.8,
+    2
 );
 
 
@@ -1157,8 +1409,67 @@ mainLight.castShadow =
 true;
 
 
+mainLight.shadow.mapSize.width =
+1024;
+
+mainLight.shadow.mapSize.height =
+1024;
+
+
 scene.add(
     mainLight
+);
+
+
+// второй свет
+
+const warmLight =
+new THREE.PointLight(
+
+    0xffb477,
+
+    22,
+
+    15
+);
+
+
+warmLight.position.set(
+
+    -10,
+    3,
+    -4
+);
+
+
+scene.add(
+    warmLight
+);
+
+
+// свет кухни
+
+const kitchenLight =
+new THREE.PointLight(
+
+    0xffe0b0,
+
+    18,
+
+    12
+);
+
+
+kitchenLight.position.set(
+
+    13,
+    4,
+    -7
+);
+
+
+scene.add(
+    kitchenLight
 );
 
 
@@ -1167,21 +1478,19 @@ scene.add(
 const windowLight =
 new THREE.PointLight(
 
-    0x9edcff,
+    0x8bd3ff,
 
-    25,
+    30,
 
-    18
+    20
 );
 
 
 windowLight.position.set(
 
-    -8,
-
+    6,
     3,
-
-    -8
+    -10
 );
 
 
@@ -1190,9 +1499,9 @@ scene.add(
 );
 
 
-// =====================================================
-// УПРАВЛЕНИЕ
-// =====================================================
+// ============================================================
+// ДВИЖЕНИЕ
+// ============================================================
 
 let yaw = 0;
 
@@ -1204,19 +1513,26 @@ let targetYaw = 0;
 let targetPitch = 0;
 
 
-// скорость
-
 let velocityX = 0;
 
 let velocityZ = 0;
 
 
-const moveSpeed = 0.075;
+const acceleration =
+0.018;
 
 
-// =====================================================
+const friction =
+0.82;
+
+
+const maxSpeed =
+0.105;
+
+
+// ============================================================
 // ДЖОЙСТИК
-// =====================================================
+// ============================================================
 
 const joystick =
 document.getElementById(
@@ -1234,96 +1550,10 @@ let joyX = 0;
 
 let joyY = 0;
 
-let joystickTouch = null;
+let joystickID = null;
 
 
-joystick.addEventListener(
-
-    "touchstart",
-
-    (event) => {
-
-        event.preventDefault();
-
-        const touch =
-        event.changedTouches[0];
-
-        joystickTouch =
-        touch.identifier;
-
-        updateJoystick(
-            touch
-        );
-    },
-
-    { passive: false }
-);
-
-
-joystick.addEventListener(
-
-    "touchmove",
-
-    (event) => {
-
-        event.preventDefault();
-
-
-        for (
-            const touch
-            of event.changedTouches
-        ) {
-
-            if (
-                touch.identifier ===
-                joystickTouch
-            ) {
-
-                updateJoystick(
-                    touch
-                );
-            }
-        }
-
-    },
-
-    { passive: false }
-);
-
-
-joystick.addEventListener(
-
-    "touchend",
-
-    (event) => {
-
-        for (
-            const touch
-            of event.changedTouches
-        ) {
-
-            if (
-                touch.identifier ===
-                joystickTouch
-            ) {
-
-                joyX = 0;
-
-                joyY = 0;
-
-                stick.style.transform =
-                "translate(0px,0px)";
-
-                joystickTouch =
-                null;
-            }
-        }
-
-    }
-);
-
-
-function updateJoystick(
+function joystickMove(
     touch
 ) {
 
@@ -1333,36 +1563,40 @@ function updateJoystick(
 
     let x =
     touch.clientX -
-    (rect.left +
-    rect.width / 2);
+    (
+        rect.left +
+        rect.width / 2
+    );
 
 
     let y =
     touch.clientY -
-    (rect.top +
-    rect.height / 2);
+    (
+        rect.top +
+        rect.height / 2
+    );
 
 
     const max =
-    42;
+    43;
 
 
-    const distance =
+    const length =
     Math.sqrt(
         x*x + y*y
     );
 
 
     if (
-        distance > max
+        length > max
     ) {
 
         x =
-        x / distance *
+        x / length *
         max;
 
         y =
-        y / distance *
+        y / length *
         max;
     }
 
@@ -1375,147 +1609,202 @@ function updateJoystick(
 
 
     stick.style.transform =
-    `translate(${x}px, ${y}px)`;
+    `translate(${x}px,${y}px)`;
 }
 
 
-// =====================================================
-// ОБЗОР КАМЕРЫ
-// =====================================================
-
-let lookTouch = null;
-
-let lastLookX = 0;
-
-let lastLookY = 0;
-
-
-renderer.domElement.addEventListener(
-
+joystick.addEventListener(
     "touchstart",
+    e => {
 
-    (event) => {
+        e.preventDefault();
 
-        if (
-            event.touches.length !== 1
-        )
-            return;
+        const t =
+        e.changedTouches[0];
 
+        joystickID =
+        t.identifier;
 
-        const touch =
-        event.touches[0];
-
-
-        // левая часть экрана
-        // принадлежит джойстику
-
-        if (
-            touch.clientX <
-            window.innerWidth * 0.35
-        )
-            return;
-
-
-        lookTouch =
-        touch.identifier;
-
-
-        lastLookX =
-        touch.clientX;
-
-        lastLookY =
-        touch.clientY;
-
+        joystickMove(t);
     },
-
-    { passive: false }
+    {passive:false}
 );
 
 
-renderer.domElement.addEventListener(
-
+joystick.addEventListener(
     "touchmove",
+    e => {
 
-    (event) => {
-
-        if (
-            event.touches.length !== 1
-        )
-            return;
-
+        e.preventDefault();
 
         for (
-            const touch
-            of event.changedTouches
+            const t
+            of e.changedTouches
         ) {
 
             if (
-                touch.identifier ===
-                lookTouch
+                t.identifier ===
+                joystickID
             ) {
 
-                const dx =
-                touch.clientX -
-                lastLookX;
-
-
-                const dy =
-                touch.clientY -
-                lastLookY;
-
-
-                targetYaw -=
-                dx * 0.004;
-
-
-                targetPitch -=
-                dy * 0.003;
-
-
-                targetPitch =
-                Math.max(
-
-                    -1.15,
-
-                    Math.min(
-                        1.15,
-                        targetPitch
-                    )
-                );
-
-
-                lastLookX =
-                touch.clientX;
-
-
-                lastLookY =
-                touch.clientY;
+                joystickMove(t);
             }
         }
-
     },
+    {passive:false}
+);
 
-    { passive: false }
+
+joystick.addEventListener(
+    "touchend",
+    e => {
+
+        for (
+            const t
+            of e.changedTouches
+        ) {
+
+            if (
+                t.identifier ===
+                joystickID
+            ) {
+
+                joystickID =
+                null;
+
+                joyX = 0;
+
+                joyY = 0;
+
+                stick.style.transform =
+                "translate(0,0)";
+            }
+        }
+    }
+);
+
+
+// ============================================================
+// ОБЗОР
+// ============================================================
+
+let lookID = null;
+
+let lastX = 0;
+
+let lastY = 0;
+
+
+renderer.domElement.addEventListener(
+    "touchstart",
+    e => {
+
+        if (
+            e.touches.length !== 1
+        )
+            return;
+
+
+        const t =
+        e.touches[0];
+
+
+        if (
+            t.clientX <
+            window.innerWidth * 0.38
+        )
+            return;
+
+
+        lookID =
+        t.identifier;
+
+
+        lastX =
+        t.clientX;
+
+        lastY =
+        t.clientY;
+    }
 );
 
 
 renderer.domElement.addEventListener(
+    "touchmove",
+    e => {
 
-    "touchend",
+        if (
+            e.touches.length !== 1
+        )
+            return;
 
-    (event) => {
 
         for (
-            const touch
-            of event.changedTouches
+            const t
+            of e.changedTouches
         ) {
 
             if (
-                touch.identifier ===
-                lookTouch
+                t.identifier !==
+                lookID
+            )
+                continue;
+
+
+            const dx =
+            t.clientX -
+            lastX;
+
+
+            const dy =
+            t.clientY -
+            lastY;
+
+
+            targetYaw -=
+            dx * 0.003;
+
+
+            targetPitch -=
+            dy * 0.0025;
+
+
+            targetPitch =
+            Math.max(
+                -1.1,
+                Math.min(
+                    1.1,
+                    targetPitch
+                )
+            );
+
+
+            lastX =
+            t.clientX;
+
+
+            lastY =
+            t.clientY;
+        }
+    }
+);
+
+
+renderer.domElement.addEventListener(
+    "touchend",
+    e => {
+
+        for (
+            const t
+            of e.changedTouches
+        ) {
+
+            if (
+                t.identifier ===
+                lookID
             ) {
 
-                lookTouch =
+                lookID =
                 null;
             }
         }
@@ -1523,14 +1812,11 @@ renderer.domElement.addEventListener(
 );
 
 
-// =====================================================
+// ============================================================
 // ДВИЖЕНИЕ
-// =====================================================
+// ============================================================
 
-function updateMovement() {
-
-
-    // направление взгляда
+function movement() {
 
     const forwardX =
     Math.sin(yaw);
@@ -1548,30 +1834,26 @@ function updateMovement() {
     Math.sin(yaw);
 
 
-    // желаемое движение
-
-    const desiredX =
+    const wantedX =
 
     (
         forwardX *
         (-joyY)
-
-    ) +
-
+    )
+    +
     (
         rightX *
         joyX
     );
 
 
-    const desiredZ =
+    const wantedZ =
 
     (
         forwardZ *
         (-joyY)
-
-    ) +
-
+    )
+    +
     (
         rightZ *
         joyX
@@ -1580,18 +1862,51 @@ function updateMovement() {
 
     velocityX +=
     (
-        desiredX *
-        moveSpeed -
-        velocityX
-    ) * 0.18;
+        wantedX *
+        acceleration
+    );
 
 
     velocityZ +=
     (
-        desiredZ *
-        moveSpeed -
+        wantedZ *
+        acceleration
+    );
+
+
+    velocityX *=
+    friction;
+
+
+    velocityZ *=
+    friction;
+
+
+    const speed =
+    Math.sqrt(
+        velocityX *
+        velocityX +
+
+        velocityZ *
         velocityZ
-    ) * 0.18;
+    );
+
+
+    if (
+        speed > maxSpeed
+    ) {
+
+        velocityX =
+        velocityX /
+        speed *
+        maxSpeed;
+
+
+        velocityZ =
+        velocityZ /
+        speed *
+        maxSpeed;
+    }
 
 
     camera.position.x +=
@@ -1602,47 +1917,38 @@ function updateMovement() {
     velocityZ;
 
 
-    // границы комнаты
+    // границы
 
-    const margin = 0.8;
+    const margin =
+    1;
 
 
     camera.position.x =
-    Math.max(
+    THREE.MathUtils.clamp(
 
-        -ROOM_WIDTH / 2 +
-        margin,
+        camera.position.x,
 
-        Math.min(
+        -W/2 + margin,
 
-            ROOM_WIDTH / 2 -
-            margin,
-
-            camera.position.x
-        )
+        W/2 - margin
     );
 
 
     camera.position.z =
-    Math.max(
+    THREE.MathUtils.clamp(
 
-        -ROOM_DEPTH / 2 +
-        margin,
+        camera.position.z,
 
-        Math.min(
+        -D/2 + margin,
 
-            ROOM_DEPTH / 2 -
-            margin,
-
-            camera.position.z
-        )
+        D/2 - margin
     );
 }
 
 
-// =====================================================
+// ============================================================
 // КАМЕРА
-// =====================================================
+// ============================================================
 
 let time = 0;
 
@@ -1656,40 +1962,52 @@ function updateCamera() {
     (
         targetYaw -
         yaw
-    ) * 0.12;
+    ) * 0.10;
 
 
     pitch +=
     (
         targetPitch -
         pitch
-    ) * 0.12;
+    ) * 0.10;
 
 
-    const moving =
-    Math.abs(velocityX) +
-    Math.abs(velocityZ) >
-    0.005;
+    const speed =
+    Math.sqrt(
+
+        velocityX *
+        velocityX +
+
+        velocityZ *
+        velocityZ
+    );
 
 
-    // покачивание при ходьбе
+    const walking =
+    speed > 0.008;
+
 
     let bob = 0;
 
 
-    if (moving) {
+    if (
+        walking
+    ) {
 
         bob =
         Math.sin(
-            time * 8
-        ) * 0.025;
+            time * 9
+        ) *
+        0.025 *
+        Math.min(
+            speed / maxSpeed,
+            1
+        );
     }
 
 
     camera.position.y =
-
     2.05 +
-
     bob;
 
 
@@ -1707,21 +2025,17 @@ function updateCamera() {
     Math.cos(pitch);
 
 
-    const distance =
-    10;
-
-
     const target =
     new THREE.Vector3(
 
         camera.position.x +
-        lookX * distance,
+        lookX * 10,
 
         camera.position.y +
-        lookY * distance,
+        lookY * 10,
 
         camera.position.z +
-        lookZ * distance
+        lookZ * 10
     );
 
 
@@ -1731,9 +2045,9 @@ function updateCamera() {
 }
 
 
-// =====================================================
+// ============================================================
 // АНИМАЦИЯ
-// =====================================================
+// ============================================================
 
 function animate() {
 
@@ -1742,7 +2056,7 @@ function animate() {
     );
 
 
-    updateMovement();
+    movement();
 
     updateCamera();
 
@@ -1757,9 +2071,9 @@ function animate() {
 animate();
 
 
-// =====================================================
+// ============================================================
 // RESIZE
-// =====================================================
+// ============================================================
 
 window.addEventListener(
 
@@ -1781,7 +2095,6 @@ window.addEventListener(
 
             window.innerHeight
         );
-
     }
 );
 
