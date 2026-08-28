@@ -1,27 +1,39 @@
 import * as THREE from
     "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
-import { createRoom } from "./room.js";
+import { createRoom }
+    from "./room.js";
+
+import { createPlayer }
+    from "./player.js";
+
+import { createControls }
+    from "./controls.js";
 
 
 // ==========================================
 // ALICIA AI
-// PROTOCOL 1
+// PROTOCOL 2
 // MAIN
 // ==========================================
 
 
-console.log("ALICIA AI: main.js запущен");
+console.log(
+    "ALICIA AI: Protocol 2"
+);
 
 
 // ==========================================
 // SCENE
 // ==========================================
 
-const scene = new THREE.Scene();
+const scene =
+    new THREE.Scene();
 
 scene.background =
-    new THREE.Color(0x101216);
+    new THREE.Color(
+        0x101216
+    );
 
 
 // ==========================================
@@ -37,12 +49,6 @@ const camera =
         1000
     );
 
-camera.position.set(
-    0,
-    1.7,
-    6
-);
-
 
 // ==========================================
 // RENDERER
@@ -53,10 +59,12 @@ const renderer =
         antialias: true
     });
 
+
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
+
 
 renderer.setPixelRatio(
     Math.min(
@@ -65,7 +73,10 @@ renderer.setPixelRatio(
     )
 );
 
-renderer.shadowMap.enabled = true;
+
+renderer.shadowMap.enabled =
+    true;
+
 
 document
     .getElementById("game")
@@ -85,7 +96,9 @@ const ambientLight =
         1.8
     );
 
-scene.add(ambientLight);
+scene.add(
+    ambientLight
+);
 
 
 const mainLight =
@@ -94,22 +107,51 @@ const mainLight =
         2
     );
 
+
 mainLight.position.set(
     5,
     8,
     4
 );
 
-mainLight.castShadow = true;
 
-scene.add(mainLight);
+mainLight.castShadow =
+    true;
+
+
+scene.add(
+    mainLight
+);
 
 
 // ==========================================
 // ROOM
 // ==========================================
 
-createRoom(scene);
+createRoom(
+    scene
+);
+
+
+// ==========================================
+// PLAYER
+// ==========================================
+
+const player =
+    createPlayer(
+        camera
+    );
+
+
+// ==========================================
+// CONTROLS
+// ==========================================
+
+const controls =
+    createControls(
+        player,
+        camera
+    );
 
 
 // ==========================================
@@ -126,6 +168,7 @@ window.addEventListener(
 
         camera.updateProjectionMatrix();
 
+
         renderer.setSize(
             window.innerWidth,
             window.innerHeight
@@ -136,26 +179,59 @@ window.addEventListener(
 
 
 // ==========================================
-// RENDER LOOP
+// GAME LOOP
 // ==========================================
 
-function animate() {
+let previousTime =
+    performance.now();
+
+
+function animate(
+    currentTime
+) {
 
     requestAnimationFrame(
         animate
     );
 
+
+    const delta =
+        Math.min(
+            (currentTime -
+                previousTime) /
+            1000,
+            0.05
+        );
+
+
+    previousTime =
+        currentTime;
+
+
+    // Обновляем управление
+
+    controls.update(
+        delta
+    );
+
+
+    // Рендер
+
     renderer.render(
         scene,
         camera
     );
+
 }
 
-animate();
+
+requestAnimationFrame(
+    animate
+);
 
 
 // ==========================================
-// LOADING SCREEN
+// LOADING
 // ==========================================
 
 const loading =
@@ -163,15 +239,21 @@ const loading =
         "loading"
     );
 
-loading.style.opacity = "0";
 
-setTimeout(() => {
+if (loading) {
 
-    loading.remove();
+    loading.style.opacity =
+        "0";
 
-}, 500);
+
+    setTimeout(
+        () => loading.remove(),
+        500
+    );
+
+}
 
 
 console.log(
-    "ALICIA AI: комната загружена"
+    "ALICIA AI: Protocol 2 готов"
 );
