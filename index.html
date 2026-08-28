@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <title>Alicia AI — Room</title>
+<title>Alicia AI</title>
 
-  <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #111;
-      touch-action: none;
-    }
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #20252a;
+    touch-action: none;
+}
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+canvas {
+    display: block;
+}
+</style>
 </head>
 
 <body>
@@ -31,299 +30,381 @@
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
-import { OrbitControls } from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
 
-
-// =============================
+// =========================
 // СЦЕНА
-// =============================
+// =========================
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x20252a);
+scene.background =
+new THREE.Color(0x20252a);
 
 
-// =============================
+// =========================
 // КАМЕРА
-// =============================
+// =========================
 
-const camera = new THREE.PerspectiveCamera(
-  70,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
+const camera =
+new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
 );
 
 camera.position.set(0, 2.2, 7);
 
 
-// =============================
-// УПРАВЛЕНИЕ КАМЕРОЙ
-// =============================
-
-const controls = new OrbitControls(
-  camera,
-  document.body
-);
-
-controls.target.set(0, 1.5, 0);
-
-controls.enableDamping = true;
-controls.dampingFactor = 0.06;
-
-controls.minDistance = 2;
-controls.maxDistance = 12;
-
-controls.maxPolarAngle = Math.PI / 2.05;
-
-controls.update();
-
-
-// =============================
+// =========================
 // РЕНДЕР
-// =============================
+// =========================
 
-const renderer = new THREE.WebGLRenderer({
-  antialias: true
+const renderer =
+new THREE.WebGLRenderer({
+    antialias: true
 });
 
 renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
+    window.innerWidth,
+    window.innerHeight
 );
 
 renderer.setPixelRatio(
-  Math.min(window.devicePixelRatio, 2)
+    Math.min(window.devicePixelRatio, 2)
 );
 
-renderer.shadowMap.enabled = true;
-
-document.body.appendChild(renderer.domElement);
-
-
-// =============================
-// ОСВЕЩЕНИЕ
-// =============================
-
-const ambientLight = new THREE.AmbientLight(
-  0xffffff,
-  1.4
+document.body.appendChild(
+    renderer.domElement
 );
 
-scene.add(ambientLight);
 
+// =========================
+// СВЕТ
+// =========================
 
-const lamp = new THREE.PointLight(
-  0xffd7a0,
-  25,
-  15
+scene.add(
+    new THREE.AmbientLight(
+        0xffffff,
+        1.5
+    )
 );
 
-lamp.position.set(0, 3.5, 2);
+const light =
+new THREE.PointLight(
+    0xffd7a0,
+    25,
+    15
+);
 
-lamp.castShadow = true;
+light.position.set(0, 3.5, 2);
 
-scene.add(lamp);
+scene.add(light);
 
 
-// =============================
+// =========================
 // МАТЕРИАЛЫ
-// =============================
+// =========================
 
-const wood = new THREE.MeshStandardMaterial({
-  color: 0x70452c
+const wallMaterial =
+new THREE.MeshStandardMaterial({
+    color: 0x70452c
 });
 
-const floorMaterial = new THREE.MeshStandardMaterial({
-  color: 0x3d2920
+const floorMaterial =
+new THREE.MeshStandardMaterial({
+    color: 0x3d2920
 });
 
 
-// =============================
+// =========================
 // ПОЛ
-// =============================
+// =========================
 
-const floor = new THREE.Mesh(
-  new THREE.BoxGeometry(10, 0.2, 10),
-  floorMaterial
+const floor =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        10, 0.2, 10
+    ),
+    floorMaterial
 );
 
 floor.position.y = -0.1;
 
-floor.receiveShadow = true;
-
 scene.add(floor);
 
 
-// =============================
-// ЗАДНЯЯ СТЕНА
-// =============================
+// =========================
+// СТЕНЫ
+// =========================
 
-const backWall = new THREE.Mesh(
-  new THREE.BoxGeometry(10, 5, 0.2),
-  wood
+const backWall =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        10, 5, 0.2
+    ),
+    wallMaterial
 );
 
 backWall.position.set(
-  0,
-  2.5,
-  -3
+    0, 2.5, -3
 );
-
-backWall.receiveShadow = true;
 
 scene.add(backWall);
 
 
-// =============================
-// ЛЕВАЯ СТЕНА
-// =============================
-
-const leftWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2, 5, 6),
-  wood
+const leftWall =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        0.2, 5, 6
+    ),
+    wallMaterial
 );
 
 leftWall.position.set(
-  -5,
-  2.5,
-  0
+    -5, 2.5, 0
 );
 
 scene.add(leftWall);
 
 
-// =============================
-// ПРАВАЯ СТЕНА
-// =============================
-
-const rightWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2, 5, 6),
-  wood
+const rightWall =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        0.2, 5, 6
+    ),
+    wallMaterial
 );
 
 rightWall.position.set(
-  5,
-  2.5,
-  0
+    5, 2.5, 0
 );
 
 scene.add(rightWall);
 
 
-// =============================
+// =========================
 // СТОЛ
-// =============================
+// =========================
 
-const table = new THREE.Mesh(
-  new THREE.BoxGeometry(2.5, 0.2, 1.2),
-  wood
+const table =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        2.5, 0.2, 1.2
+    ),
+    wallMaterial
 );
 
 table.position.set(
-  0,
-  1.4,
-  -1
+    0, 1.4, -1
 );
-
-table.castShadow = true;
 
 scene.add(table);
 
 
-// =============================
-// НОЖКИ СТОЛА
-// =============================
+// =========================
+// НОЖКИ
+// =========================
 
 for (const x of [-1, 1]) {
 
-  for (const z of [-0.4, 0.4]) {
+    for (const z of [-0.4, 0.4]) {
 
-    const leg = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        0.15,
-        1.4,
-        0.15
-      ),
-      wood
-    );
+        const leg =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                0.15, 1.4, 0.15
+            ),
+            wallMaterial
+        );
 
-    leg.position.set(
-      x,
-      0.7,
-      -1 + z
-    );
+        leg.position.set(
+            x,
+            0.7,
+            -1 + z
+        );
 
-    leg.castShadow = true;
-
-    scene.add(leg);
-  }
+        scene.add(leg);
+    }
 }
 
 
-// =============================
+// =========================
 // ОКНО
-// =============================
+// =========================
 
-const windowMaterial =
-  new THREE.MeshBasicMaterial({
-    color: 0x6fa8c9
-  });
-
-const windowMesh = new THREE.Mesh(
-  new THREE.BoxGeometry(3, 2, 0.1),
-  windowMaterial
+const windowMesh =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        3, 2, 0.1
+    ),
+    new THREE.MeshBasicMaterial({
+        color: 0x6fa8c9
+    })
 );
 
 windowMesh.position.set(
-  0,
-  2.8,
-  -2.85
+    0, 2.8, -2.85
 );
 
 scene.add(windowMesh);
 
 
-// =============================
-// АНИМАЦИЯ
-// =============================
+// =========================
+// УПРАВЛЕНИЕ КАМЕРОЙ
+// =========================
+
+let rotationY = 0;
+let rotationX = 0;
+
+let startX = 0;
+let startY = 0;
+
+let dragging = false;
+
+
+// НАЧАЛО КАСАНИЯ
+
+renderer.domElement.addEventListener(
+    "touchstart",
+    function(event) {
+
+        if (event.touches.length !== 1)
+            return;
+
+        dragging = true;
+
+        startX =
+        event.touches[0].clientX;
+
+        startY =
+        event.touches[0].clientY;
+    }
+);
+
+
+// ДВИЖЕНИЕ ПАЛЬЦА
+
+renderer.domElement.addEventListener(
+    "touchmove",
+    function(event) {
+
+        if (!dragging)
+            return;
+
+        if (event.touches.length !== 1)
+            return;
+
+        const x =
+        event.touches[0].clientX;
+
+        const y =
+        event.touches[0].clientY;
+
+        const dx =
+        x - startX;
+
+        const dy =
+        y - startY;
+
+        rotationY += dx * 0.005;
+
+        rotationX += dy * 0.005;
+
+        rotationX =
+        Math.max(
+            -1.2,
+            Math.min(1.2, rotationX)
+        );
+
+        startX = x;
+        startY = y;
+    }
+);
+
+
+// ОКОНЧАНИЕ
+
+renderer.domElement.addEventListener(
+    "touchend",
+    function() {
+
+        dragging = false;
+    }
+);
+
+
+// =========================
+// КАМЕРА
+// =========================
+
+function updateCamera() {
+
+    const radius = 7;
+
+    camera.position.x =
+    Math.sin(rotationY) *
+    Math.cos(rotationX) *
+    radius;
+
+    camera.position.y =
+    2.2 +
+    Math.sin(rotationX) *
+    radius;
+
+    camera.position.z =
+    Math.cos(rotationY) *
+    Math.cos(rotationX) *
+    radius;
+
+    camera.lookAt(
+        0,
+        1.5,
+        0
+    );
+}
+
+
+// =========================
+// ЦИКЛ
+// =========================
 
 function animate() {
 
-  requestAnimationFrame(animate);
+    requestAnimationFrame(
+        animate
+    );
 
-  controls.update();
+    updateCamera();
 
-  renderer.render(
-    scene,
-    camera
-  );
+    renderer.render(
+        scene,
+        camera
+    );
 }
 
 animate();
 
 
-// =============================
-// АДАПТАЦИЯ ЭКРАНА
-// =============================
+// =========================
+// RESIZE
+// =========================
 
 window.addEventListener(
-  "resize",
-  () => {
+    "resize",
+    function() {
 
-    camera.aspect =
-      window.innerWidth /
-      window.innerHeight;
+        camera.aspect =
+        window.innerWidth /
+        window.innerHeight;
 
-    camera.updateProjectionMatrix();
+        camera.updateProjectionMatrix();
 
-    renderer.setSize(
-      window.innerWidth,
-      window.innerHeight
-    );
-
-  }
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+    }
 );
 
 </script>
