@@ -1,252 +1,154 @@
-import * as THREE from
-"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
-import { createScene }
-from "./scene.js";
-
-import { setupCamera }
-from "./camera.js";
-
-import { setupLighting }
-from "./lighting.js";
+import { createRoom } from "./room.js";
 
 
-// ============================================================
+// ======================================================
 // ALICIA AI
-// PROTOCOL 01 — CORE
-// ============================================================
+// PROTOCOL 1
+// MAIN
+// ======================================================
 
 
-// ------------------------------------------------------------
-// RENDERER
-// ------------------------------------------------------------
+// ------------------------------------------------------
+// Основная сцена
+// ------------------------------------------------------
 
-const renderer =
-    new THREE.WebGLRenderer({
+const scene = new THREE.Scene();
 
-        antialias: true,
+scene.background = new THREE.Color(0x101216);
 
-        powerPreference:
-            "high-performance"
-    });
 
+// ------------------------------------------------------
+// Камера
+// ------------------------------------------------------
+
+const camera = new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+);
+
+camera.position.set(
+    0,
+    1.7,
+    6
+);
+
+
+// ------------------------------------------------------
+// Рендерер
+// ------------------------------------------------------
+
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
 
-
 renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio,
-        2
-    )
+    Math.min(window.devicePixelRatio, 2)
 );
 
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-// ------------------------------------------------------------
-// GRAPHICS
-// ------------------------------------------------------------
-
-renderer.shadowMap.enabled =
-    true;
-
-renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
-
-renderer.outputColorSpace =
-    THREE.SRGBColorSpace;
-
-renderer.toneMapping =
-    THREE.ACESFilmicToneMapping;
-
-renderer.toneMappingExposure =
-    1.1;
+document
+    .getElementById("game")
+    .appendChild(renderer.domElement);
 
 
-// ------------------------------------------------------------
-// ADD CANVAS
-// ------------------------------------------------------------
+// ------------------------------------------------------
+// Освещение
+// ------------------------------------------------------
 
-document.body.appendChild(
-    renderer.domElement
+const ambientLight = new THREE.HemisphereLight(
+    0xffffff,
+    0x444444,
+    1.8
 );
 
-
-// ------------------------------------------------------------
-// SCENE
-// ------------------------------------------------------------
-
-const scene =
-    createScene();
+scene.add(ambientLight);
 
 
-// ------------------------------------------------------------
-// CAMERA
-// ------------------------------------------------------------
-
-const camera =
-    setupCamera();
-
-
-// ------------------------------------------------------------
-// LIGHTING
-// ------------------------------------------------------------
-
-setupLighting(
-    scene
+const mainLight = new THREE.DirectionalLight(
+    0xffffff,
+    2.5
 );
 
+mainLight.position.set(
+    5,
+    8,
+    4
+);
 
-// ------------------------------------------------------------
-// RESIZE
-// ------------------------------------------------------------
+mainLight.castShadow = true;
 
-function resize() {
+scene.add(mainLight);
 
-    const width =
-        window.innerWidth;
 
-    const height =
-        window.innerHeight;
+// ------------------------------------------------------
+// Создание комнаты
+// ------------------------------------------------------
 
+createRoom(scene);
+
+
+// ------------------------------------------------------
+// Resize
+// ------------------------------------------------------
+
+window.addEventListener("resize", () => {
 
     camera.aspect =
-        width / height;
+        window.innerWidth /
+        window.innerHeight;
 
     camera.updateProjectionMatrix();
 
-
     renderer.setSize(
-        width,
-        height
-    );
-}
-
-
-window.addEventListener(
-    "resize",
-    resize
-);
-
-
-window.addEventListener(
-    "orientationchange",
-    () => {
-
-        setTimeout(
-            resize,
-            200
-        );
-
-    }
-);
-
-
-// ------------------------------------------------------------
-// LOADING SCREEN
-// ------------------------------------------------------------
-
-const loading =
-    document.getElementById(
-        "loading"
+        window.innerWidth,
+        window.innerHeight
     );
 
-
-if (loading) {
-
-    loading.style.opacity =
-        "0";
-
-    setTimeout(
-        () => {
-
-            loading.style.display =
-                "none";
-
-        },
-        500
-    );
-}
+});
 
 
-// ------------------------------------------------------------
-// ANIMATION
-// ------------------------------------------------------------
-
-const clock =
-    new THREE.Clock();
-
+// ------------------------------------------------------
+// Запуск
+// ------------------------------------------------------
 
 function animate() {
 
-    requestAnimationFrame(
-        animate
-    );
-
-
-    const elapsed =
-        clock.getElapsedTime();
-
-
-    // --------------------------------------------------------
-    // TEST CUBE
-    // --------------------------------------------------------
-
-    const testCube =
-        scene.userData.testCube;
-
-
-    if (testCube) {
-
-        testCube.rotation.y +=
-            0.01;
-
-        testCube.rotation.x +=
-            0.003;
-
-
-        // лёгкое движение света
-        if (
-            scene.userData.testLight
-        ) {
-
-            scene.userData.testLight.intensity =
-                3 +
-                Math.sin(
-                    elapsed * 2
-                ) * 0.25;
-        }
-    }
-
-
-    // --------------------------------------------------------
-    // RENDER
-    // --------------------------------------------------------
+    requestAnimationFrame(animate);
 
     renderer.render(
         scene,
         camera
     );
+
 }
-
-
-// ------------------------------------------------------------
-// START ENGINE
-// ------------------------------------------------------------
 
 animate();
 
 
-// ------------------------------------------------------------
-// DEBUG
-// ------------------------------------------------------------
+// ------------------------------------------------------
+// Убираем экран загрузки
+// ------------------------------------------------------
 
-console.log(
-    "Alicia AI — Protocol 01"
-);
+setTimeout(() => {
 
-console.log(
-    "Three.js engine started"
-);
+    const loading =
+        document.getElementById("loading");
+
+    loading.style.opacity = "0";
+
+    setTimeout(() => {
+        loading.remove();
+    }, 500);
+
+}, 500);
