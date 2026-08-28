@@ -1,3 +1,7 @@
+import * as THREE from
+    "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+
+
 // ==========================================
 // ALICIA AI
 // CONTROL SYSTEM
@@ -71,7 +75,9 @@ export function createControls(player, camera) {
         "mousemove",
         (event) => {
 
-            if (!mouseLocked) return;
+            if (!mouseLocked) {
+                return;
+            }
 
 
             const sensitivity = 0.002;
@@ -87,7 +93,7 @@ export function createControls(player, camera) {
                 sensitivity;
 
 
-            // Ограничиваем вертикальный взгляд
+            // Ограничение вертикального взгляда
 
             const limit =
                 Math.PI / 2 - 0.05;
@@ -128,20 +134,27 @@ export function createControls(player, camera) {
         let right = 0;
 
 
-        if (keys["KeyW"])
+        if (keys["KeyW"]) {
             forward += 1;
+        }
 
-        if (keys["KeyS"])
+
+        if (keys["KeyS"]) {
             forward -= 1;
+        }
 
-        if (keys["KeyD"])
+
+        if (keys["KeyD"]) {
             right += 1;
+        }
 
-        if (keys["KeyA"])
+
+        if (keys["KeyA"]) {
             right -= 1;
+        }
 
 
-        // Нет движения
+        // Если игрок не нажал клавишу
 
         if (
             forward === 0 &&
@@ -153,7 +166,9 @@ export function createControls(player, camera) {
         }
 
 
-        // Нормализация диагонального движения
+        // ==================================
+        // NORMALIZE
+        // ==================================
 
         const length =
             Math.sqrt(
@@ -166,7 +181,9 @@ export function createControls(player, camera) {
         right /= length;
 
 
-        // Направление камеры
+        // ==================================
+        // CAMERA DIRECTION
+        // ==================================
 
         const direction =
             camera.getWorldDirection(
@@ -179,17 +196,22 @@ export function createControls(player, camera) {
         direction.normalize();
 
 
-        // Вектор вправо
+        // ==================================
+        // RIGHT VECTOR
+        // ==================================
 
         _right.crossVectors(
             direction,
             _up
         );
 
+
         _right.normalize();
 
 
-        // Итоговое движение
+        // ==================================
+        // MOVEMENT
+        // ==================================
 
         player.position.addScaledVector(
             direction,
@@ -207,7 +229,9 @@ export function createControls(player, camera) {
         );
 
 
-        // Ограничение внутри комнаты
+        // ==================================
+        // ROOM BOUNDARIES
+        // ==================================
 
         const limitX = 6.5;
         const limitZ = 4.5;
@@ -233,7 +257,9 @@ export function createControls(player, camera) {
             );
 
 
-        // Камера следует за игроком
+        // ==================================
+        // CAMERA POSITION
+        // ==================================
 
         camera.position.copy(
             player.position
@@ -242,21 +268,28 @@ export function createControls(player, camera) {
     }
 
 
+    // ======================================
+    // RETURN
+    // ======================================
+
     return {
         update
     };
+
 }
 
 
 // ==========================================
-// TEMP VECTORS
+// TEMPORARY VECTORS
 // ==========================================
 
 const _direction =
     new THREE.Vector3();
 
+
 const _right =
     new THREE.Vector3();
+
 
 const _up =
     new THREE.Vector3(
