@@ -1,26 +1,33 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import * as THREE from
+    "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 
-// ======================================================
+// ==========================================
 // ALICIA AI
 // ROOM SYSTEM
-// ======================================================
+// PROTOCOL 1
+// ==========================================
 
 
 export function createRoom(scene) {
 
-    // --------------------------------------------------
-    // Размеры комнаты
-    // --------------------------------------------------
+    console.log(
+        "ALICIA AI: создание комнаты"
+    );
+
+
+    // ======================================
+    // ROOM SIZE
+    // ======================================
 
     const ROOM_WIDTH = 14;
     const ROOM_DEPTH = 10;
     const ROOM_HEIGHT = 5;
 
 
-    // --------------------------------------------------
-    // Материалы
-    // --------------------------------------------------
+    // ======================================
+    // MATERIALS
+    // ======================================
 
     const floorMaterial =
         new THREE.MeshStandardMaterial({
@@ -43,20 +50,19 @@ export function createRoom(scene) {
         });
 
 
-    // --------------------------------------------------
-    // Пол
-    // --------------------------------------------------
-
-    const floorGeometry =
-        new THREE.BoxGeometry(
-            ROOM_WIDTH,
-            0.2,
-            ROOM_DEPTH
-        );
+    // ======================================
+    // FLOOR
+    // ======================================
 
     const floor =
         new THREE.Mesh(
-            floorGeometry,
+
+            new THREE.BoxGeometry(
+                ROOM_WIDTH,
+                0.2,
+                ROOM_DEPTH
+            ),
+
             floorMaterial
         );
 
@@ -67,17 +73,19 @@ export function createRoom(scene) {
     scene.add(floor);
 
 
-    // --------------------------------------------------
-    // Задняя стена
-    // --------------------------------------------------
+    // ======================================
+    // BACK WALL
+    // ======================================
 
     const backWall =
         new THREE.Mesh(
+
             new THREE.BoxGeometry(
                 ROOM_WIDTH,
                 ROOM_HEIGHT,
                 0.2
             ),
+
             wallMaterial
         );
 
@@ -92,17 +100,19 @@ export function createRoom(scene) {
     scene.add(backWall);
 
 
-    // --------------------------------------------------
-    // Левая стена
-    // --------------------------------------------------
+    // ======================================
+    // LEFT WALL
+    // ======================================
 
     const leftWall =
         new THREE.Mesh(
+
             new THREE.BoxGeometry(
                 0.2,
                 ROOM_HEIGHT,
                 ROOM_DEPTH
             ),
+
             wallMaterial
         );
 
@@ -117,17 +127,19 @@ export function createRoom(scene) {
     scene.add(leftWall);
 
 
-    // --------------------------------------------------
-    // Правая стена
-    // --------------------------------------------------
+    // ======================================
+    // RIGHT WALL
+    // ======================================
 
     const rightWall =
         new THREE.Mesh(
+
             new THREE.BoxGeometry(
                 0.2,
                 ROOM_HEIGHT,
                 ROOM_DEPTH
             ),
+
             wallMaterial
         );
 
@@ -142,17 +154,19 @@ export function createRoom(scene) {
     scene.add(rightWall);
 
 
-    // --------------------------------------------------
-    // Потолок
-    // --------------------------------------------------
+    // ======================================
+    // CEILING
+    // ======================================
 
     const ceiling =
         new THREE.Mesh(
+
             new THREE.BoxGeometry(
                 ROOM_WIDTH,
                 0.2,
                 ROOM_DEPTH
             ),
+
             ceilingMaterial
         );
 
@@ -162,9 +176,9 @@ export function createRoom(scene) {
     scene.add(ceiling);
 
 
-    // --------------------------------------------------
-    // Тестовый светильник
-    // --------------------------------------------------
+    // ======================================
+    // ROOM LIGHT
+    // ======================================
 
     const lampLight =
         new THREE.PointLight(
@@ -184,9 +198,10 @@ export function createRoom(scene) {
     scene.add(lampLight);
 
 
-    // --------------------------------------------------
-    // Возвращаем данные комнаты
-    // --------------------------------------------------
+    console.log(
+        "ALICIA AI: комната создана"
+    );
+
 
     return {
         width: ROOM_WIDTH,
