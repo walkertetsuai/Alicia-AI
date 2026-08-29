@@ -2,22 +2,12 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.m
 
 export function createRoom(scene) {
 
-    console.log("ALICIA AI: BASIC ROOM + WINDOWS");
-
-    // ==========================================
-    // РАЗМЕР КОМНАТЫ
-    // ==========================================
+    console.log("ALICIA AI: CLEAN ROOM");
 
     const WIDTH = 50;
     const DEPTH = 40;
     const HEIGHT = 10;
-
     const WALL = 0.4;
-
-
-    // ==========================================
-    // МАТЕРИАЛЫ
-    // ==========================================
 
     const floorMaterial =
         new THREE.MeshStandardMaterial({
@@ -37,25 +27,6 @@ export function createRoom(scene) {
             roughness: 0.95
         });
 
-    const frameMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x4b2f1e,
-            roughness: 0.65
-        });
-
-    const glassMaterial =
-        new THREE.MeshBasicMaterial({
-            color: 0x6ec5e5,
-            transparent: true,
-            opacity: 0.45,
-            side: THREE.DoubleSide
-        });
-
-
-    // ==========================================
-    // BOX
-    // ==========================================
-
     function box(
         width,
         height,
@@ -66,15 +37,14 @@ export function createRoom(scene) {
         material
     ) {
 
-        const mesh =
-            new THREE.Mesh(
-                new THREE.BoxGeometry(
-                    width,
-                    height,
-                    depth
-                ),
-                material
-            );
+        const mesh = new THREE.Mesh(
+            new THREE.BoxGeometry(
+                width,
+                height,
+                depth
+            ),
+            material
+        );
 
         mesh.position.set(
             x,
@@ -90,10 +60,7 @@ export function createRoom(scene) {
         return mesh;
     }
 
-
-    // ==========================================
-    // ПОЛ
-    // ==========================================
+    // FLOOR
 
     box(
         WIDTH,
@@ -105,10 +72,7 @@ export function createRoom(scene) {
         floorMaterial
     );
 
-
-    // ==========================================
-    // ПОТОЛОК
-    // ==========================================
+    // CEILING
 
     box(
         WIDTH,
@@ -120,10 +84,7 @@ export function createRoom(scene) {
         ceilingMaterial
     );
 
-
-    // ==========================================
-    // ЛЕВАЯ СТЕНА
-    // ==========================================
+    // LEFT
 
     box(
         WALL,
@@ -135,10 +96,7 @@ export function createRoom(scene) {
         wallMaterial
     );
 
-
-    // ==========================================
-    // ПРАВАЯ СТЕНА
-    // ==========================================
+    // RIGHT
 
     box(
         WALL,
@@ -150,10 +108,7 @@ export function createRoom(scene) {
         wallMaterial
     );
 
-
-    // ==========================================
-    // ПЕРЕДНЯЯ СТЕНА
-    // ==========================================
+    // FRONT
 
     box(
         WIDTH,
@@ -165,10 +120,7 @@ export function createRoom(scene) {
         wallMaterial
     );
 
-
-    // ==========================================
-    // ЗАДНЯЯ СТЕНА
-    // ==========================================
+    // BACK
 
     box(
         WIDTH,
@@ -180,243 +132,24 @@ export function createRoom(scene) {
         wallMaterial
     );
 
+    // LIGHT
 
-    // =====================================================
-    // ОКНО
-    //
-    // ВАЖНО:
-    // задняя стена находится на Z = -20
-    //
-    // Поэтому окна ставим именно туда.
-    // =====================================================
-
-    function createWindow(x) {
-
-        const windowGroup =
-            new THREE.Group();
-
-
-        // -----------------------------------------------
-        // СТЕКЛО
-        // -----------------------------------------------
-
-        const glass =
-            new THREE.Mesh(
-
-                new THREE.PlaneGeometry(
-                    7,
-                    3.5
-                ),
-
-                glassMaterial
-
-            );
-
-
-        glass.position.set(
-            0,
-            0,
-            0
-        );
-
-
-        windowGroup.add(
-            glass
-        );
-
-
-        // -----------------------------------------------
-        // РАМЫ
-        // -----------------------------------------------
-
-        const frameThickness = 0.18;
-
-
-        // LEFT
-
-        const left =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    frameThickness,
-                    3.8,
-                    0.3
-                ),
-
-                frameMaterial
-
-            );
-
-        left.position.x =
-            -3.5;
-
-
-        windowGroup.add(
-            left
-        );
-
-
-        // RIGHT
-
-        const right =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    frameThickness,
-                    3.8,
-                    0.3
-                ),
-
-                frameMaterial
-
-            );
-
-        right.position.x =
-            3.5;
-
-
-        windowGroup.add(
-            right
-        );
-
-
-        // TOP
-
-        const top =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    7.2,
-                    frameThickness,
-                    0.3
-                ),
-
-                frameMaterial
-
-            );
-
-        top.position.y =
-            1.75;
-
-
-        windowGroup.add(
-            top
-        );
-
-
-        // BOTTOM
-
-        const bottom =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    7.2,
-                    frameThickness,
-                    0.3
-                ),
-
-                frameMaterial
-
-            );
-
-        bottom.position.y =
-            -1.75;
-
-
-        windowGroup.add(
-            bottom
-        );
-
-
-        // CENTER
-
-        const center =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.15,
-                    3.5,
-                    0.3
-                ),
-
-                frameMaterial
-
-            );
-
-
-        windowGroup.add(
-            center
-        );
-
-
-        // -----------------------------------------------
-        // ПОЗИЦИЯ ОКНА
-        // -----------------------------------------------
-
-        windowGroup.position.set(
-            x,
-            4,
-            -20.25
-        );
-
-
-        // Поворачиваем окно лицом внутрь комнаты
-
-        windowGroup.rotation.y =
-            Math.PI;
-
-
-        scene.add(
-            windowGroup
-        );
-
-
-        console.log(
-            "WINDOW:",
-            x,
-            -20.25
-        );
-
-    }
-
-
-    // =====================================================
-    // ТРИ ОКНА НА ЗАДНЕЙ СТЕНЕ
-    // =====================================================
-
-    createWindow(-10);
-
-    createWindow(0);
-
-    createWindow(10);
-
-
-    // =====================================================
-    // ОСВЕЩЕНИЕ
-    // =====================================================
-
-    const mainLight =
+    const light =
         new THREE.PointLight(
             0xffdfbd,
             100,
             70
         );
 
-
-    mainLight.position.set(
+    light.position.set(
         0,
         8,
         0
     );
 
+    light.castShadow = true;
 
-    mainLight.castShadow = true;
-
-
-    scene.add(
-        mainLight
-    );
-
+    scene.add(light);
 
     const ambient =
         new THREE.HemisphereLight(
@@ -425,24 +158,11 @@ export function createRoom(scene) {
             1.5
         );
 
-
-    scene.add(
-        ambient
-    );
-
-
-    // =====================================================
-    // RETURN
-    // =====================================================
+    scene.add(ambient);
 
     return {
-
         width: WIDTH,
-
         depth: DEPTH,
-
         height: HEIGHT
-
     };
-
 }
