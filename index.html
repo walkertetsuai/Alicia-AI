@@ -2,6 +2,7 @@
 <html lang="ru">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -32,73 +33,15 @@
 
             display: block;
 
-            width: 100%;
-            height: 100%;
-
-        }
-
-        #loading {
-
-            position: fixed;
-
-            top: 50%;
-            left: 50%;
-
-            transform:
-                translate(
-                    -50%,
-                    -50%
-                );
-
-            color: white;
-
-            font-family:
-                Arial,
-                sans-serif;
-
-            font-size: 20px;
-
-            z-index: 100;
-
         }
 
     </style>
 
 </head>
 
-
 <body>
 
-    <div id="loading">
-        ALICIA AI
-    </div>
-
-
-    <script type="module">
-
-        // =========================================
-        // CACHE BUSTER
-        // =========================================
-
-        import "./js/main.js?v=10";
-
-
-        // =========================================
-        // УБИРАЕМ ЗАГРУЗКУ
-        // =========================================
-
-        const loading =
-            document.getElementById(
-                "loading"
-            );
-
-        if (loading) {
-
-            loading.remove();
-
-        }
-
-    </script>
+<script type="module" src="./js/main.js"></script>
 
 </body>
 
