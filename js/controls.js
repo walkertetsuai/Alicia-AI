@@ -1,42 +1,48 @@
 // ==========================================
 // ALICIA AI
 // CONTROL SYSTEM
-// PROTOCOL 3
+// PROTOCOL 3.1
 // ==========================================
-
 
 export function createControls(player) {
 
-    console.log(
-        "CONTROLS: system loaded"
-    );
-
+    console.log("CONTROLS: system loaded");
 
     const keys = {};
 
 
     // ======================================
-    // KEYBOARD
+    // KEY DOWN
     // ======================================
 
-    window.addEventListener(
-        "keydown",
-        (event) => {
+    window.addEventListener("keydown", (event) => {
 
-            keys[event.code] = true;
+        keys[event.code] = true;
 
+        console.log("KEY:", event.code);
+
+        // Не даём браузеру прокручивать страницу
+        if (
+            event.code === "KeyW" ||
+            event.code === "KeyA" ||
+            event.code === "KeyS" ||
+            event.code === "KeyD"
+        ) {
+            event.preventDefault();
         }
-    );
+
+    });
 
 
-    window.addEventListener(
-        "keyup",
-        (event) => {
+    // ======================================
+    // KEY UP
+    // ======================================
 
-            keys[event.code] = false;
+    window.addEventListener("keyup", (event) => {
 
-        }
-    );
+        keys[event.code] = false;
+
+    });
 
 
     // ======================================
@@ -46,81 +52,104 @@ export function createControls(player) {
     function update(delta) {
 
         let forward = 0;
-        let right = 0;
+        let strafe = 0;
 
 
-        if (keys["KeyW"])
+        // W / S
+
+        if (keys["KeyW"]) {
             forward += 1;
+        }
 
-
-        if (keys["KeyS"])
+        if (keys["KeyS"]) {
             forward -= 1;
-
-
-        if (keys["KeyD"])
-            right += 1;
-
-
-        if (keys["KeyA"])
-            right -= 1;
-
-
-        if (
-            forward === 0 &&
-            right === 0
-        ) {
-
-            return;
-
         }
 
 
-        // Нормализация
+        // A / D
+
+        if (keys["KeyA"]) {
+            strafe -= 1;
+        }
+
+        if (keys["KeyD"]) {
+            strafe += 1;
+        }
+
+
+        // Нет движения
+
+        if (
+            forward === 0 &&
+            strafe === 0
+        ) {
+            return;
+        }
+
+
+        // ==================================
+        // НОРМАЛИЗАЦИЯ
+        // ==================================
 
         const length =
             Math.sqrt(
                 forward * forward +
-                right * right
+                strafe * strafe
             );
 
-
         forward /= length;
-        right /= length;
+        strafe /= length;
 
 
-        // Направление относительно взгляда
+        // ==================================
+        // НАПРАВЛЕНИЕ ВЗГЛЯДА
+        // ==================================
 
-        const sin =
-            Math.sin(player.yaw);
-
-        const cos =
-            Math.cos(player.yaw);
+        const yaw = player.yaw;
 
 
-        const moveX =
-            -sin * forward +
-            cos * right;
+        // Вектор вперёд
+
+        const forwardX =
+            -Math.sin(yaw);
+
+        const forwardZ =
+            -Math.cos(yaw);
 
 
-        const moveZ =
-            -cos * forward -
-            sin * right;
+        // Вектор вправо
 
+        const rightX =
+            Math.cos(yaw);
+
+        const rightZ =
+            -Math.sin(yaw);
+
+
+        // ==================================
+        // ДВИЖЕНИЕ
+        // ==================================
 
         player.position.x +=
-            moveX *
+            (
+                forwardX * forward +
+                rightX * strafe
+            ) *
             player.speed *
             delta;
 
 
         player.position.z +=
-            moveZ *
+            (
+                forwardZ * forward +
+                rightZ * strafe
+            ) *
             player.speed *
             delta;
 
 
         // ==================================
-        // ROOM LIMITS
+        // ГРАНИЦЫ КОМНАТЫ
         // ==================================
 
         player.position.x =
@@ -144,6 +173,10 @@ export function createControls(player) {
 
     }
 
+
+    // ======================================
+    // RETURN
+    // ======================================
 
     return {
         update
