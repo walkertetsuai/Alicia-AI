@@ -1,46 +1,30 @@
-import * as THREE from
-    "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
-
-import { createRoom }
-    from "./room.js";
-
-import { createPlayer }
-    from "./player.js";
-
-import { createControls }
-    from "./controls.js";
-
-import { createCamera }
-    from "./camera.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+import { createRoom } from "./room.js";
+import { setupControls } from "./controls.js";
 
 
-// ==========================================
+// ======================================================
 // ALICIA AI
-// MAIN SYSTEM
-// PROTOCOL 3
-// ==========================================
+// MAIN
+// ======================================================
 
-console.log(
-    "ALICIA AI: Protocol 3 starting"
-);
+console.log("ALICIA AI: MAIN START");
 
 
-// ==========================================
-// SCENE
-// ==========================================
+// ======================================================
+// СЦЕНА
+// ======================================================
 
 const scene =
     new THREE.Scene();
 
 scene.background =
-    new THREE.Color(
-        0x101216
-    );
+    new THREE.Color(0x9bb6c4);
 
 
-// ==========================================
-// CAMERA
-// ==========================================
+// ======================================================
+// КАМЕРА
+// ======================================================
 
 const camera =
     new THREE.PerspectiveCamera(
@@ -48,13 +32,22 @@ const camera =
         window.innerWidth /
         window.innerHeight,
         0.1,
-        1000
+        200
     );
 
 
-// ==========================================
+// Начальная позиция
+
+camera.position.set(
+    0,
+    2,
+    12
+);
+
+
+// ======================================================
 // RENDERER
-// ==========================================
+// ======================================================
 
 const renderer =
     new THREE.WebGLRenderer({
@@ -80,93 +73,47 @@ renderer.shadowMap.enabled =
     true;
 
 
-document
-    .getElementById("game")
-    .appendChild(
-        renderer.domElement
-    );
+renderer.shadowMap.type =
+    THREE.PCFSoftShadowMap;
 
 
-// ==========================================
-// LIGHT
-// ==========================================
-
-const ambientLight =
-    new THREE.HemisphereLight(
-        0xffffff,
-        0x444444,
-        1.8
-    );
-
-scene.add(
-    ambientLight
+document.body.appendChild(
+    renderer.domElement
 );
 
 
-const mainLight =
-    new THREE.DirectionalLight(
-        0xffffff,
-        2
-    );
+// ======================================================
+// КОМНАТА
+// ======================================================
+//
+// ТОЛЬКО ЗДЕСЬ создаётся комната.
+//
+// main.js больше ничего не строит.
+//
 
-mainLight.position.set(
-    5,
-    8,
-    4
-);
-
-mainLight.castShadow =
-    true;
-
-scene.add(
-    mainLight
-);
+const room =
+    createRoom(scene);
 
 
-// ==========================================
-// ROOM
-// ==========================================
-
-createRoom(
-    scene
+console.log(
+    "ROOM:",
+    room
 );
 
 
-// ==========================================
-// PLAYER
-// ==========================================
+// ======================================================
+// УПРАВЛЕНИЕ
+// ======================================================
 
-const player =
-    createPlayer(
-        camera
-    );
-
-
-// ==========================================
-// CONTROLS
-// ==========================================
-
-const controls =
-    createControls(
-        player
-    );
+setupControls(
+    camera,
+    renderer.domElement
+);
 
 
-// ==========================================
-// CAMERA SYSTEM
-// ==========================================
-
-const cameraSystem =
-    createCamera(
-        camera,
-        player,
-        renderer
-    );
-
-
-// ==========================================
+// ======================================================
 // RESIZE
-// ==========================================
+// ======================================================
 
 window.addEventListener(
     "resize",
@@ -175,7 +122,6 @@ window.addEventListener(
         camera.aspect =
             window.innerWidth /
             window.innerHeight;
-
 
         camera.updateProjectionMatrix();
 
@@ -189,40 +135,14 @@ window.addEventListener(
 );
 
 
-// ==========================================
-// GAME LOOP
-// ==========================================
+// ======================================================
+// ANIMATION
+// ======================================================
 
-let previousTime =
-    performance.now();
-
-
-function animate(currentTime) {
+function animate() {
 
     requestAnimationFrame(
         animate
-    );
-
-
-    const delta =
-        Math.min(
-            (currentTime -
-                previousTime) / 1000,
-            0.05
-        );
-
-
-    previousTime =
-        currentTime;
-
-
-    controls.update(
-        delta
-    );
-
-
-    cameraSystem.update(
-        delta
     );
 
 
@@ -234,35 +154,9 @@ function animate(currentTime) {
 }
 
 
-requestAnimationFrame(
-    animate
-);
-
-
-// ==========================================
-// LOADING
-// ==========================================
-
-const loading =
-    document.getElementById(
-        "loading"
-    );
-
-
-if (loading) {
-
-    loading.style.opacity =
-        "0";
-
-
-    setTimeout(
-        () => loading.remove(),
-        500
-    );
-
-}
+animate();
 
 
 console.log(
-    "ALICIA AI: Protocol 3 ready"
+    "ALICIA AI: READY"
 );
