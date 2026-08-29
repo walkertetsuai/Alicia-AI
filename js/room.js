@@ -5,16 +5,14 @@ import * as THREE from
 // ==========================================
 // ALICIA AI
 // ROOM SYSTEM
-// PROTOCOL 4
+// PROTOCOL 4.1
 // HOUSE PLAN
 // ==========================================
 
 
 export function createRoom(scene) {
 
-    console.log(
-        "ROOM: Protocol 4 loading"
-    );
+    console.log("ROOM: Protocol 4.1 loading");
 
 
     // ======================================
@@ -60,15 +58,8 @@ export function createRoom(scene) {
         });
 
 
-    const woodMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x684a32,
-            roughness: 0.78
-        });
-
-
     // ======================================
-    // HELPER
+    // BOX CREATOR
     // ======================================
 
     function createBox(
@@ -79,10 +70,10 @@ export function createRoom(scene) {
         y,
         z,
         material,
-        castShadow = true
+        shadow = true
     ) {
 
-        const mesh =
+        const object =
             new THREE.Mesh(
                 new THREE.BoxGeometry(
                     width,
@@ -93,26 +84,27 @@ export function createRoom(scene) {
             );
 
 
-        mesh.position.set(
+        object.position.set(
             x,
             y,
             z
         );
 
 
-        mesh.castShadow =
-            castShadow;
+        object.castShadow =
+            shadow;
 
-        mesh.receiveShadow =
+        object.receiveShadow =
             true;
 
 
         scene.add(
-            mesh
+            object
         );
 
 
-        return mesh;
+        return object;
+
     }
 
 
@@ -309,183 +301,118 @@ export function createRoom(scene) {
 
 
     // ======================================
-    // LABEL SYSTEM
+    // ZONE MARKERS
     // ======================================
 
-    function createLabel(
-        text,
+    function createMarker(
         x,
-        y,
         z,
-        size = 0.7
+        width,
+        depth
     ) {
 
-        const canvas =
-            document.createElement(
-                "canvas"
+        const geometry =
+            new THREE.BoxGeometry(
+                width,
+                0.025,
+                depth
             );
-
-
-        const context =
-            canvas.getContext(
-                "2d"
-            );
-
-
-        canvas.width = 1024;
-        canvas.height = 256;
-
-
-        context.clearRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
-
-
-        context.fillStyle =
-            "rgba(20, 15, 10, 0.75)";
-
-
-        context.fillRect(
-            20,
-            40,
-            984,
-            176
-        );
-
-
-        context.font =
-            "bold 92px Arial";
-
-
-        context.textAlign =
-            "center";
-
-
-        context.textBaseline =
-            "middle";
-
-
-        context.fillStyle =
-            "#ffffff";
-
-
-        context.fillText(
-            text,
-            canvas.width / 2,
-            canvas.height / 2
-        );
-
-
-        const texture =
-            new THREE.CanvasTexture(
-                canvas
-            );
-
-
-        texture.needsUpdate =
-            true;
 
 
         const material =
-            new THREE.SpriteMaterial({
-                map: texture,
+            new THREE.MeshBasicMaterial({
+                color: 0xffffff,
                 transparent: true,
-                depthTest: false
+                opacity: 0.08
             });
 
 
-        const sprite =
-            new THREE.Sprite(
+        const marker =
+            new THREE.Mesh(
+                geometry,
                 material
             );
 
 
-        sprite.position.set(
+        marker.position.set(
             x,
-            y,
+            0.02,
             z
         );
 
 
-        sprite.scale.set(
-            size * 3.5,
-            size,
-            1
-        );
-
-
         scene.add(
-            sprite
+            marker
         );
 
 
-        return sprite;
+        return marker;
+
     }
 
 
-    // ======================================
-    // ZONE LABELS
-    // ======================================
+    // Спальня
 
-    createLabel(
-        "СПАЛЬНЯ",
+    createMarker(
         0,
-        4.2,
         -10,
-        1.0
+        40,
+        9
     );
 
 
-    createLabel(
-        "ГОСТИНАЯ",
+    // Гостиная
+
+    createMarker(
         8,
-        4.2,
         0,
-        1.0
+        20,
+        9
     );
 
 
-    createLabel(
-        "КУХНЯ",
+    // Кухня
+
+    createMarker(
         -14,
-        4.2,
         10,
-        0.9
+        12,
+        8
     );
 
 
-    createLabel(
-        "СТОЛОВАЯ",
+    // Столовая
+
+    createMarker(
         -4,
-        4.2,
         8,
-        0.75
+        8,
+        6
     );
 
 
-    createLabel(
-        "РАБОЧАЯ ЗОНА",
+    // Рабочая зона
+
+    createMarker(
         14,
-        4.2,
         -1,
-        0.75
+        9,
+        8
     );
 
 
-    createLabel(
-        "ВАННАЯ",
+    // Ванная
+
+    createMarker(
         15,
-        4.2,
         10,
-        0.85
+        10,
+        8
     );
 
 
     // ======================================
-    // CENTRAL LIGHT
+    // LIGHTS
     // ======================================
 
     const centralLight =
@@ -512,10 +439,6 @@ export function createRoom(scene) {
     );
 
 
-    // ======================================
-    // BEDROOM LIGHT
-    // ======================================
-
     const bedroomLight =
         new THREE.PointLight(
             0xffdcb5,
@@ -536,10 +459,6 @@ export function createRoom(scene) {
     );
 
 
-    // ======================================
-    // KITCHEN LIGHT
-    // ======================================
-
     const kitchenLight =
         new THREE.PointLight(
             0xffe2bd,
@@ -559,10 +478,6 @@ export function createRoom(scene) {
         kitchenLight
     );
 
-
-    // ======================================
-    // LIVING LIGHT
-    // ======================================
 
     const livingLight =
         new THREE.PointLight(
@@ -585,7 +500,7 @@ export function createRoom(scene) {
 
 
     // ======================================
-    // HOUSE DATA
+    // PLAN DATA
     // ======================================
 
     const houseData = {
@@ -599,45 +514,39 @@ export function createRoom(scene) {
         zones: {
 
             bedroom: {
+                name: "СПАЛЬНЯ",
                 x: 0,
-                z: -10,
-                width: 42,
-                depth: 10
+                z: -10
             },
 
             livingRoom: {
+                name: "ГОСТИНАЯ",
                 x: 8,
-                z: 0,
-                width: 20,
-                depth: 20
+                z: 0
             },
 
             kitchen: {
+                name: "КУХНЯ",
                 x: -14,
-                z: 10,
-                width: 14,
-                depth: 10
+                z: 10
             },
 
             dining: {
+                name: "СТОЛОВАЯ",
                 x: -4,
-                z: 8,
-                width: 12,
-                depth: 10
+                z: 8
             },
 
             workspace: {
+                name: "РАБОЧАЯ ЗОНА",
                 x: 14,
-                z: -1,
-                width: 10,
-                depth: 10
+                z: -1
             },
 
             bathroom: {
+                name: "ВАННАЯ",
                 x: 15,
-                z: 10,
-                width: 12,
-                depth: 10
+                z: 10
             }
 
         }
@@ -645,8 +554,26 @@ export function createRoom(scene) {
     };
 
 
+    // ======================================
+    // DEBUG
+    // ======================================
+
     console.log(
-        "ROOM: Protocol 4 ready"
+        "ROOM SIZE:",
+        ROOM_WIDTH,
+        "x",
+        ROOM_DEPTH
+    );
+
+
+    console.log(
+        "ROOM ZONES:",
+        houseData.zones
+    );
+
+
+    console.log(
+        "ROOM: Protocol 4.1 ready"
     );
 
 
