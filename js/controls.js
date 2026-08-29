@@ -5,9 +5,15 @@ export function setupControls(
 
     const keys = {};
 
+
     let yaw = 0;
+
     let pitch = 0;
 
+
+    // =================================================
+    // KEYBOARD
+    // =================================================
 
     window.addEventListener(
         "keydown",
@@ -28,6 +34,10 @@ export function setupControls(
         }
     );
 
+
+    // =================================================
+    // MOUSE
+    // =================================================
 
     domElement.addEventListener(
         "click",
@@ -54,33 +64,39 @@ export function setupControls(
 
 
             yaw -=
-                event.movementX * 0.002;
+                event.movementX *
+                0.002;
 
 
             pitch -=
-                event.movementY * 0.002;
+                event.movementY *
+                0.002;
 
 
             const limit =
-                Math.PI / 2 - 0.05;
+                Math.PI / 2 -
+                0.05;
 
 
             pitch =
                 Math.max(
+
                     -limit,
+
                     Math.min(
                         limit,
                         pitch
                     )
+
                 );
 
         }
     );
 
 
-    camera.rotation.order =
-        "YXZ";
-
+    // =================================================
+    // UPDATE
+    // =================================================
 
     return function updateControls(
         delta
@@ -90,8 +106,13 @@ export function setupControls(
             6 * delta;
 
 
+        camera.rotation.order =
+            "YXZ";
+
+
         camera.rotation.y =
             yaw;
+
 
         camera.rotation.x =
             pitch;
@@ -100,12 +121,14 @@ export function setupControls(
         const forwardX =
             -Math.sin(yaw);
 
+
         const forwardZ =
             -Math.cos(yaw);
 
 
         const rightX =
             Math.cos(yaw);
+
 
         const rightZ =
             -Math.sin(yaw);
@@ -114,11 +137,16 @@ export function setupControls(
         let nextX =
             camera.position.x;
 
+
         let nextZ =
             camera.position.z;
 
 
-        if (keys["KeyW"]) {
+        // W
+
+        if (
+            keys["KeyW"]
+        ) {
 
             nextX +=
                 forwardX * speed;
@@ -129,7 +157,11 @@ export function setupControls(
         }
 
 
-        if (keys["KeyS"]) {
+        // S
+
+        if (
+            keys["KeyS"]
+        ) {
 
             nextX -=
                 forwardX * speed;
@@ -140,7 +172,11 @@ export function setupControls(
         }
 
 
-        if (keys["KeyA"]) {
+        // A
+
+        if (
+            keys["KeyA"]
+        ) {
 
             nextX -=
                 rightX * speed;
@@ -151,7 +187,11 @@ export function setupControls(
         }
 
 
-        if (keys["KeyD"]) {
+        // D
+
+        if (
+            keys["KeyD"]
+        ) {
 
             nextX +=
                 rightX * speed;
@@ -162,12 +202,15 @@ export function setupControls(
         }
 
 
-        // ==========================================
-        // ROOM BOUNDS
-        // ==========================================
+        // =================================================
+        // OUTER WALL COLLISION
+        // =================================================
 
-        const limitX = 24;
-        const limitZ = 19;
+        const limitX =
+            24.2;
+
+        const limitZ =
+            19.2;
 
 
         nextX =
@@ -193,9 +236,12 @@ export function setupControls(
         camera.position.x =
             nextX;
 
+
         camera.position.z =
             nextZ;
 
+
+        // Высота глаз
 
         camera.position.y =
             2;
