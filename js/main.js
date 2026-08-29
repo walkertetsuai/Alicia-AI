@@ -1,42 +1,42 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
-import { createRoom } from "./room.js";
-import { setupControls } from "./controls.js";
 
-alert("MAIN.JS ЗАГРУЖЕН");
+alert("THREE.JS ЗАПУЩЕН");
 
 
-// =====================================================
+// ==========================================
 // SCENE
-// =====================================================
+// ==========================================
 
-const scene = new THREE.Scene();
+const scene =
+    new THREE.Scene();
 
 scene.background =
-    new THREE.Color(0x9bb6c4);
+    new THREE.Color(0x222222);
 
 
-// =====================================================
+// ==========================================
 // CAMERA
-// =====================================================
+// ==========================================
 
 const camera =
     new THREE.PerspectiveCamera(
         70,
-        window.innerWidth / window.innerHeight,
+        window.innerWidth /
+        window.innerHeight,
         0.1,
-        200
+        100
     );
 
 camera.position.set(
     0,
-    2,
-    12
+    0,
+    5
 );
 
 
-// =====================================================
+// ==========================================
 // RENDERER
-// =====================================================
+// ==========================================
 
 const renderer =
     new THREE.WebGLRenderer({
@@ -48,69 +48,51 @@ renderer.setSize(
     window.innerHeight
 );
 
-renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio,
-        2
-    )
-);
-
-renderer.shadowMap.enabled = true;
-
 document.body.appendChild(
     renderer.domElement
 );
 
 
-// =====================================================
-// ROOM
-// =====================================================
+// ==========================================
+// TEST OBJECT
+// ==========================================
 
-createRoom(scene);
+const geometry =
+    new THREE.BoxGeometry(
+        2,
+        2,
+        2
+    );
 
+const material =
+    new THREE.MeshBasicMaterial({
+        color: 0xff0000
+    });
 
-// =====================================================
-// CONTROLS
-// =====================================================
+const cube =
+    new THREE.Mesh(
+        geometry,
+        material
+    );
 
-setupControls(
-    camera,
-    renderer.domElement
+scene.add(
+    cube
 );
 
 
-// =====================================================
-// RESIZE
-// =====================================================
-
-window.addEventListener(
-    "resize",
-    () => {
-
-        camera.aspect =
-            window.innerWidth /
-            window.innerHeight;
-
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
-
-    }
-);
-
-
-// =====================================================
+// ==========================================
 // LOOP
-// =====================================================
+// ==========================================
 
 function animate() {
 
     requestAnimationFrame(
         animate
     );
+
+    cube.rotation.x += 0.01;
+
+    cube.rotation.y += 0.01;
 
     renderer.render(
         scene,
