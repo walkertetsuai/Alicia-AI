@@ -1,43 +1,31 @@
-alert("НОВЫЙ MAIN.JS ЗАГРУЖЕН");
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 import { createRoom } from "./room.js";
 import { setupControls } from "./controls.js";
 
-
-// ======================================================
-// ALICIA AI
-// MAIN
-// ======================================================
-
-console.log("ALICIA AI: MAIN START");
+alert("MAIN.JS ЗАГРУЖЕН");
 
 
-// ======================================================
-// СЦЕНА
-// ======================================================
+// =====================================================
+// SCENE
+// =====================================================
 
-const scene =
-    new THREE.Scene();
+const scene = new THREE.Scene();
 
 scene.background =
     new THREE.Color(0x9bb6c4);
 
 
-// ======================================================
-// КАМЕРА
-// ======================================================
+// =====================================================
+// CAMERA
+// =====================================================
 
 const camera =
     new THREE.PerspectiveCamera(
         70,
-        window.innerWidth /
-        window.innerHeight,
+        window.innerWidth / window.innerHeight,
         0.1,
         200
     );
-
-
-// Начальная позиция
 
 camera.position.set(
     0,
@@ -46,21 +34,19 @@ camera.position.set(
 );
 
 
-// ======================================================
+// =====================================================
 // RENDERER
-// ======================================================
+// =====================================================
 
 const renderer =
     new THREE.WebGLRenderer({
         antialias: true
     });
 
-
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
-
 
 renderer.setPixelRatio(
     Math.min(
@@ -69,42 +55,23 @@ renderer.setPixelRatio(
     )
 );
 
-
-renderer.shadowMap.enabled =
-    true;
-
-
-renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
-
+renderer.shadowMap.enabled = true;
 
 document.body.appendChild(
     renderer.domElement
 );
 
 
-// ======================================================
-// КОМНАТА
-// ======================================================
-//
-// ТОЛЬКО ЗДЕСЬ создаётся комната.
-//
-// main.js больше ничего не строит.
-//
+// =====================================================
+// ROOM
+// =====================================================
 
-const room =
-    createRoom(scene);
+createRoom(scene);
 
 
-console.log(
-    "ROOM:",
-    room
-);
-
-
-// ======================================================
-// УПРАВЛЕНИЕ
-// ======================================================
+// =====================================================
+// CONTROLS
+// =====================================================
 
 setupControls(
     camera,
@@ -112,9 +79,9 @@ setupControls(
 );
 
 
-// ======================================================
+// =====================================================
 // RESIZE
-// ======================================================
+// =====================================================
 
 window.addEventListener(
     "resize",
@@ -126,7 +93,6 @@ window.addEventListener(
 
         camera.updateProjectionMatrix();
 
-
         renderer.setSize(
             window.innerWidth,
             window.innerHeight
@@ -136,16 +102,15 @@ window.addEventListener(
 );
 
 
-// ======================================================
-// ANIMATION
-// ======================================================
+// =====================================================
+// LOOP
+// =====================================================
 
 function animate() {
 
     requestAnimationFrame(
         animate
     );
-
 
     renderer.render(
         scene,
@@ -154,10 +119,4 @@ function animate() {
 
 }
 
-
 animate();
-
-
-console.log(
-    "ALICIA AI: READY"
-);
