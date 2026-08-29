@@ -1,29 +1,67 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+import * as THREE
+    from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+
 
 export function createRoom(scene) {
 
+    // =================================================
+    // ROOM
+    // =================================================
+
     const WIDTH = 50;
+
     const DEPTH = 40;
+
     const HEIGHT = 10;
+
     const WALL = 0.4;
 
-    const floorMaterial = new THREE.MeshStandardMaterial({
-        color: 0x765238,
-        roughness: 0.8
-    });
 
-    const wallMaterial = new THREE.MeshStandardMaterial({
-        color: 0xb58a63,
-        roughness: 0.85
-    });
+    // =================================================
+    // MATERIALS
+    // =================================================
 
-    const ceilingMaterial = new THREE.MeshStandardMaterial({
-        color: 0xd8c8b5,
-        roughness: 0.95
-    });
+    const floorMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color: 0x765238,
+
+            roughness: 0.78,
+
+            metalness: 0.05
+
+        });
 
 
-    function box(
+    const wallMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color: 0xb58a63,
+
+            roughness: 0.82,
+
+            metalness: 0.02
+
+        });
+
+
+    const ceilingMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color: 0xd7c9b9,
+
+            roughness: 0.92,
+
+            metalness: 0
+
+        });
+
+
+    // =================================================
+    // BOX
+    // =================================================
+
+    function createBox(
         width,
         height,
         depth,
@@ -33,14 +71,19 @@ export function createRoom(scene) {
         material
     ) {
 
-        const mesh = new THREE.Mesh(
-            new THREE.BoxGeometry(
-                width,
-                height,
-                depth
-            ),
-            material
-        );
+        const mesh =
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    width,
+                    height,
+                    depth
+                ),
+
+                material
+
+            );
+
 
         mesh.position.set(
             x,
@@ -48,12 +91,21 @@ export function createRoom(scene) {
             z
         );
 
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
 
-        scene.add(mesh);
+        mesh.castShadow =
+            true;
+
+        mesh.receiveShadow =
+            true;
+
+
+        scene.add(
+            mesh
+        );
+
 
         return mesh;
+
     }
 
 
@@ -61,14 +113,18 @@ export function createRoom(scene) {
     // FLOOR
     // =================================================
 
-    box(
+    createBox(
+
         WIDTH,
         0.3,
         DEPTH,
+
         0,
         -0.15,
         0,
+
         floorMaterial
+
     );
 
 
@@ -76,254 +132,452 @@ export function createRoom(scene) {
     // CEILING
     // =================================================
 
-    box(
+    createBox(
+
         WIDTH,
         0.3,
         DEPTH,
+
         0,
         HEIGHT,
         0,
+
         ceilingMaterial
+
     );
 
 
     // =================================================
     // BACK WALL
     //
-    // ДВА ОКНА
+    // TWO WINDOWS
     // =================================================
 
-    const windowWidth = 7;
-    const windowHeight = 4;
+    const windowWidth =
+        7;
 
-    const windowY = 4;
+    const windowHeight =
+        4;
 
-    const window1X = -9;
-    const window2X = 1;
+    const windowBottom =
+        2;
+
+    const windowTop =
+        windowBottom +
+        windowHeight;
 
 
-    // нижняя часть стены
+    const window1 =
+        -10;
 
-    box(
+    const window2 =
+        2;
+
+
+    // Нижняя часть
+
+    createBox(
+
         WIDTH,
-        2,
+        windowBottom,
         WALL,
+
         0,
-        1,
+        windowBottom / 2,
         -DEPTH / 2,
+
         wallMaterial
+
     );
 
 
-    // верхняя часть стены
+    // Верхняя часть
 
-    box(
+    createBox(
+
         WIDTH,
-        HEIGHT - 6,
+        HEIGHT - windowTop,
         WALL,
+
         0,
-        8,
+        windowTop +
+        (HEIGHT - windowTop) / 2,
         -DEPTH / 2,
+
         wallMaterial
+
     );
 
 
-    // между окнами
+    // Между окнами
 
-    box(
-        3,
-        4,
+    createBox(
+
+        window2 -
+        windowWidth / 2 -
+        (
+            window1 +
+            windowWidth / 2
+        ),
+
+        windowHeight,
         WALL,
-        -5,
-        windowY,
+
+        (
+            window1 +
+            windowWidth / 2 +
+            window2 -
+            windowWidth / 2
+        ) / 2,
+
+        windowBottom +
+        windowHeight / 2,
+
         -DEPTH / 2,
+
         wallMaterial
+
     );
 
 
-    // слева от первого окна
+    // Слева
 
-    box(
-        12.5,
-        4,
+    createBox(
+
+        window1 -
+        windowWidth / 2 +
+        WIDTH / 2,
+
+        windowHeight,
         WALL,
-        -18.75,
-        windowY,
+
+        (
+            -WIDTH / 2 +
+            window1 -
+            windowWidth / 2
+        ) / 2,
+
+        windowBottom +
+        windowHeight / 2,
+
         -DEPTH / 2,
+
         wallMaterial
+
     );
 
 
-    // справа от второго окна
+    // Справа
 
-    box(
-        20.5,
-        4,
+    createBox(
+
+        WIDTH / 2 -
+        (
+            window2 +
+            windowWidth / 2
+        ),
+
+        windowHeight,
         WALL,
-        15.75,
-        windowY,
+
+        (
+            window2 +
+            windowWidth / 2 +
+            WIDTH / 2
+        ) / 2,
+
+        windowBottom +
+        windowHeight / 2,
+
         -DEPTH / 2,
+
         wallMaterial
+
     );
 
 
     // =================================================
     // LEFT WALL
     //
-    // ОДНО ОКНО
+    // LONG WINDOW
     // =================================================
 
-    const sideWindowWidth = 9;
-    const sideWindowHeight = 4;
+    const sideWindowWidth =
+        12;
 
-    const sideWindowZ = -2;
+    const sideWindowHeight =
+        4;
+
+    const sideWindowBottom =
+        2;
+
+    const sideWindowZ =
+        -4;
 
 
-    // перед окном
+    // Перед окном
 
-    box(
+    const sideFront =
+        sideWindowZ +
+        sideWindowWidth / 2;
+
+
+    createBox(
+
         WALL,
         HEIGHT,
-        16,
+        DEPTH / 2 -
+        sideWindowWidth / 2 +
+        sideWindowZ,
+
         -WIDTH / 2,
         HEIGHT / 2,
-        12,
+        (
+            DEPTH / 2 +
+            sideWindowZ +
+            sideWindowWidth / 2
+        ) / 2,
+
         wallMaterial
+
     );
 
 
-    // за окном
+    // Задняя часть
 
-    box(
+    createBox(
+
         WALL,
         HEIGHT,
-        20,
+        DEPTH / 2 -
+        sideWindowWidth / 2 -
+        sideWindowZ,
+
         -WIDTH / 2,
         HEIGHT / 2,
-        -12,
+        (
+            sideWindowZ -
+            sideWindowWidth / 2 -
+            DEPTH / 2
+        ) / 2,
+
         wallMaterial
+
     );
 
 
-    // нижняя часть окна
+    // Низ окна
 
-    box(
+    createBox(
+
         WALL,
-        2,
+        sideWindowBottom,
         sideWindowWidth,
+
         -WIDTH / 2,
-        1,
+        sideWindowBottom / 2,
         sideWindowZ,
+
         wallMaterial
+
     );
 
 
-    // верхняя часть окна
+    // Верх окна
 
-    box(
+    createBox(
+
         WALL,
-        HEIGHT - 6,
+        HEIGHT -
+        (
+            sideWindowBottom +
+            sideWindowHeight
+        ),
         sideWindowWidth,
+
         -WIDTH / 2,
-        8,
+
+        sideWindowBottom +
+        sideWindowHeight +
+        (
+            HEIGHT -
+            sideWindowBottom -
+            sideWindowHeight
+        ) / 2,
+
         sideWindowZ,
+
         wallMaterial
+
     );
 
 
     // =================================================
     // RIGHT WALL
     //
-    // АРКА
+    // LARGE ARCH
     // =================================================
 
-    const archWidth = 6;
-    const archHeight = 7;
+    const archWidth =
+        6;
 
-    const archX = 0;
+    const archHeight =
+        7;
 
-    const archZ = DEPTH / 2;
+    const archCenterZ =
+        5;
 
 
-    // левая часть стены
+    // Левая часть стены
 
-    box(
-        (WIDTH - archWidth) / 2,
-        HEIGHT,
+    createBox(
+
         WALL,
+        HEIGHT,
 
-        -((WIDTH - archWidth) / 4),
+        archCenterZ -
+        archWidth / 2 +
+        DEPTH / 2,
+
+        WIDTH / 2,
+
         HEIGHT / 2,
-        archZ,
+
+        (
+            -DEPTH / 2 +
+            archCenterZ -
+            archWidth / 2
+        ) / 2,
 
         wallMaterial
+
     );
 
 
-    // правая часть стены
+    // Правая часть стены
 
-    box(
-        (WIDTH - archWidth) / 2,
-        HEIGHT,
+    createBox(
+
         WALL,
+        HEIGHT,
 
-        ((WIDTH - archWidth) / 4),
+        DEPTH / 2 -
+        (
+            archCenterZ +
+            archWidth / 2
+        ),
+
+        WIDTH / 2,
+
         HEIGHT / 2,
-        archZ,
+
+        (
+            archCenterZ +
+            archWidth / 2 +
+            DEPTH / 2
+        ) / 2,
 
         wallMaterial
+
     );
 
 
-    // над аркой
+    // Верх арки
 
-    box(
+    createBox(
+
+        WALL,
+
+        HEIGHT -
+        archHeight,
+
         archWidth,
-        HEIGHT - archHeight,
-        WALL,
 
-        archX,
-        archHeight + (HEIGHT - archHeight) / 2,
-        archZ,
+        WIDTH / 2,
+
+        archHeight +
+        (
+            HEIGHT -
+            archHeight
+        ) / 2,
+
+        archCenterZ,
 
         wallMaterial
+
     );
 
 
     // =================================================
-    // LIGHT
+    // LIGHTING
     // =================================================
 
-    const light = new THREE.PointLight(
-        0xffdfbd,
-        100,
-        100
-    );
+    const mainLight =
+        new THREE.PointLight(
+            0xffdfbd,
+            120,
+            100
+        );
 
-    light.position.set(
+    mainLight.position.set(
         0,
         8,
         0
     );
 
-    light.castShadow = true;
+    mainLight.castShadow =
+        true;
 
-    scene.add(light);
+    scene.add(
+        mainLight
+    );
 
 
     const ambient =
         new THREE.HemisphereLight(
             0xffead5,
             0x30251f,
-            1.5
+            1.4
         );
 
-    scene.add(ambient);
+    scene.add(
+        ambient
+    );
+
+
+    // Дополнительный мягкий свет
+
+    const fillLight =
+        new THREE.PointLight(
+            0xaecbff,
+            35,
+            70
+        );
+
+    fillLight.position.set(
+        -15,
+        5,
+        -10
+    );
+
+    scene.add(
+        fillLight
+    );
+
+
+    console.log(
+        "ALICIA AI: ROOM READY"
+    );
 
 
     return {
+
         width: WIDTH,
+
         depth: DEPTH,
+
         height: HEIGHT
+
     };
+
 }
