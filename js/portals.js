@@ -1,179 +1,21 @@
-import * as THREE
-    from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
-
-
-// =====================================================
-// ALICIA AI
-// PORTALS
-//
-// Окна + арка + космическое пространство
-// =====================================================
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 export function createPortals(scene) {
 
-    console.log(
-        "ALICIA AI: PORTALS START"
-    );
-
-
-    // =================================================
-    // МАТЕРИАЛЫ
-    // =================================================
-
     const frameMaterial =
         new THREE.MeshStandardMaterial({
-
             color: 0x38251b,
-
             roughness: 0.55
-
-        });
-
-
-    const portalMaterial =
-        new THREE.MeshBasicMaterial({
-
-            color: 0x18284a,
-
-            side: THREE.DoubleSide
-
         });
 
 
     // =================================================
-    // КОСМОС
+    // COSMIC SPACE
     // =================================================
 
     function createSpace(
         width,
         height,
-        position
-    ) {
-
-        const group =
-            new THREE.Group();
-
-
-        // ---------------------------------------------
-        // Глубокое пространство
-        // ---------------------------------------------
-
-        const space =
-            new THREE.Mesh(
-
-                new THREE.PlaneGeometry(
-                    width,
-                    height
-                ),
-
-                portalMaterial
-
-            );
-
-
-        group.add(
-            space
-        );
-
-
-        // ---------------------------------------------
-        // ЗВЁЗДЫ
-        // ---------------------------------------------
-
-        const starGeometry =
-            new THREE.BufferGeometry();
-
-
-        const stars = [];
-
-
-        for (
-            let i = 0;
-            i < 180;
-            i++
-        ) {
-
-            const x =
-                (Math.random() - 0.5)
-                * width;
-
-            const y =
-                (Math.random() - 0.5)
-                * height;
-
-
-            const z =
-                -Math.random() * 8;
-
-
-            stars.push(
-                x,
-                y,
-                z
-            );
-
-        }
-
-
-        starGeometry.setAttribute(
-
-            "position",
-
-            new THREE.Float32BufferAttribute(
-                stars,
-                3
-            )
-
-        );
-
-
-        const starMaterial =
-            new THREE.PointsMaterial({
-
-                color: 0xffffff,
-
-                size: 0.08,
-
-                sizeAttenuation: true
-
-            });
-
-
-        const starField =
-            new THREE.Points(
-
-                starGeometry,
-
-                starMaterial
-
-            );
-
-
-        group.add(
-            starField
-        );
-
-
-        group.position.copy(
-            position
-        );
-
-
-        scene.add(
-            group
-        );
-
-
-        return group;
-
-    }
-
-
-    // =================================================
-    // ОКНО
-    // =================================================
-
-    function createWindow(
         x,
         y,
         z
@@ -183,35 +25,100 @@ export function createPortals(scene) {
             new THREE.Group();
 
 
-        const width = 7;
+        const background =
+            new THREE.Mesh(
 
-        const height = 4;
+                new THREE.PlaneGeometry(
+                    width,
+                    height
+                ),
 
-
-        // ---------------------------------------------
-        // КОСМОС
-        // ---------------------------------------------
-
-        const space =
-            createSpace(
-
-                width,
-                height,
-
-                new THREE.Vector3(
-                    x,
-                    y,
-                    z
-                )
+                new THREE.MeshBasicMaterial({
+                    color: 0x101b38,
+                    side: THREE.DoubleSide
+                })
 
             );
 
 
-        // ---------------------------------------------
-        // РАМА
-        // ---------------------------------------------
+        group.add(background);
 
-        const thickness = 0.25;
+
+        // звёзды
+
+        const positions = [];
+
+
+        for (
+            let i = 0;
+            i < 180;
+            i++
+        ) {
+
+            positions.push(
+                (Math.random() - 0.5) * width,
+                (Math.random() - 0.5) * height,
+                0.05
+            );
+
+        }
+
+
+        const geometry =
+            new THREE.BufferGeometry();
+
+
+        geometry.setAttribute(
+            "position",
+            new THREE.Float32BufferAttribute(
+                positions,
+                3
+            )
+        );
+
+
+        const stars =
+            new THREE.Points(
+
+                geometry,
+
+                new THREE.PointsMaterial({
+                    color: 0xffffff,
+                    size: 0.08
+                })
+
+            );
+
+
+        group.add(stars);
+
+
+        group.position.set(
+            x,
+            y,
+            z
+        );
+
+
+        scene.add(group);
+
+    }
+
+
+    // =================================================
+    // WINDOW FRAME
+    // =================================================
+
+    function createWindow(
+        x,
+        y,
+        z,
+        width,
+        height,
+        rotationY = 0
+    ) {
+
+        const thickness = 0.3;
 
 
         function frame(
@@ -238,13 +145,15 @@ export function createPortals(scene) {
             mesh.position.set(
                 px,
                 py,
-                z + 0.15
+                z
             );
 
 
-            scene.add(
-                mesh
-            );
+            mesh.rotation.y =
+                rotationY;
+
+
+            scene.add(mesh);
 
         }
 
@@ -281,222 +190,148 @@ export function createPortals(scene) {
         );
 
 
-        // ---------------------------------------------
-        // ЦЕНТРАЛЬНАЯ РАМА
-        // ---------------------------------------------
-
-        frame(
-            thickness,
+        createSpace(
+            width,
             height,
             x,
-            y
-        );
-
-
-        console.log(
-            "WINDOW CREATED:",
-            x,
             y,
-            z
+            z + 0.15
         );
 
     }
 
 
     // =================================================
-    // ТРИ ОКНА
+    // BACK WINDOWS
     // =================================================
 
     createWindow(
-        -10,
+        -9,
         4,
-        -19.75
-    );
-
-
-    createWindow(
-        0,
-        4,
-        -19.75
+        -19.75,
+        7,
+        4
     );
 
 
     createWindow(
-        10,
+        1,
         4,
-        -19.75
+        -19.75,
+        7,
+        4
     );
 
 
     // =================================================
-    // ДВЕРНАЯ АРКА
+    // LONG SIDE WINDOW
     // =================================================
 
-    function createArch(
-        x,
-        y,
-        z
-    ) {
-
-        const group =
-            new THREE.Group();
-
-
-        // ---------------------------------------------
-        // ПРОСТРАНСТВО ЗА АРКОЙ
-        // ---------------------------------------------
-
-        const portal =
-            new THREE.Mesh(
-
-                new THREE.PlaneGeometry(
-                    5,
-                    7
-                ),
-
-                new THREE.MeshBasicMaterial({
-
-                    color: 0x101b38,
-
-                    side: THREE.DoubleSide
-
-                })
-
-            );
-
-
-        portal.position.set(
-            x,
-            y,
-            z
-        );
-
-
-        scene.add(
-            portal
-        );
-
-
-        // ---------------------------------------------
-        // БОКОВЫЕ СТОЙКИ
-        // ---------------------------------------------
-
-        const left =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.45,
-                    7,
-                    0.5
-                ),
-
-                frameMaterial
-
-            );
-
-
-        left.position.set(
-            x - 2.5,
-            y,
-            z + 0.2
-        );
-
-
-        scene.add(
-            left
-        );
-
-
-        const right =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.45,
-                    7,
-                    0.5
-                ),
-
-                frameMaterial
-
-            );
-
-
-        right.position.set(
-            x + 2.5,
-            y,
-            z + 0.2
-        );
-
-
-        scene.add(
-            right
-        );
-
-
-        // ---------------------------------------------
-        // ВЕРХ АРКИ
-        // ---------------------------------------------
-
-        const top =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    5.45,
-                    0.45,
-                    0.5
-                ),
-
-                frameMaterial
-
-            );
-
-
-        top.position.set(
-            x,
-            y + 3.5,
-            z + 0.2
-        );
-
-
-        scene.add(
-            top
-        );
-
-
-        // ---------------------------------------------
-        // ЗВЁЗДЫ ЗА АРКОЙ
-        // ---------------------------------------------
-
-        createSpace(
-
-            5,
-            7,
-
-            new THREE.Vector3(
-                x,
-                y,
-                z - 0.1
-            )
-
-        );
-
-
-        console.log(
-            "PORTAL ARCH CREATED"
-        );
-
-    }
-
-
-    // =================================================
-    // АРКА
-    // =================================================
-
-    createArch(
-        18,
-        3.5,
-        -19.7
+    createWindow(
+        -24.75,
+        4,
+        -2,
+        9,
+        4,
+        Math.PI / 2
     );
+
+
+    // =================================================
+    // ARCH
+    // =================================================
+
+    const archX = 0;
+    const archY = 3.5;
+    const archZ = 19.75;
+
+    const archWidth = 6;
+    const archHeight = 7;
+
+
+    createSpace(
+        archWidth,
+        archHeight,
+        archX,
+        archY,
+        archZ + 0.2
+    );
+
+
+    // боковые стойки
+
+    const left =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.4,
+                archHeight,
+                0.5
+            ),
+
+            frameMaterial
+
+        );
+
+
+    left.position.set(
+        archX - archWidth / 2,
+        archY,
+        archZ
+    );
+
+
+    scene.add(left);
+
+
+    const right =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.4,
+                archHeight,
+                0.5
+            ),
+
+            frameMaterial
+
+        );
+
+
+    right.position.set(
+        archX + archWidth / 2,
+        archY,
+        archZ
+    );
+
+
+    scene.add(right);
+
+
+    // верхняя перемычка
+
+    const top =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                archWidth + 0.4,
+                0.4,
+                0.5
+            ),
+
+            frameMaterial
+
+        );
+
+
+    top.position.set(
+        archX,
+        archY + archHeight / 2,
+        archZ
+    );
+
+
+    scene.add(top);
 
 
     console.log(
