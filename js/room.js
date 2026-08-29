@@ -6,9 +6,7 @@ import * as THREE from
 // ALICIA AI
 // ROOM SYSTEM
 // PROTOCOL 4
-//
-// HOUSE LAYOUT
-// SAO INSPIRED
+// HOUSE PLAN
 // ==========================================
 
 
@@ -69,18 +67,8 @@ export function createRoom(scene) {
         });
 
 
-    const glassMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x9fc5d6,
-            transparent: true,
-            opacity: 0.35,
-            roughness: 0.15,
-            metalness: 0.05
-        });
-
-
     // ======================================
-    // HELPER: BOX
+    // HELPER
     // ======================================
 
     function createBox(
@@ -119,7 +107,9 @@ export function createRoom(scene) {
             true;
 
 
-        scene.add(mesh);
+        scene.add(
+            mesh
+        );
 
 
         return mesh;
@@ -146,7 +136,7 @@ export function createRoom(scene) {
     // OUTER WALLS
     // ======================================
 
-    // BACK WALL
+    // BACK
 
     createBox(
         ROOM_WIDTH,
@@ -159,7 +149,7 @@ export function createRoom(scene) {
     );
 
 
-    // FRONT WALL
+    // FRONT
 
     createBox(
         ROOM_WIDTH,
@@ -172,7 +162,7 @@ export function createRoom(scene) {
     );
 
 
-    // LEFT WALL
+    // LEFT
 
     createBox(
         WALL,
@@ -185,7 +175,7 @@ export function createRoom(scene) {
     );
 
 
-    // RIGHT WALL
+    // RIGHT
 
     createBox(
         WALL,
@@ -215,29 +205,12 @@ export function createRoom(scene) {
 
 
     // ======================================
-    // INTERNAL LAYOUT
-    //
-    //      BACK
-    //
-    //   BEDROOM
-    //   ────────────────
-    //
-    //   LIVING | WORK
-    //
-    //   KITCHEN | BATH
-    //
-    //      FRONT
+    // INTERNAL WALLS
     // ======================================
 
-
-    // ======================================
-    // BEDROOM WALL
-    // ======================================
-
-    // Bedroom occupies:
-    // X: -21 ... 21
-    // Z: -15 ... -5
-
+    // --------------------------------------
+    // BEDROOM
+    // --------------------------------------
 
     createBox(
         15,
@@ -261,14 +234,6 @@ export function createRoom(scene) {
     );
 
 
-    // Центральный проход в спальню
-    // остаётся между -6 и +6
-
-
-    // ======================================
-    // BEDROOM SIDE DIVIDERS
-    // ======================================
-
     createBox(
         WALL,
         ROOM_HEIGHT,
@@ -291,13 +256,9 @@ export function createRoom(scene) {
     );
 
 
-    // ======================================
-    // KITCHEN / DINING ZONE
-    // ======================================
-
-    // Левая часть передней зоны
-    // отделяется от гостиной
-
+    // --------------------------------------
+    // KITCHEN
+    // --------------------------------------
 
     createBox(
         14,
@@ -310,10 +271,6 @@ export function createRoom(scene) {
     );
 
 
-    // ======================================
-    // KITCHEN WALL
-    // ======================================
-
     createBox(
         WALL,
         ROOM_HEIGHT,
@@ -325,13 +282,9 @@ export function createRoom(scene) {
     );
 
 
-    // ======================================
+    // --------------------------------------
     // BATHROOM
-    // ======================================
-
-    // Ванная находится
-    // в переднем правом углу
-
+    // --------------------------------------
 
     createBox(
         12,
@@ -356,297 +309,186 @@ export function createRoom(scene) {
 
 
     // ======================================
-    // WOODEN ARCHES / VISUAL DIVIDERS
+    // LABEL SYSTEM
     // ======================================
 
-    function createBeam(
-        width,
-        height,
-        depth,
-        x,
-        y,
-        z
-    ) {
-
-        return createBox(
-            width,
-            height,
-            depth,
-            x,
-            y,
-            z,
-            woodMaterial
-        );
-
-    }
-
-
-    // Арка между гостиной и кухней
-
-    createBeam(
-        0.35,
-        4.5,
-        0.35,
-        -7,
-        2.25,
-        5
-    );
-
-
-    createBeam(
-        0.35,
-        4.5,
-        0.35,
-        7,
-        2.25,
-        5
-    );
-
-
-    createBeam(
-        14.35,
-        0.35,
-        0.35,
-        0,
-        4.5,
-        5
-    );
-
-
-    // ======================================
-    // WINDOWS
-    // ======================================
-
-    function createWindow(
-        width,
-        height,
+    function createLabel(
+        text,
         x,
         y,
         z,
-        rotationY = 0
+        size = 0.7
     ) {
 
-        const frame =
-            new THREE.Group();
-
-
-        const glass =
-            new THREE.Mesh(
-                new THREE.BoxGeometry(
-                    width,
-                    height,
-                    0.08
-                ),
-                glassMaterial
+        const canvas =
+            document.createElement(
+                "canvas"
             );
 
 
-        glass.position.set(
+        const context =
+            canvas.getContext(
+                "2d"
+            );
+
+
+        canvas.width = 1024;
+        canvas.height = 256;
+
+
+        context.clearRect(
             0,
             0,
-            0
+            canvas.width,
+            canvas.height
         );
 
 
-        frame.add(
-            glass
+        context.fillStyle =
+            "rgba(20, 15, 10, 0.75)";
+
+
+        context.fillRect(
+            20,
+            40,
+            984,
+            176
         );
 
 
-        // Vertical frame
+        context.font =
+            "bold 92px Arial";
 
-        const left =
-            createBox(
-                0.12,
-                height,
-                0.15,
-                -width / 2,
-                0,
-                0,
-                woodMaterial
+
+        context.textAlign =
+            "center";
+
+
+        context.textBaseline =
+            "middle";
+
+
+        context.fillStyle =
+            "#ffffff";
+
+
+        context.fillText(
+            text,
+            canvas.width / 2,
+            canvas.height / 2
+        );
+
+
+        const texture =
+            new THREE.CanvasTexture(
+                canvas
             );
 
 
-        const right =
-            createBox(
-                0.12,
-                height,
-                0.15,
-                width / 2,
-                0,
-                0,
-                woodMaterial
+        texture.needsUpdate =
+            true;
+
+
+        const material =
+            new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                depthTest: false
+            });
+
+
+        const sprite =
+            new THREE.Sprite(
+                material
             );
 
 
-        // We created these in scene,
-        // so remove them from direct
-        // placement and use local objects.
-
-        scene.remove(left);
-        scene.remove(right);
-
-        frame.add(left);
-        frame.add(right);
-
-
-        frame.position.set(
+        sprite.position.set(
             x,
             y,
             z
         );
 
 
-        frame.rotation.y =
-            rotationY;
+        sprite.scale.set(
+            size * 3.5,
+            size,
+            1
+        );
 
 
         scene.add(
-            frame
+            sprite
         );
 
 
-        return frame;
+        return sprite;
     }
 
 
     // ======================================
-    // LARGE LIVING ROOM WINDOW
+    // ZONE LABELS
     // ======================================
 
-    createWindow(
+    createLabel(
+        "СПАЛЬНЯ",
+        0,
+        4.2,
+        -10,
+        1.0
+    );
+
+
+    createLabel(
+        "ГОСТИНАЯ",
         8,
-        3.2,
+        4.2,
         0,
-        3.2,
-        -14.82,
-        0
+        1.0
     );
 
 
-    // ======================================
-    // BEDROOM WINDOWS
-    // ======================================
-
-    createWindow(
-        5,
-        2.8,
-        -12,
-        3.1,
-        -14.82,
-        0
-    );
-
-
-    createWindow(
-        5,
-        2.8,
-        12,
-        3.1,
-        -14.82,
-        0
-    );
-
-
-    // ======================================
-    // KITCHEN WINDOW
-    // ======================================
-
-    createWindow(
-        5,
-        2.5,
+    createLabel(
+        "КУХНЯ",
         -14,
-        3,
-        14.82,
-        Math.PI
+        4.2,
+        10,
+        0.9
     );
 
 
-    // ======================================
-    // DOOR FRAMES
-    // ======================================
-
-    function createDoorFrame(
-        x,
-        y,
-        z,
-        width = 2.4,
-        height = 3
-    ) {
-
-        createBox(
-            0.18,
-            height,
-            0.18,
-            x - width / 2,
-            y,
-            z,
-            woodMaterial
-        );
-
-
-        createBox(
-            0.18,
-            height,
-            0.18,
-            x + width / 2,
-            y,
-            z,
-            woodMaterial
-        );
-
-
-        createBox(
-            width + 0.36,
-            0.18,
-            0.18,
-            x,
-            y + height,
-            z,
-            woodMaterial
-        );
-
-    }
-
-
-    // Вход в спальню
-
-    createDoorFrame(
-        0,
-        1.5,
-        -5.15,
-        5,
-        3
+    createLabel(
+        "СТОЛОВАЯ",
+        -4,
+        4.2,
+        8,
+        0.75
     );
 
 
-    // Вход в ванную
+    createLabel(
+        "РАБОЧАЯ ЗОНА",
+        14,
+        4.2,
+        -1,
+        0.75
+    );
 
-    createDoorFrame(
+
+    createLabel(
+        "ВАННАЯ",
         15,
-        1.5,
-        9.9,
-        2.2,
-        3
-    );
-
-
-    // Вход в кухонную зону
-
-    createDoorFrame(
-        -7,
-        1.5,
-        5,
-        3,
-        3
+        4.2,
+        10,
+        0.85
     );
 
 
     // ======================================
-    // CENTRAL LAMP
+    // CENTRAL LIGHT
     // ======================================
 
-    const lampLight =
+    const centralLight =
         new THREE.PointLight(
             0xffe6c2,
             45,
@@ -654,19 +496,19 @@ export function createRoom(scene) {
         );
 
 
-    lampLight.position.set(
+    centralLight.position.set(
         0,
         5.3,
         0
     );
 
 
-    lampLight.castShadow =
+    centralLight.castShadow =
         true;
 
 
     scene.add(
-        lampLight
+        centralLight
     );
 
 
@@ -719,7 +561,7 @@ export function createRoom(scene) {
 
 
     // ======================================
-    // LIVING AREA WARM LIGHT
+    // LIVING LIGHT
     // ======================================
 
     const livingLight =
@@ -805,14 +647,6 @@ export function createRoom(scene) {
 
     console.log(
         "ROOM: Protocol 4 ready"
-    );
-
-
-    console.log(
-        "ROOM SIZE:",
-        ROOM_WIDTH,
-        "x",
-        ROOM_DEPTH
     );
 
 
