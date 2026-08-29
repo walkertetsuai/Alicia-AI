@@ -5,14 +5,14 @@ import * as THREE from
 // ==========================================
 // ALICIA AI
 // ROOM SYSTEM
-// PROTOCOL 1
+// PROTOCOL 3.1
 // ==========================================
 
 
 export function createRoom(scene) {
 
     console.log(
-        "ALICIA AI: создание комнаты"
+        "ROOM: creating"
     );
 
 
@@ -20,9 +20,9 @@ export function createRoom(scene) {
     // ROOM SIZE
     // ======================================
 
-    const ROOM_WIDTH = 14;
-    const ROOM_DEPTH = 10;
-    const ROOM_HEIGHT = 5;
+    const ROOM_WIDTH = 42;
+    const ROOM_DEPTH = 30;
+    const ROOM_HEIGHT = 6;
 
 
     // ======================================
@@ -66,11 +66,14 @@ export function createRoom(scene) {
             floorMaterial
         );
 
+
     floor.position.y = -0.1;
 
     floor.receiveShadow = true;
 
-    scene.add(floor);
+    scene.add(
+        floor
+    );
 
 
     // ======================================
@@ -89,15 +92,50 @@ export function createRoom(scene) {
             wallMaterial
         );
 
+
     backWall.position.set(
         0,
         ROOM_HEIGHT / 2,
         -ROOM_DEPTH / 2
     );
 
+
     backWall.receiveShadow = true;
 
-    scene.add(backWall);
+    scene.add(
+        backWall
+    );
+
+
+    // ======================================
+    // FRONT WALL
+    // ======================================
+
+    const frontWall =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                ROOM_WIDTH,
+                ROOM_HEIGHT,
+                0.2
+            ),
+
+            wallMaterial
+        );
+
+
+    frontWall.position.set(
+        0,
+        ROOM_HEIGHT / 2,
+        ROOM_DEPTH / 2
+    );
+
+
+    frontWall.receiveShadow = true;
+
+    scene.add(
+        frontWall
+    );
 
 
     // ======================================
@@ -116,15 +154,19 @@ export function createRoom(scene) {
             wallMaterial
         );
 
+
     leftWall.position.set(
         -ROOM_WIDTH / 2,
         ROOM_HEIGHT / 2,
         0
     );
 
+
     leftWall.receiveShadow = true;
 
-    scene.add(leftWall);
+    scene.add(
+        leftWall
+    );
 
 
     // ======================================
@@ -143,15 +185,19 @@ export function createRoom(scene) {
             wallMaterial
         );
 
+
     rightWall.position.set(
         ROOM_WIDTH / 2,
         ROOM_HEIGHT / 2,
         0
     );
 
+
     rightWall.receiveShadow = true;
 
-    scene.add(rightWall);
+    scene.add(
+        rightWall
+    );
 
 
     // ======================================
@@ -170,10 +216,14 @@ export function createRoom(scene) {
             ceilingMaterial
         );
 
+
     ceiling.position.y =
         ROOM_HEIGHT;
 
-    scene.add(ceiling);
+
+    scene.add(
+        ceiling
+    );
 
 
     // ======================================
@@ -183,9 +233,10 @@ export function createRoom(scene) {
     const lampLight =
         new THREE.PointLight(
             0xffe8c7,
-            15,
-            15
+            30,
+            35
         );
+
 
     lampLight.position.set(
         0,
@@ -193,19 +244,27 @@ export function createRoom(scene) {
         0
     );
 
+
     lampLight.castShadow = true;
 
-    scene.add(lampLight);
+    scene.add(
+        lampLight
+    );
 
 
     console.log(
-        "ALICIA AI: комната создана"
+        "ROOM: 42 x 30 x 6"
     );
 
 
     return {
+
         width: ROOM_WIDTH,
+
         depth: ROOM_DEPTH,
+
         height: ROOM_HEIGHT
+
     };
+
 }
