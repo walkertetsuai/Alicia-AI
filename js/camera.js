@@ -8,22 +8,15 @@ import * as THREE from
 // PROTOCOL 3
 // ==========================================
 
+export function createCamera(camera, player, renderer) {
 
-export function createCamera(
-    camera,
-    player
-) {
-
-    console.log(
-        "CAMERA: system loaded"
-    );
-
+    console.log("CAMERA: system loaded");
 
     const system = {
 
-        sensitivity: 0.002,
+        sensitivity: 0.0025,
 
-        smoothness: 12,
+        smoothness: 15,
 
         targetYaw: 0,
 
@@ -38,34 +31,33 @@ export function createCamera(
     };
 
 
+    const canvas = renderer.domElement;
+
+
     // ======================================
-    // POINTER LOCK
+    // CLICK → POINTER LOCK
     // ======================================
 
-    document.addEventListener(
+    canvas.addEventListener(
         "click",
         () => {
 
-            if (
-                !system.locked
-            ) {
-
-                document.body.requestPointerLock();
-
-            }
+            canvas.requestPointerLock();
 
         }
     );
 
+
+    // ======================================
+    // POINTER LOCK STATE
+    // ======================================
 
     document.addEventListener(
         "pointerlockchange",
         () => {
 
             system.locked =
-                document.pointerLockElement ===
-                document.body;
-
+                document.pointerLockElement === canvas;
 
             console.log(
                 "CAMERA LOCK:",
@@ -77,7 +69,7 @@ export function createCamera(
 
 
     // ======================================
-    // MOUSE LOOK
+    // MOUSE
     // ======================================
 
     document.addEventListener(
@@ -120,7 +112,7 @@ export function createCamera(
 
     function update(delta) {
 
-        const smoothing =
+        const smooth =
             1 -
             Math.exp(
                 -system.smoothness *
@@ -132,7 +124,7 @@ export function createCamera(
             THREE.MathUtils.lerp(
                 system.currentYaw,
                 system.targetYaw,
-                smoothing
+                smooth
             );
 
 
@@ -140,11 +132,11 @@ export function createCamera(
             THREE.MathUtils.lerp(
                 system.currentPitch,
                 system.targetPitch,
-                smoothing
+                smooth
             );
 
 
-        // Передаём направление игроку
+        // Передаём направление взгляда игроку
 
         player.yaw =
             system.currentYaw;
@@ -154,12 +146,14 @@ export function createCamera(
             system.currentPitch;
 
 
-        // Камера
+        // Позиция камеры
 
         camera.position.copy(
             player.position
         );
 
+
+        // Вращение камеры
 
         camera.rotation.order =
             "YXZ";
