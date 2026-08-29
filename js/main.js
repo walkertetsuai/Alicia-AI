@@ -1,7 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 import { createRoom } from "./room.js";
 
-alert("ALICIA AI: ROOM TEST");
+console.log("ALICIA AI MAIN: START");
 
 
 // ==================================================
@@ -10,22 +10,19 @@ alert("ALICIA AI: ROOM TEST");
 
 const scene = new THREE.Scene();
 
-scene.background =
-    new THREE.Color(0x9bb6c4);
+scene.background = new THREE.Color(0x9bb6c4);
 
 
 // ==================================================
 // CAMERA
 // ==================================================
 
-const camera =
-    new THREE.PerspectiveCamera(
-        70,
-        window.innerWidth /
-        window.innerHeight,
-        0.1,
-        200
-    );
+const camera = new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    200
+);
 
 camera.position.set(
     0,
@@ -38,10 +35,9 @@ camera.position.set(
 // RENDERER
 // ==================================================
 
-const renderer =
-    new THREE.WebGLRenderer({
-        antialias: true
-    });
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
 
 renderer.setSize(
     window.innerWidth,
@@ -49,10 +45,7 @@ renderer.setSize(
 );
 
 renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio,
-        2
-    )
+    Math.min(window.devicePixelRatio, 2)
 );
 
 renderer.shadowMap.enabled = true;
@@ -65,6 +58,8 @@ document.body.appendChild(
 // ==================================================
 // ROOM
 // ==================================================
+
+console.log("ALICIA AI MAIN: CREATING ROOM");
 
 createRoom(scene);
 
@@ -93,7 +88,7 @@ window.addEventListener(
 
 
 // ==================================================
-// RENDER LOOP
+// LOOP
 // ==================================================
 
 function animate() {
@@ -110,3 +105,5 @@ function animate() {
 }
 
 animate();
+
+console.log("ALICIA AI MAIN: READY");
