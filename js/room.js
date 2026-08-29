@@ -2,30 +2,45 @@ import * as THREE from
     "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 
-// ==================================================
+// ======================================================
 // ALICIA AI
 // ROOM SYSTEM
-// PROTOCOL 5
+// PROTOCOL 6
 //
-// HOUSE ARCHITECTURE
+// CLEAN HOUSE ARCHITECTURE
 // SAO INSPIRED
-// ==================================================
+// ======================================================
 
 
 export function createRoom(scene) {
 
-    console.log("ROOM: Protocol 5 loading");
+    console.log("ALICIA ROOM: Protocol 6");
 
 
     // ==================================================
-    // HOUSE DIMENSIONS
+    // HOUSE
     // ==================================================
 
-    const WIDTH = 42;
-    const DEPTH = 30;
-    const HEIGHT = 6;
+    const HOUSE_W = 42;
+    const HOUSE_D = 30;
+    const HOUSE_H = 6;
 
-    const WALL = 0.25;
+    const WALL = 0.28;
+
+
+    // ==================================================
+    // COLORS
+    // ==================================================
+
+    const woodDark = 0x4a3020;
+    const wood = 0x8a6040;
+    const woodLight = 0xb58a60;
+
+    const floorColor = 0x725036;
+
+    const ceilingColor = 0xd8c8b5;
+
+    const glassColor = 0x9bc9dc;
 
 
     // ==================================================
@@ -34,69 +49,60 @@ export function createRoom(scene) {
 
     const floorMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0x765538,
-            roughness: 0.72
+            color: floorColor,
+            roughness: 0.82
         });
 
 
     const wallMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0xb88e64,
-            roughness: 0.82
+            color: woodLight,
+            roughness: 0.86
         });
 
 
-    const wallLightMaterial =
+    const wallDarkMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0xc9a47b,
-            roughness: 0.85
+            color: wood,
+            roughness: 0.86
         });
 
 
     const ceilingMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0xd9c7b0,
+            color: ceilingColor,
             roughness: 0.95
         });
 
 
     const beamMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0x543923,
-            roughness: 0.72
+            color: woodDark,
+            roughness: 0.75
         });
 
 
     const glassMaterial =
         new THREE.MeshPhysicalMaterial({
 
-            color: 0x9fc8d8,
+            color: glassColor,
 
             transparent: true,
 
-            opacity: 0.32,
+            opacity: 0.38,
 
             roughness: 0.08,
-
-            metalness: 0,
 
             transmission: 0.15
 
         });
 
 
-    const windowFrameMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x5a3c25,
-            roughness: 0.65
-        });
-
-
     // ==================================================
-    // BOX FUNCTION
+    // BASIC BOX
     // ==================================================
 
-    function box(
+    function makeBox(
         width,
         height,
         depth,
@@ -104,7 +110,7 @@ export function createRoom(scene) {
         y,
         z,
         material,
-        shadow = true
+        shadows = true
     ) {
 
         const mesh =
@@ -129,7 +135,7 @@ export function createRoom(scene) {
 
 
         mesh.castShadow =
-            shadow;
+            shadows;
 
         mesh.receiveShadow =
             true;
@@ -146,12 +152,12 @@ export function createRoom(scene) {
     // FLOOR
     // ==================================================
 
-    box(
-        WIDTH,
-        0.25,
-        DEPTH,
+    makeBox(
+        HOUSE_W,
+        0.3,
+        HOUSE_D,
         0,
-        -0.125,
+        -0.15,
         0,
         floorMaterial,
         false
@@ -162,12 +168,12 @@ export function createRoom(scene) {
     // CEILING
     // ==================================================
 
-    box(
-        WIDTH,
+    makeBox(
+        HOUSE_W,
         0.25,
-        DEPTH,
+        HOUSE_D,
         0,
-        HEIGHT,
+        HOUSE_H,
         0,
         ceilingMaterial,
         false
@@ -178,195 +184,189 @@ export function createRoom(scene) {
     // OUTER WALLS
     // ==================================================
 
-    // BACK WALL
+    // BACK
 
-    box(
-        WIDTH,
-        HEIGHT,
+    makeBox(
+        HOUSE_W,
+        HOUSE_H,
         WALL,
         0,
-        HEIGHT / 2,
-        -DEPTH / 2,
+        HOUSE_H / 2,
+        -14.86,
         wallMaterial
     );
 
 
-    // FRONT WALL
+    // FRONT
 
-    box(
-        WIDTH,
-        HEIGHT,
+    makeBox(
+        HOUSE_W,
+        HOUSE_H,
         WALL,
         0,
-        HEIGHT / 2,
-        DEPTH / 2,
+        HOUSE_H / 2,
+        14.86,
         wallMaterial
     );
 
 
-    // LEFT WALL
+    // LEFT
 
-    box(
+    makeBox(
         WALL,
-        HEIGHT,
-        DEPTH,
-        -WIDTH / 2,
-        HEIGHT / 2,
+        HOUSE_H,
+        HOUSE_D,
+        -20.86,
+        HOUSE_H / 2,
         0,
         wallMaterial
     );
 
 
-    // RIGHT WALL
+    // RIGHT
 
-    box(
+    makeBox(
         WALL,
-        HEIGHT,
-        DEPTH,
-        WIDTH / 2,
-        HEIGHT / 2,
+        HOUSE_H,
+        HOUSE_D,
+        20.86,
+        HOUSE_H / 2,
         0,
         wallMaterial
     );
 
 
     // ==================================================
-    // ARCHITECTURE
+    // HOUSE PLAN
+    //
     //
     //                    BACK
     //
-    //          ┌───────────────────────┐
-    //          │       BEDROOM         │
-    //          │                       │
-    //          │                       │
-    //          └───────────┬───────────┘
-    //                      │
-    //          LIVING      │       WORK
-    //                      │
-    //       ┌──────────────┴─────────────┐
-    //       │                            │
-    //       │                            │
-    //       │                            │
-    //       ├──────────────┬─────────────┤
-    //       │   KITCHEN    │   BATHROOM  │
-    //       │   DINING     │             │
-    //       └──────────────┴─────────────┘
+    // ┌──────────────────────────────────────────────┐
+    // │                                              │
+    // │                  BEDROOM                     │
+    // │                                              │
+    // │                    🛏                         │
+    // │                                              │
+    // ├───────────────┐              ┌───────────────┤
+    // │               │              │               │
+    // │               │    LIVING    │    WORK       │
+    // │               │              │               │
+    // │   KITCHEN     │              │               │
+    // │               │              │               │
+    // │   DINING      │              │               │
+    // │               │              │               │
+    // ├───────────────┘              └───────┬───────┤
+    // │                                      │       │
+    // │             ENTRY                    │ BATH  │
+    // │                                      │       │
+    // └──────────────────────────────────────┴───────┘
     //
     //                    FRONT
+    //
     // ==================================================
 
 
     // ==================================================
-    // BEDROOM BACK WALL
+    // BEDROOM WALL
+    //
+    // Back zone:
+    // X -20.7 ... 20.7
+    // Z -14.7 ... -5
+    //
+    // OPENING IN CENTER
     // ==================================================
 
-    // Left section
+    // Left part
 
-    box(
+    makeBox(
         16,
-        HEIGHT,
+        HOUSE_H,
         WALL,
-        -13,
-        HEIGHT / 2,
-        -5
+        -12.35,
+        HOUSE_H / 2,
+        -5,
+        wallDarkMaterial
     );
 
 
-    // Right section
+    // Right part
 
-    box(
+    makeBox(
         16,
-        HEIGHT,
+        HOUSE_H,
         WALL,
-        13,
-        HEIGHT / 2,
-        -5
-    );
-
-
-    // Центральный проход в спальню
-    // ширина ~10 метров
-
-
-    // ==================================================
-    // BEDROOM SIDE WALLS
-    // ==================================================
-
-    box(
-        WALL,
-        HEIGHT,
-        10,
-        -8,
-        HEIGHT / 2,
-        -10
-    );
-
-
-    box(
-        WALL,
-        HEIGHT,
-        10,
-        8,
-        HEIGHT / 2,
-        -10
+        12.35,
+        HOUSE_H / 2,
+        -5,
+        wallDarkMaterial
     );
 
 
     // ==================================================
-    // KITCHEN / DINING DIVIDER
+    // LEFT LIVING / KITCHEN DIVIDER
+    //
+    // Kitchen is front-left.
+    // Living is behind it.
+    //
+    // Large opening remains.
     // ==================================================
 
-    // Левая граница кухонной зоны
-
-    box(
+    makeBox(
         WALL,
-        HEIGHT,
-        8,
+        HOUSE_H,
+        5,
         -7,
-        HEIGHT / 2,
-        11
+        HOUSE_H / 2,
+        12,
+        wallDarkMaterial
+    );
+
+
+    // ==================================================
+    // RIGHT WORK / BATH DIVIDER
+    // ==================================================
+
+    makeBox(
+        WALL,
+        HOUSE_H,
+        5,
+        9,
+        HOUSE_H / 2,
+        12,
+        wallDarkMaterial
     );
 
 
     // ==================================================
     // BATHROOM
+    //
+    // Front-right corner
     // ==================================================
 
-    // Левая стена ванной
+    // Back wall of bathroom
 
-    box(
-        WALL,
-        HEIGHT,
-        8,
-        9,
-        HEIGHT / 2,
-        11
-    );
-
-
-    // Правая граница ванной
-
-    box(
-        12,
-        HEIGHT,
+    makeBox(
+        11,
+        HOUSE_H,
         WALL,
         15,
-        HEIGHT / 2,
-        7
+        HOUSE_H / 2,
+        7,
+        wallDarkMaterial
     );
 
 
-    // ==================================================
-    // KITCHEN BACK WALL
-    // ==================================================
+    // Left wall of bathroom
 
-    box(
-        14,
-        HEIGHT,
+    makeBox(
         WALL,
-        -14,
-        HEIGHT / 2,
-        7
+        HOUSE_H,
+        7,
+        9.5,
+        HOUSE_H / 2,
+        10.5,
+        wallDarkMaterial
     );
 
 
@@ -374,73 +374,65 @@ export function createRoom(scene) {
     // WOODEN BEAMS
     // ==================================================
 
-    function beam(
-        width,
-        height,
-        depth,
-        x,
-        y,
-        z
-    ) {
+    // Main ceiling beams
 
-        return box(
-            width,
-            height,
-            depth,
-            x,
-            y,
-            z,
-            beamMaterial
-        );
-
-    }
-
-
-    // Главная балка
-
-    beam(
-        WIDTH,
-        0.3,
-        0.3,
+    makeBox(
+        HOUSE_W,
+        0.32,
+        0.32,
         0,
-        5.5,
-        0
+        5.55,
+        -5,
+        beamMaterial
     );
 
 
-    // Балка спальни
-
-    beam(
-        16,
-        0.3,
-        0.3,
-        -13,
-        5.5,
-        -5
+    makeBox(
+        HOUSE_W,
+        0.32,
+        0.32,
+        0,
+        5.55,
+        5,
+        beamMaterial
     );
 
 
-    beam(
-        16,
-        0.3,
-        0.3,
-        13,
-        5.5,
-        -5
+    // Side beam
+
+    makeBox(
+        0.32,
+        0.32,
+        HOUSE_D,
+        -10,
+        5.55,
+        0,
+        beamMaterial
+    );
+
+
+    makeBox(
+        0.32,
+        0.32,
+        HOUSE_D,
+        10,
+        5.55,
+        0,
+        beamMaterial
     );
 
 
     // ==================================================
-    // WINDOW SYSTEM
+    // WINDOW FUNCTION
     // ==================================================
 
-    function createWindow(
+    function window(
         width,
         height,
         x,
         y,
         z,
-        rotation = 0
+        rotationY = 0
     ) {
 
         const group =
@@ -466,18 +458,21 @@ export function createRoom(scene) {
         group.add(glass);
 
 
-        // Left frame
+        // Frames
+
+        const frameThickness = 0.14;
+
 
         const left =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    0.15,
+                    frameThickness,
                     height,
-                    0.18
+                    0.22
                 ),
 
-                windowFrameMaterial
+                beamMaterial
 
             );
 
@@ -489,18 +484,16 @@ export function createRoom(scene) {
         group.add(left);
 
 
-        // Right frame
-
         const right =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    0.15,
+                    frameThickness,
                     height,
-                    0.18
+                    0.22
                 ),
 
-                windowFrameMaterial
+                beamMaterial
 
             );
 
@@ -512,18 +505,16 @@ export function createRoom(scene) {
         group.add(right);
 
 
-        // Top frame
-
         const top =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    width + 0.3,
-                    0.15,
-                    0.18
+                    width + 0.28,
+                    frameThickness,
+                    0.22
                 ),
 
-                windowFrameMaterial
+                beamMaterial
 
             );
 
@@ -535,18 +526,16 @@ export function createRoom(scene) {
         group.add(top);
 
 
-        // Bottom frame
-
         const bottom =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    width + 0.3,
-                    0.15,
-                    0.18
+                    width + 0.28,
+                    frameThickness,
+                    0.22
                 ),
 
-                windowFrameMaterial
+                beamMaterial
 
             );
 
@@ -558,18 +547,18 @@ export function createRoom(scene) {
         group.add(bottom);
 
 
-        // Center divider
+        // Vertical center
 
         const center =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    0.12,
+                    frameThickness,
                     height,
-                    0.2
+                    0.24
                 ),
 
-                windowFrameMaterial
+                beamMaterial
 
             );
 
@@ -585,186 +574,225 @@ export function createRoom(scene) {
 
 
         group.rotation.y =
-            rotation;
+            rotationY;
 
 
         scene.add(group);
 
 
         return group;
-
     }
 
 
     // ==================================================
-    // LIVING ROOM
+    // WINDOWS
     // ==================================================
 
-    createWindow(
+    // Large living room window
+
+    window(
         9,
         3.2,
-        8,
-        3.2,
-        -14.82
+        5,
+        3.3,
+        -14.65
     );
 
 
-    // ==================================================
-    // BEDROOM WINDOWS
-    // ==================================================
+    // Bedroom windows
 
-    createWindow(
+    window(
         5,
-        2.7,
+        2.8,
         -13,
-        3.1,
-        -14.82
+        3.2,
+        -14.65
     );
 
 
-    createWindow(
+    window(
         5,
-        2.7,
+        2.8,
         13,
-        3.1,
-        -14.82
+        3.2,
+        -14.65
     );
 
 
-    // ==================================================
-    // KITCHEN WINDOW
-    // ==================================================
+    // Kitchen window
 
-    createWindow(
+    window(
         5,
         2.5,
         -14,
-        3,
-        14.82,
+        3.1,
+        14.65,
         Math.PI
     );
 
 
-    // ==================================================
-    // WORKSPACE WINDOW
-    // ==================================================
+    // Workspace window
 
-    createWindow(
+    window(
         5,
-        2.7,
-        19,
-        3.1,
-        -2
+        2.8,
+        17,
+        3.2,
+        -2,
+        Math.PI / 2
     );
 
 
-    // ==================================================
-    // BATHROOM SMALL WINDOW
-    // ==================================================
+    // Bathroom window
 
-    createWindow(
-        3,
-        1.8,
+    window(
+        2.5,
+        1.7,
         15,
         3.5,
-        14.82,
+        14.65,
         Math.PI
     );
 
 
     // ==================================================
-    // DOOR / ARCH FUNCTION
+    // DOOR / ARCH
     // ==================================================
 
-    function createOpening(
+    function doorway(
         x,
+        y,
         z,
-        width = 3,
-        height = 3
+        width,
+        height,
+        rotationY = 0
     ) {
 
-        // Left pillar
-
-        box(
-            0.2,
-            height,
-            0.3,
-            x - width / 2,
-            height / 2,
-            z,
-            beamMaterial
-        );
+        const group =
+            new THREE.Group();
 
 
-        // Right pillar
+        const left =
+            new THREE.Mesh(
 
-        box(
-            0.2,
-            height,
-            0.3,
-            x + width / 2,
-            height / 2,
-            z,
-            beamMaterial
-        );
+                new THREE.BoxGeometry(
+                    0.22,
+                    height,
+                    0.3
+                ),
+
+                beamMaterial
+
+            );
 
 
-        // Top beam
+        left.position.x =
+            -width / 2;
 
-        box(
-            width + 0.4,
-            0.2,
-            0.3,
+
+        group.add(left);
+
+
+        const right =
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    0.22,
+                    height,
+                    0.3
+                ),
+
+                beamMaterial
+
+            );
+
+
+        right.position.x =
+            width / 2;
+
+
+        group.add(right);
+
+
+        const top =
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    width + 0.4,
+                    0.22,
+                    0.3
+                ),
+
+                beamMaterial
+
+            );
+
+
+        top.position.y =
+            height;
+
+
+        group.add(top);
+
+
+        group.position.set(
             x,
-            height,
-            z,
-            beamMaterial
+            y,
+            z
         );
+
+
+        group.rotation.y =
+            rotationY;
+
+
+        scene.add(group);
 
     }
 
 
-    // ==================================================
-    // OPENINGS
-    // ==================================================
-
     // Bedroom
 
-    createOpening(
+    doorway(
+        0,
         0,
         -5.15,
-        6,
+        7,
         3.4
     );
 
 
     // Kitchen
 
-    createOpening(
+    doorway(
         -7,
-        7,
-        3.2,
+        0,
+        9,
+        4,
         3.2
     );
 
 
     // Bathroom
 
-    createOpening(
+    doorway(
         15,
-        7,
-        2.4,
+        0,
+        7.15,
+        2.5,
         3
     );
 
 
     // Workspace
 
-    createOpening(
-        8,
+    doorway(
+        9,
+        0,
         -1,
         3.5,
-        3.2
+        3.2,
+        Math.PI / 2
     );
 
 
@@ -772,85 +800,101 @@ export function createRoom(scene) {
     // LIGHTING
     // ==================================================
 
-    const mainLight =
-        new THREE.PointLight(
-            0xffe5c5,
-            55,
-            35
+    function light(
+        x,
+        y,
+        z,
+        intensity,
+        distance
+    ) {
+
+        const point =
+            new THREE.PointLight(
+                0xffdfbd,
+                intensity,
+                distance
+            );
+
+
+        point.position.set(
+            x,
+            y,
+            z
         );
 
 
-    mainLight.position.set(
+        point.castShadow =
+            true;
+
+
+        scene.add(point);
+
+    }
+
+
+    // Living room
+
+    light(
+        4,
         5,
-        5.2,
-        0
-    );
-
-
-    mainLight.castShadow =
-        true;
-
-
-    scene.add(mainLight);
-
-
-    const bedroomLight =
-        new THREE.PointLight(
-            0xffdcb5,
-            30,
-            22
-        );
-
-
-    bedroomLight.position.set(
         0,
-        4.8,
-        -10
+        45,
+        24
     );
 
 
-    scene.add(
-        bedroomLight
+    // Bedroom
+
+    light(
+        0,
+        5,
+        -10,
+        32,
+        20
     );
 
 
-    const kitchenLight =
-        new THREE.PointLight(
-            0xffdfb8,
-            30,
-            20
-        );
+    // Kitchen
 
-
-    kitchenLight.position.set(
+    light(
         -14,
-        4.8,
-        10
+        5,
+        10,
+        30,
+        18
     );
 
 
-    scene.add(
-        kitchenLight
+    // Dining
+
+    light(
+        -4,
+        5,
+        8,
+        25,
+        16
     );
 
 
-    const bathroomLight =
-        new THREE.PointLight(
-            0xffe9d5,
-            20,
-            14
-        );
+    // Workspace
 
-
-    bathroomLight.position.set(
+    light(
         15,
-        4.5,
-        10
+        5,
+        -1,
+        30,
+        18
     );
 
 
-    scene.add(
-        bathroomLight
+    // Bathroom
+
+    light(
+        15,
+        4.8,
+        10,
+        20,
+        12
     );
 
 
@@ -860,46 +904,46 @@ export function createRoom(scene) {
 
     const houseData = {
 
-        width: WIDTH,
+        width: HOUSE_W,
 
-        depth: DEPTH,
+        depth: HOUSE_D,
 
-        height: HEIGHT,
+        height: HOUSE_H,
 
         zones: {
 
             bedroom: {
-                name: "СПАЛЬНЯ",
+                name: "Спальня",
                 x: 0,
                 z: -10
             },
 
-            livingRoom: {
-                name: "ГОСТИНАЯ",
-                x: 5,
+            living: {
+                name: "Гостиная",
+                x: 4,
                 z: 0
             },
 
             kitchen: {
-                name: "КУХНЯ",
+                name: "Кухня",
                 x: -14,
                 z: 10
             },
 
             dining: {
-                name: "СТОЛОВАЯ",
-                x: -3,
-                z: 9
+                name: "Столовая",
+                x: -4,
+                z: 8
             },
 
             workspace: {
-                name: "РАБОЧАЯ ЗОНА",
+                name: "Рабочая зона",
                 x: 15,
                 z: -1
             },
 
             bathroom: {
-                name: "ВАННАЯ",
+                name: "Ванная",
                 x: 15,
                 z: 10
             }
@@ -910,17 +954,15 @@ export function createRoom(scene) {
 
 
     console.log(
-        "ROOM SIZE:",
-        WIDTH,
+        "ALICIA HOUSE:",
+        HOUSE_W,
         "x",
-        DEPTH,
-        "x",
-        HEIGHT
+        HOUSE_D
     );
 
 
     console.log(
-        "ROOM: Protocol 5 ready"
+        "ALICIA ROOM: ready"
     );
 
 
