@@ -3,16 +3,15 @@ export function setupControls(
     domElement
 ) {
 
-    // ==========================================
-    // KEYBOARD
-    // ==========================================
-
     const keys = {};
+
+    let yaw = 0;
+    let pitch = 0;
 
 
     window.addEventListener(
         "keydown",
-        (event) => {
+        event => {
 
             keys[event.code] = true;
 
@@ -22,21 +21,12 @@ export function setupControls(
 
     window.addEventListener(
         "keyup",
-        (event) => {
+        event => {
 
             keys[event.code] = false;
 
         }
     );
-
-
-    // ==========================================
-    // MOUSE
-    // ==========================================
-
-    let yaw = 0;
-
-    let pitch = 0;
 
 
     domElement.addEventListener(
@@ -51,7 +41,7 @@ export function setupControls(
 
     document.addEventListener(
         "mousemove",
-        (event) => {
+        event => {
 
             if (
                 document.pointerLockElement
@@ -88,9 +78,9 @@ export function setupControls(
     );
 
 
-    // ==========================================
-    // UPDATE
-    // ==========================================
+    camera.rotation.order =
+        "YXZ";
+
 
     return function updateControls(
         delta
@@ -100,23 +90,12 @@ export function setupControls(
             6 * delta;
 
 
-        // --------------------------------------
-        // CAMERA ROTATION
-        // --------------------------------------
-
-        camera.rotation.order =
-            "YXZ";
-
         camera.rotation.y =
             yaw;
 
         camera.rotation.x =
             pitch;
 
-
-        // --------------------------------------
-        // MOVEMENT
-        // --------------------------------------
 
         const forwardX =
             -Math.sin(yaw);
@@ -132,63 +111,94 @@ export function setupControls(
             -Math.sin(yaw);
 
 
-        // W
+        let nextX =
+            camera.position.x;
+
+        let nextZ =
+            camera.position.z;
+
 
         if (keys["KeyW"]) {
 
-            camera.position.x +=
+            nextX +=
                 forwardX * speed;
 
-            camera.position.z +=
+            nextZ +=
                 forwardZ * speed;
 
         }
 
-
-        // S
 
         if (keys["KeyS"]) {
 
-            camera.position.x -=
+            nextX -=
                 forwardX * speed;
 
-            camera.position.z -=
+            nextZ -=
                 forwardZ * speed;
 
         }
 
 
-        // A
-
         if (keys["KeyA"]) {
 
-            camera.position.x -=
+            nextX -=
                 rightX * speed;
 
-            camera.position.z -=
+            nextZ -=
                 rightZ * speed;
 
         }
 
-
-        // D
 
         if (keys["KeyD"]) {
 
-            camera.position.x +=
+            nextX +=
                 rightX * speed;
 
-            camera.position.z +=
+            nextZ +=
                 rightZ * speed;
 
         }
 
 
-        // --------------------------------------
-        // PLAYER HEIGHT
-        // --------------------------------------
+        // ==========================================
+        // ROOM BOUNDS
+        // ==========================================
 
-        camera.position.y = 2;
+        const limitX = 24;
+        const limitZ = 19;
+
+
+        nextX =
+            Math.max(
+                -limitX,
+                Math.min(
+                    limitX,
+                    nextX
+                )
+            );
+
+
+        nextZ =
+            Math.max(
+                -limitZ,
+                Math.min(
+                    limitZ,
+                    nextZ
+                )
+            );
+
+
+        camera.position.x =
+            nextX;
+
+        camera.position.z =
+            nextZ;
+
+
+        camera.position.y =
+            2;
 
     };
 
