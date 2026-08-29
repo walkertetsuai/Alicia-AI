@@ -1,103 +1,146 @@
-import * as THREE from
-    "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
-
-
 // ==========================================
 // ALICIA AI
 // CONTROL SYSTEM
-// PROTOCOL 2
-// DEBUG VERSION
+// PROTOCOL 3
 // ==========================================
 
-export function createControls(player, camera) {
 
-    console.log("CONTROLS: module loaded");
+export function createControls(player) {
+
+    console.log(
+        "CONTROLS: system loaded"
+    );
+
 
     const keys = {};
 
-    window.addEventListener("keydown", (event) => {
 
-        keys[event.code] = true;
+    // ======================================
+    // KEYBOARD
+    // ======================================
 
-        console.log("KEY DOWN:", event.code);
+    window.addEventListener(
+        "keydown",
+        (event) => {
 
-    });
+            keys[event.code] = true;
 
-    window.addEventListener("keyup", (event) => {
+        }
+    );
 
-        keys[event.code] = false;
 
-    });
+    window.addEventListener(
+        "keyup",
+        (event) => {
 
+            keys[event.code] = false;
+
+        }
+    );
+
+
+    // ======================================
+    // MOVEMENT
+    // ======================================
 
     function update(delta) {
 
         let forward = 0;
         let right = 0;
 
-        if (keys["KeyW"]) forward += 1;
-        if (keys["KeyS"]) forward -= 1;
 
-        if (keys["KeyD"]) right += 1;
-        if (keys["KeyA"]) right -= 1;
+        if (keys["KeyW"])
+            forward += 1;
 
 
-        if (forward === 0 && right === 0) {
+        if (keys["KeyS"])
+            forward -= 1;
+
+
+        if (keys["KeyD"])
+            right += 1;
+
+
+        if (keys["KeyA"])
+            right -= 1;
+
+
+        if (
+            forward === 0 &&
+            right === 0
+        ) {
+
             return;
+
         }
 
 
-        const direction =
-            new THREE.Vector3();
+        // Нормализация
 
-        camera.getWorldDirection(direction);
-
-        direction.y = 0;
-        direction.normalize();
-
-
-        const rightVector =
-            new THREE.Vector3();
-
-        rightVector.crossVectors(
-            direction,
-            new THREE.Vector3(0, 1, 0)
-        );
-
-        rightVector.normalize();
+        const length =
+            Math.sqrt(
+                forward * forward +
+                right * right
+            );
 
 
-        player.position.addScaledVector(
-            direction,
-            forward * player.speed * delta
-        );
-
-        player.position.addScaledVector(
-            rightVector,
-            right * player.speed * delta
-        );
+        forward /= length;
+        right /= length;
 
 
-        // Границы комнаты
+        // Направление относительно взгляда
+
+        const sin =
+            Math.sin(player.yaw);
+
+        const cos =
+            Math.cos(player.yaw);
+
+
+        const moveX =
+            -sin * forward +
+            cos * right;
+
+
+        const moveZ =
+            -cos * forward -
+            sin * right;
+
+
+        player.position.x +=
+            moveX *
+            player.speed *
+            delta;
+
+
+        player.position.z +=
+            moveZ *
+            player.speed *
+            delta;
+
+
+        // ==================================
+        // ROOM LIMITS
+        // ==================================
 
         player.position.x =
-            THREE.MathUtils.clamp(
-                player.position.x,
+            Math.max(
                 -6.3,
-                6.3
+                Math.min(
+                    6.3,
+                    player.position.x
+                )
             );
+
 
         player.position.z =
-            THREE.MathUtils.clamp(
-                player.position.z,
+            Math.max(
                 -4.3,
-                4.3
+                Math.min(
+                    4.3,
+                    player.position.z
+                )
             );
-
-
-        camera.position.copy(
-            player.position
-        );
 
     }
 
