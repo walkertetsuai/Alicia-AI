@@ -1,23 +1,15 @@
-// ==========================================
-// ALICIA AI
-// CONTROL SYSTEM
-// PROTOCOL 3.1
-// ==========================================
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+
+export function setupControls(camera, domElement) {
+
+    console.log("ALICIA AI: CONTROLS START");
 
 
-export function createControls(player) {
-
-    console.log(
-        "CONTROLS: system loaded"
-    );
-
+    // ==================================================
+    // СОСТОЯНИЕ КЛАВИШ
+    // ==================================================
 
     const keys = {};
-
-
-    // ======================================
-    // KEY DOWN
-    // ======================================
 
     window.addEventListener(
         "keydown",
@@ -25,25 +17,9 @@ export function createControls(player) {
 
             keys[event.code] = true;
 
-
-            if (
-                event.code === "KeyW" ||
-                event.code === "KeyA" ||
-                event.code === "KeyS" ||
-                event.code === "KeyD"
-            ) {
-
-                event.preventDefault();
-
-            }
-
         }
     );
 
-
-    // ======================================
-    // KEY UP
-    // ======================================
 
     window.addEventListener(
         "keyup",
@@ -55,135 +31,195 @@ export function createControls(player) {
     );
 
 
-    // ======================================
-    // UPDATE
-    // ======================================
+    // ==================================================
+    // МЫШЬ
+    // ==================================================
 
-    function update(delta) {
+    let mouseLocked = false;
 
-        let forward = 0;
-        let strafe = 0;
-
-
-        if (keys["KeyW"])
-            forward += 1;
+    let yaw = 0;
+    let pitch = 0;
 
 
-        if (keys["KeyS"])
-            forward -= 1;
+    domElement.addEventListener(
+        "click",
+        () => {
+
+            domElement.requestPointerLock();
+
+        }
+    );
 
 
-        if (keys["KeyA"])
-            strafe -= 1;
+    document.addEventListener(
+        "pointerlockchange",
+        () => {
+
+            mouseLocked =
+                document.pointerLockElement === domElement;
+
+        }
+    );
 
 
-        if (keys["KeyD"])
-            strafe += 1;
+    document.addEventListener(
+        "mousemove",
+        (event) => {
+
+            if (!mouseLocked) {
+                return;
+            }
+
+            yaw -= event.movementX * 0.002;
+
+            pitch -= event.movementY * 0.002;
 
 
-        if (
-            forward === 0 &&
-            strafe === 0
-        ) {
+            const limit =
+                Math.PI / 2 - 0.05;
 
-            return;
+            pitch =
+                Math.max(
+                    -limit,
+                    Math.min(
+                        limit,
+                        pitch
+                    )
+                );
+
+        }
+    );
+
+
+    // ==================================================
+    // НАСТРОЙКА КАМЕРЫ
+    // ==================================================
+
+    camera.rotation.order =
+        "YXZ";
+
+
+    // ==================================================
+    // ДВИЖЕНИЕ
+    // ==================================================
+
+    const clock =
+        new THREE.Clock();
+
+
+    function update() {
+
+        requestAnimationFrame(
+            update
+        );
+
+
+        const delta =
+            Math.min(
+                clock.getDelta(),
+                0.05
+            );
+
+
+        const speed =
+            6 * delta;
+
+
+        // ------------------------------------------
+        // ПОВОРОТ КАМЕРЫ
+        // ------------------------------------------
+
+        camera.rotation.y =
+            yaw;
+
+        camera.rotation.x =
+            pitch;
+
+
+        // ------------------------------------------
+        // НАПРАВЛЕНИЯ
+        // ------------------------------------------
+
+        const forward =
+            new THREE.Vector3();
+
+        camera.getWorldDirection(
+            forward
+        );
+
+
+        forward.y = 0;
+
+        forward.normalize();
+
+
+        const right =
+            new THREE.Vector3();
+
+        right.crossVectors(
+            forward,
+            camera.up
+        );
+
+        right.normalize();
+
+
+        // ------------------------------------------
+        // WASD
+        // ------------------------------------------
+
+        if (keys["KeyW"]) {
+
+            camera.position.addScaledVector(
+                forward,
+                speed
+            );
+
+        }
+
+        if (keys["KeyS"]) {
+
+            camera.position.addScaledVector(
+                forward,
+                -speed
+            );
+
+        }
+
+        if (keys["KeyA"]) {
+
+            camera.position.addScaledVector(
+                right,
+                -speed
+            );
+
+        }
+
+        if (keys["KeyD"]) {
+
+            camera.position.addScaledVector(
+                right,
+                speed
+            );
 
         }
 
 
-        // ==================================
-        // NORMALIZE
-        // ==================================
+        // ------------------------------------------
+        // ВЫСОТА ГЛАЗ
+        // ------------------------------------------
 
-        const length =
-            Math.sqrt(
-                forward * forward +
-                strafe * strafe
-            );
+        camera.position.y = 2;
 
-
-        forward /= length;
-        strafe /= length;
-
-
-        // ==================================
-        // DIRECTION
-        // ==================================
-
-        const yaw =
-            player.yaw;
-
-
-        const forwardX =
-            -Math.sin(yaw);
-
-
-        const forwardZ =
-            -Math.cos(yaw);
-
-
-        const rightX =
-            Math.cos(yaw);
-
-
-        const rightZ =
-            -Math.sin(yaw);
-
-
-        // ==================================
-        // MOVEMENT
-        // ==================================
-
-        player.position.x +=
-            (
-                forwardX * forward +
-                rightX * strafe
-            ) *
-            player.speed *
-            delta;
-
-
-        player.position.z +=
-            (
-                forwardZ * forward +
-                rightZ * strafe
-            ) *
-            player.speed *
-            delta;
-
-
-        // ==================================
-        // ROOM BOUNDARIES
-        // ==================================
-
-        const limitX = 20.3;
-        const limitZ = 14.3;
-
-
-        player.position.x =
-            Math.max(
-                -limitX,
-                Math.min(
-                    limitX,
-                    player.position.x
-                )
-            );
-
-
-        player.position.z =
-            Math.max(
-                -limitZ,
-                Math.min(
-                    limitZ,
-                    player.position.z
-                )
-            );
 
     }
 
 
-    return {
-        update
-    };
+    update();
+
+
+    console.log(
+        "ALICIA AI: CONTROLS READY"
+    );
 
 }
