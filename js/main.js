@@ -7,6 +7,9 @@ import { createRoom }
 import { setupControls }
     from "./controls.js";
 
+import { createPortals }
+    from "./portals.js";
+
 
 // ==================================================
 // SCENE
@@ -45,13 +48,17 @@ camera.position.set(
 
 const renderer =
     new THREE.WebGLRenderer({
+
         antialias: true
+
     });
+
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
+
 
 renderer.setPixelRatio(
     Math.min(
@@ -60,10 +67,10 @@ renderer.setPixelRatio(
     )
 );
 
-renderer.shadowMap.enabled = true;
 
-renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled =
+    true;
+
 
 document.body.appendChild(
     renderer.domElement
@@ -74,7 +81,18 @@ document.body.appendChild(
 // ROOM
 // ==================================================
 
-createRoom(scene);
+createRoom(
+    scene
+);
+
+
+// ==================================================
+// PORTALS
+// ==================================================
+
+createPortals(
+    scene
+);
 
 
 // ==================================================
@@ -83,8 +101,11 @@ createRoom(scene);
 
 const updateControls =
     setupControls(
+
         camera,
+
         renderer.domElement
+
     );
 
 
@@ -109,8 +130,11 @@ function animate() {
 
     const delta =
         Math.min(
+
             clock.getDelta(),
+
             0.05
+
         );
 
 
@@ -135,20 +159,27 @@ animate();
 // ==================================================
 
 window.addEventListener(
+
     "resize",
+
     () => {
 
         camera.aspect =
             window.innerWidth /
             window.innerHeight;
 
+
         camera.updateProjectionMatrix();
 
 
         renderer.setSize(
+
             window.innerWidth,
+
             window.innerHeight
+
         );
 
     }
+
 );
