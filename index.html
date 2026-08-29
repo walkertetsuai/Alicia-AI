@@ -1,94 +1,97 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Alicia AI</title>
-
-    <style>
-
-        html,
-        body {
-
-            margin: 0;
-            padding: 0;
-
-            width: 100%;
-            height: 100%;
-
-            overflow: hidden;
-
-            background: #000;
-
-        }
-
-        canvas {
-
-            display: block;
-
-        }
-
-        #ui {
-
-            position: fixed;
-
-            top: 18px;
-            left: 18px;
-
-            z-index: 10;
-
-            padding: 10px 16px;
-
-            color: white;
-
-            background: rgba(
-                10,
-                10,
-                15,
-                0.55
-            );
-
-            border: 1px solid rgba(
-                255,
-                255,
-                255,
-                0.15
-            );
-
-            border-radius: 10px;
-
-            font-family:
-                Arial,
-                sans-serif;
-
-            font-size: 14px;
-
-            pointer-events: none;
-
-        }
-
-    </style>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus — Комната Алисии</title>
+    <link rel="stylesheet" href="css/main.css">
 </head>
-
 <body>
+    <div class="room">
+        <!-- Стены -->
+        <div class="wall wall-back"></div>
+        <div class="wall wall-left"></div>
+        <div class="wall wall-right"></div>
+        <div class="wall wall-floor"></div>
+        <div class="wall wall-ceiling"></div>
 
-    <div id="ui">
-        ALICIA AI
+        <!-- Окно -->
+        <div class="window">
+            <div class="window-frame">
+                <div class="window-glass">
+                    <div class="window-view">
+                        <div class="snow"></div>
+                    </div>
+                </div>
+                <div class="window-sill"></div>
+            </div>
+        </div>
+
+        <!-- Дверь -->
+        <div class="door" id="mainDoor">
+            <div class="door-frame"></div>
+            <div class="door-leaf">
+                <div class="door-panel top"></div>
+                <div class="door-panel bottom"></div>
+            </div>
+            <div class="door-handle"></div>
+        </div>
+
+        <!-- Камин -->
+        <div class="fireplace">
+            <div class="fireplace-mantel"></div>
+            <div class="fireplace-hearth">
+                <div class="fire">
+                    <div class="flame flame1"></div>
+                    <div class="flame flame2"></div>
+                    <div class="flame flame3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Интерьер -->
+        <div class="interior">
+            <div class="chair">
+                <div class="chair-back"></div>
+                <div class="chair-seat"></div>
+                <div class="chair-legs">
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                </div>
+            </div>
+            <div class="table">
+                <div class="table-top"></div>
+                <div class="table-legs">
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                </div>
+                <div class="cup">
+                    <div class="cup-body"></div>
+                    <div class="cup-handle"></div>
+                    <div class="steam"></div>
+                </div>
+            </div>
+            <div class="bookshelf">
+                <div class="shelf"></div>
+                <div class="shelf"></div>
+                <div class="shelf"></div>
+                <div class="book" style="left:10px;"></div>
+                <div class="book" style="left:40px;"></div>
+                <div class="book" style="left:70px;"></div>
+            </div>
+        </div>
+
+        <!-- Свет -->
+        <div class="light">
+            <div class="lamp"></div>
+            <div class="lamp-light"></div>
+        </div>
     </div>
 
-    <script
-        type="module"
-        src="./js/main.js?v=30">
-    </script>
-
+    <script src="js/controls.js"></script>
 </body>
-
 </html>
