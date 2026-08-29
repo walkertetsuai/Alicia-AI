@@ -4,9 +4,13 @@
 // PROTOCOL 3.1
 // ==========================================
 
+
 export function createControls(player) {
 
-    console.log("CONTROLS: system loaded");
+    console.log(
+        "CONTROLS: system loaded"
+    );
+
 
     const keys = {};
 
@@ -15,38 +19,44 @@ export function createControls(player) {
     // KEY DOWN
     // ======================================
 
-    window.addEventListener("keydown", (event) => {
+    window.addEventListener(
+        "keydown",
+        (event) => {
 
-        keys[event.code] = true;
+            keys[event.code] = true;
 
-        console.log("KEY:", event.code);
 
-        // Не даём браузеру прокручивать страницу
-        if (
-            event.code === "KeyW" ||
-            event.code === "KeyA" ||
-            event.code === "KeyS" ||
-            event.code === "KeyD"
-        ) {
-            event.preventDefault();
+            if (
+                event.code === "KeyW" ||
+                event.code === "KeyA" ||
+                event.code === "KeyS" ||
+                event.code === "KeyD"
+            ) {
+
+                event.preventDefault();
+
+            }
+
         }
-
-    });
+    );
 
 
     // ======================================
     // KEY UP
     // ======================================
 
-    window.addEventListener("keyup", (event) => {
+    window.addEventListener(
+        "keyup",
+        (event) => {
 
-        keys[event.code] = false;
+            keys[event.code] = false;
 
-    });
+        }
+    );
 
 
     // ======================================
-    // MOVEMENT
+    // UPDATE
     // ======================================
 
     function update(delta) {
@@ -55,40 +65,34 @@ export function createControls(player) {
         let strafe = 0;
 
 
-        // W / S
-
-        if (keys["KeyW"]) {
+        if (keys["KeyW"])
             forward += 1;
-        }
 
-        if (keys["KeyS"]) {
+
+        if (keys["KeyS"])
             forward -= 1;
-        }
 
 
-        // A / D
-
-        if (keys["KeyA"]) {
+        if (keys["KeyA"])
             strafe -= 1;
-        }
 
-        if (keys["KeyD"]) {
+
+        if (keys["KeyD"])
             strafe += 1;
-        }
 
-
-        // Нет движения
 
         if (
             forward === 0 &&
             strafe === 0
         ) {
+
             return;
+
         }
 
 
         // ==================================
-        // НОРМАЛИЗАЦИЯ
+        // NORMALIZE
         // ==================================
 
         const length =
@@ -97,37 +101,37 @@ export function createControls(player) {
                 strafe * strafe
             );
 
+
         forward /= length;
         strafe /= length;
 
 
         // ==================================
-        // НАПРАВЛЕНИЕ ВЗГЛЯДА
+        // DIRECTION
         // ==================================
 
-        const yaw = player.yaw;
+        const yaw =
+            player.yaw;
 
-
-        // Вектор вперёд
 
         const forwardX =
             -Math.sin(yaw);
+
 
         const forwardZ =
             -Math.cos(yaw);
 
 
-        // Вектор вправо
-
         const rightX =
             Math.cos(yaw);
+
 
         const rightZ =
             -Math.sin(yaw);
 
 
         // ==================================
-        // ДВИЖЕНИЕ
+        // MOVEMENT
         // ==================================
 
         player.position.x +=
@@ -149,14 +153,18 @@ export function createControls(player) {
 
 
         // ==================================
-        // ГРАНИЦЫ КОМНАТЫ
+        // ROOM BOUNDARIES
         // ==================================
+
+        const limitX = 20.3;
+        const limitZ = 14.3;
+
 
         player.position.x =
             Math.max(
-                -6.3,
+                -limitX,
                 Math.min(
-                    6.3,
+                    limitX,
                     player.position.x
                 )
             );
@@ -164,19 +172,15 @@ export function createControls(player) {
 
         player.position.z =
             Math.max(
-                -4.3,
+                -limitZ,
                 Math.min(
-                    4.3,
+                    limitZ,
                     player.position.z
                 )
             );
 
     }
 
-
-    // ======================================
-    // RETURN
-    // ======================================
 
     return {
         update
