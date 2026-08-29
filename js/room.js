@@ -1,57 +1,29 @@
-import * as THREE
-    from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
-
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 export function createRoom(scene) {
 
-    console.log(
-        "ALICIA AI: ROOM START"
-    );
-
-
-    // ==========================================
-    // ROOM SIZE
-    // ==========================================
-
     const WIDTH = 50;
-
     const DEPTH = 40;
-
     const HEIGHT = 10;
-
     const WALL = 0.4;
 
+    const floorMaterial = new THREE.MeshStandardMaterial({
+        color: 0x765238,
+        roughness: 0.8
+    });
 
-    // ==========================================
-    // MATERIALS
-    // ==========================================
+    const wallMaterial = new THREE.MeshStandardMaterial({
+        color: 0xb58a63,
+        roughness: 0.85
+    });
 
-    const floorMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x765238,
-            roughness: 0.8
-        });
-
-
-    const wallMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0xb58a63,
-            roughness: 0.85
-        });
+    const ceilingMaterial = new THREE.MeshStandardMaterial({
+        color: 0xd8c8b5,
+        roughness: 0.95
+    });
 
 
-    const ceilingMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0xd8c8b5,
-            roughness: 0.95
-        });
-
-
-    // ==========================================
-    // HELPER
-    // ==========================================
-
-    function createBox(
+    function box(
         width,
         height,
         depth,
@@ -61,19 +33,14 @@ export function createRoom(scene) {
         material
     ) {
 
-        const mesh =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    width,
-                    height,
-                    depth
-                ),
-
-                material
-
-            );
-
+        const mesh = new THREE.Mesh(
+            new THREE.BoxGeometry(
+                width,
+                height,
+                depth
+            ),
+            material
+        );
 
         mesh.position.set(
             x,
@@ -81,147 +48,257 @@ export function createRoom(scene) {
             z
         );
 
-
         mesh.castShadow = true;
-
         mesh.receiveShadow = true;
 
-
-        scene.add(
-            mesh
-        );
-
+        scene.add(mesh);
 
         return mesh;
-
     }
 
 
-    // ==========================================
+    // =================================================
     // FLOOR
-    // ==========================================
+    // =================================================
 
-    createBox(
-
+    box(
         WIDTH,
         0.3,
         DEPTH,
-
         0,
         -0.15,
         0,
-
         floorMaterial
-
     );
 
 
-    // ==========================================
+    // =================================================
     // CEILING
-    // ==========================================
+    // =================================================
 
-    createBox(
-
+    box(
         WIDTH,
         0.3,
         DEPTH,
-
         0,
         HEIGHT,
         0,
-
         ceilingMaterial
-
     );
 
 
-    // ==========================================
+    // =================================================
     // BACK WALL
-    // ==========================================
+    //
+    // ДВА ОКНА
+    // =================================================
 
-    createBox(
+    const windowWidth = 7;
+    const windowHeight = 4;
 
+    const windowY = 4;
+
+    const window1X = -9;
+    const window2X = 1;
+
+
+    // нижняя часть стены
+
+    box(
         WIDTH,
-        HEIGHT,
+        2,
         WALL,
-
         0,
-        HEIGHT / 2,
+        1,
         -DEPTH / 2,
-
         wallMaterial
-
     );
 
 
-    // ==========================================
-    // FRONT WALL
-    // ==========================================
+    // верхняя часть стены
 
-    createBox(
-
+    box(
         WIDTH,
-        HEIGHT,
+        HEIGHT - 6,
         WALL,
-
         0,
-        HEIGHT / 2,
-        DEPTH / 2,
-
+        8,
+        -DEPTH / 2,
         wallMaterial
-
     );
 
 
-    // ==========================================
+    // между окнами
+
+    box(
+        3,
+        4,
+        WALL,
+        -5,
+        windowY,
+        -DEPTH / 2,
+        wallMaterial
+    );
+
+
+    // слева от первого окна
+
+    box(
+        12.5,
+        4,
+        WALL,
+        -18.75,
+        windowY,
+        -DEPTH / 2,
+        wallMaterial
+    );
+
+
+    // справа от второго окна
+
+    box(
+        20.5,
+        4,
+        WALL,
+        15.75,
+        windowY,
+        -DEPTH / 2,
+        wallMaterial
+    );
+
+
+    // =================================================
     // LEFT WALL
-    // ==========================================
+    //
+    // ОДНО ОКНО
+    // =================================================
 
-    createBox(
+    const sideWindowWidth = 9;
+    const sideWindowHeight = 4;
 
+    const sideWindowZ = -2;
+
+
+    // перед окном
+
+    box(
         WALL,
         HEIGHT,
-        DEPTH,
-
+        16,
         -WIDTH / 2,
         HEIGHT / 2,
-        0,
-
+        12,
         wallMaterial
-
     );
 
 
-    // ==========================================
-    // RIGHT WALL
-    // ==========================================
+    // за окном
 
-    createBox(
-
+    box(
         WALL,
         HEIGHT,
-        DEPTH,
-
-        WIDTH / 2,
+        20,
+        -WIDTH / 2,
         HEIGHT / 2,
-        0,
-
+        -12,
         wallMaterial
-
     );
 
 
-    // ==========================================
+    // нижняя часть окна
+
+    box(
+        WALL,
+        2,
+        sideWindowWidth,
+        -WIDTH / 2,
+        1,
+        sideWindowZ,
+        wallMaterial
+    );
+
+
+    // верхняя часть окна
+
+    box(
+        WALL,
+        HEIGHT - 6,
+        sideWindowWidth,
+        -WIDTH / 2,
+        8,
+        sideWindowZ,
+        wallMaterial
+    );
+
+
+    // =================================================
+    // RIGHT WALL
+    //
+    // АРКА
+    // =================================================
+
+    const archWidth = 6;
+    const archHeight = 7;
+
+    const archX = 0;
+
+    const archZ = DEPTH / 2;
+
+
+    // левая часть стены
+
+    box(
+        (WIDTH - archWidth) / 2,
+        HEIGHT,
+        WALL,
+
+        -((WIDTH - archWidth) / 4),
+        HEIGHT / 2,
+        archZ,
+
+        wallMaterial
+    );
+
+
+    // правая часть стены
+
+    box(
+        (WIDTH - archWidth) / 2,
+        HEIGHT,
+        WALL,
+
+        ((WIDTH - archWidth) / 4),
+        HEIGHT / 2,
+        archZ,
+
+        wallMaterial
+    );
+
+
+    // над аркой
+
+    box(
+        archWidth,
+        HEIGHT - archHeight,
+        WALL,
+
+        archX,
+        archHeight + (HEIGHT - archHeight) / 2,
+        archZ,
+
+        wallMaterial
+    );
+
+
+    // =================================================
     // LIGHT
-    // ==========================================
+    // =================================================
 
-    const light =
-        new THREE.PointLight(
-            0xffdfbd,
-            100,
-            100
-        );
-
+    const light = new THREE.PointLight(
+        0xffdfbd,
+        100,
+        100
+    );
 
     light.position.set(
         0,
@@ -229,18 +306,10 @@ export function createRoom(scene) {
         0
     );
 
-
     light.castShadow = true;
 
+    scene.add(light);
 
-    scene.add(
-        light
-    );
-
-
-    // ==========================================
-    // AMBIENT LIGHT
-    // ==========================================
 
     const ambient =
         new THREE.HemisphereLight(
@@ -249,25 +318,12 @@ export function createRoom(scene) {
             1.5
         );
 
-
-    scene.add(
-        ambient
-    );
-
-
-    console.log(
-        "ALICIA AI: ROOM READY"
-    );
+    scene.add(ambient);
 
 
     return {
-
         width: WIDTH,
-
         depth: DEPTH,
-
         height: HEIGHT
-
     };
-
 }
