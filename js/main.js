@@ -1,22 +1,22 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+import { createRoom } from "./room.js";
 
-alert("THREE.JS ЗАПУЩЕН");
+alert("ALICIA AI: ROOM TEST");
 
 
-// ==========================================
+// ==================================================
 // SCENE
-// ==========================================
+// ==================================================
 
-const scene =
-    new THREE.Scene();
+const scene = new THREE.Scene();
 
 scene.background =
-    new THREE.Color(0x222222);
+    new THREE.Color(0x9bb6c4);
 
 
-// ==========================================
+// ==================================================
 // CAMERA
-// ==========================================
+// ==================================================
 
 const camera =
     new THREE.PerspectiveCamera(
@@ -24,19 +24,19 @@ const camera =
         window.innerWidth /
         window.innerHeight,
         0.1,
-        100
+        200
     );
 
 camera.position.set(
     0,
-    0,
-    5
+    2,
+    12
 );
 
 
-// ==========================================
+// ==================================================
 // RENDERER
-// ==========================================
+// ==================================================
 
 const renderer =
     new THREE.WebGLRenderer({
@@ -48,51 +48,59 @@ renderer.setSize(
     window.innerHeight
 );
 
+renderer.setPixelRatio(
+    Math.min(
+        window.devicePixelRatio,
+        2
+    )
+);
+
+renderer.shadowMap.enabled = true;
+
 document.body.appendChild(
     renderer.domElement
 );
 
 
-// ==========================================
-// TEST OBJECT
-// ==========================================
+// ==================================================
+// ROOM
+// ==================================================
 
-const geometry =
-    new THREE.BoxGeometry(
-        2,
-        2,
-        2
-    );
+createRoom(scene);
 
-const material =
-    new THREE.MeshBasicMaterial({
-        color: 0xff0000
-    });
 
-const cube =
-    new THREE.Mesh(
-        geometry,
-        material
-    );
+// ==================================================
+// RESIZE
+// ==================================================
 
-scene.add(
-    cube
+window.addEventListener(
+    "resize",
+    () => {
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    }
 );
 
 
-// ==========================================
-// LOOP
-// ==========================================
+// ==================================================
+// RENDER LOOP
+// ==================================================
 
 function animate() {
 
     requestAnimationFrame(
         animate
     );
-
-    cube.rotation.x += 0.01;
-
-    cube.rotation.y += 0.01;
 
     renderer.render(
         scene,
