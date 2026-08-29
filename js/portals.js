@@ -1,16 +1,37 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+import * as THREE
+    from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+
 
 export function createPortals(scene) {
 
+    // =================================================
+    // MATERIALS
+    // =================================================
+
     const frameMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0x38251b,
-            roughness: 0.55
+
+            color: 0x3b271b,
+
+            roughness: 0.5,
+
+            metalness: 0.15
+
+        });
+
+
+    const spaceMaterial =
+        new THREE.MeshBasicMaterial({
+
+            color: 0x101a38,
+
+            side: THREE.DoubleSide
+
         });
 
 
     // =================================================
-    // COSMIC SPACE
+    // SPACE
     // =================================================
 
     function createSpace(
@@ -18,12 +39,15 @@ export function createPortals(scene) {
         height,
         x,
         y,
-        z
+        z,
+        rotationY = 0
     ) {
 
         const group =
             new THREE.Group();
 
+
+        // Background
 
         const background =
             new THREE.Mesh(
@@ -33,64 +57,102 @@ export function createPortals(scene) {
                     height
                 ),
 
-                new THREE.MeshBasicMaterial({
-                    color: 0x101b38,
-                    side: THREE.DoubleSide
-                })
+                spaceMaterial
 
             );
 
 
-        group.add(background);
+        background.position.set(
+            0,
+            0,
+            0
+        );
 
 
-        // звёзды
+        group.add(
+            background
+        );
+
+
+        // Stars
 
         const positions = [];
 
 
         for (
             let i = 0;
-            i < 180;
+            i < 220;
             i++
         ) {
 
+            const starX =
+                (
+                    Math.random() -
+                    0.5
+                ) * width;
+
+
+            const starY =
+                (
+                    Math.random() -
+                    0.5
+                ) * height;
+
+
+            const starZ =
+                -Math.random() * 5;
+
+
             positions.push(
-                (Math.random() - 0.5) * width,
-                (Math.random() - 0.5) * height,
-                0.05
+                starX,
+                starY,
+                starZ
             );
 
         }
 
 
-        const geometry =
+        const starGeometry =
             new THREE.BufferGeometry();
 
 
-        geometry.setAttribute(
+        starGeometry.setAttribute(
+
             "position",
+
             new THREE.Float32BufferAttribute(
                 positions,
                 3
             )
+
         );
+
+
+        const starMaterial =
+            new THREE.PointsMaterial({
+
+                color: 0xffffff,
+
+                size: 0.07,
+
+                sizeAttenuation: true
+
+            });
 
 
         const stars =
             new THREE.Points(
 
-                geometry,
+                starGeometry,
 
-                new THREE.PointsMaterial({
-                    color: 0xffffff,
-                    size: 0.08
-                })
+                starMaterial
 
             );
 
 
-        group.add(stars);
+        group.add(
+            stars
+        );
 
 
         group.position.set(
@@ -100,13 +162,19 @@ export function createPortals(scene) {
         );
 
 
-        scene.add(group);
+        group.rotation.y =
+            rotationY;
+
+
+        scene.add(
+            group
+        );
 
     }
 
 
     // =================================================
-    // WINDOW FRAME
+    // WINDOW
     // =================================================
 
     function createWindow(
@@ -118,23 +186,45 @@ export function createPortals(scene) {
         rotationY = 0
     ) {
 
-        const thickness = 0.3;
+        const depth =
+            0.38;
+
+
+        // Космос
+
+        createSpace(
+
+            width,
+            height,
+
+            x,
+            y,
+            z - 0.15,
+
+            rotationY
+
+        );
 
 
         function frame(
-            w,
-            h,
+            widthFrame,
+            heightFrame,
             px,
-            py
+            py,
+            pz
         ) {
 
             const mesh =
                 new THREE.Mesh(
 
                     new THREE.BoxGeometry(
-                        w,
-                        h,
-                        0.35
+
+                        widthFrame,
+
+                        heightFrame,
+
+                        depth
+
                     ),
 
                     frameMaterial
@@ -145,7 +235,7 @@ export function createPortals(scene) {
             mesh.position.set(
                 px,
                 py,
-                z
+                pz
             );
 
 
@@ -153,49 +243,92 @@ export function createPortals(scene) {
                 rotationY;
 
 
-            scene.add(mesh);
+            mesh.castShadow =
+                true;
+
+
+            mesh.receiveShadow =
+                true;
+
+
+            scene.add(
+                mesh
+            );
 
         }
 
 
+        // Верх
+
         frame(
-            width,
-            thickness,
+
+            width +
+            0.5,
+
+            0.3,
+
             x,
-            y + height / 2
+
+            y +
+            height / 2,
+
+            z
+
         );
 
 
+        // Низ
+
         frame(
-            width,
-            thickness,
+
+            width +
+            0.5,
+
+            0.3,
+
             x,
-            y - height / 2
+
+            y -
+            height / 2,
+
+            z
+
         );
 
+
+        // Левая сторона
 
         frame(
-            thickness,
+
+            0.3,
+
             height,
-            x - width / 2,
-            y
-        );
 
+            x -
+            width / 2,
 
-        frame(
-            thickness,
-            height,
-            x + width / 2,
-            y
-        );
-
-
-        createSpace(
-            width,
-            height,
-            x,
             y,
-            z + 0.15
+
+            z
+
+        );
+
+
+        // Правая сторона
+
+        frame(
+
+            0.3,
+
+            height,
+
+            x +
+            width / 2,
+
+            y,
+
+            z
+
         );
 
     }
@@ -206,34 +339,41 @@ export function createPortals(scene) {
     // =================================================
 
     createWindow(
-        -9,
+        -10,
         4,
-        -19.75,
+        -19.72,
         7,
         4
     );
 
 
     createWindow(
-        1,
+        2,
         4,
-        -19.75,
+        -19.72,
         7,
         4
     );
 
 
     // =================================================
-    // LONG SIDE WINDOW
+    // LONG LEFT WINDOW
     // =================================================
 
     createWindow(
-        -24.75,
+
+        -24.72,
+
         4,
-        -2,
-        9,
+
+        -4,
+
+        12,
+
         4,
+
         Math.PI / 2
+
     );
 
 
@@ -241,24 +381,40 @@ export function createPortals(scene) {
     // ARCH
     // =================================================
 
-    const archX = 0;
-    const archY = 3.5;
-    const archZ = 19.75;
+    const archX =
+        24.72;
 
-    const archWidth = 6;
-    const archHeight = 7;
+    const archY =
+        3.5;
 
+    const archZ =
+        5;
+
+
+    const archWidth =
+        6;
+
+    const archHeight =
+        7;
+
+
+    // Космос
 
     createSpace(
+
         archWidth,
         archHeight,
+
         archX,
         archY,
-        archZ + 0.2
+        archZ - 0.2,
+
+        Math.PI / 2
+
     );
 
 
-    // боковые стойки
+    // Левая стойка
 
     const left =
         new THREE.Mesh(
@@ -275,14 +431,23 @@ export function createPortals(scene) {
 
 
     left.position.set(
-        archX - archWidth / 2,
+
+        archX,
+
         archY,
-        archZ
+
+        archZ -
+        archWidth / 2
+
     );
 
 
-    scene.add(left);
+    scene.add(
+        left
+    );
 
+
+    // Правая стойка
 
     const right =
         new THREE.Mesh(
@@ -299,24 +464,31 @@ export function createPortals(scene) {
 
 
     right.position.set(
-        archX + archWidth / 2,
+
+        archX,
+
         archY,
-        archZ
+
+        archZ +
+        archWidth / 2
+
     );
 
 
-    scene.add(right);
+    scene.add(
+        right
+    );
 
 
-    // верхняя перемычка
+    // Верхняя часть
 
     const top =
         new THREE.Mesh(
 
             new THREE.BoxGeometry(
-                archWidth + 0.4,
                 0.4,
-                0.5
+                0.4,
+                archWidth + 0.4
             ),
 
             frameMaterial
@@ -325,13 +497,20 @@ export function createPortals(scene) {
 
 
     top.position.set(
+
         archX,
-        archY + archHeight / 2,
+
+        archY +
+        archHeight / 2,
+
         archZ
+
     );
 
 
-    scene.add(top);
+    scene.add(
+        top
+    );
 
 
     console.log(
