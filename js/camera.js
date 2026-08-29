@@ -9,12 +9,17 @@ import * as THREE from
 // ==========================================
 
 
-export function createCamera(camera, player) {
+export function createCamera(
+    camera,
+    player
+) {
 
-    console.log("CAMERA: system loaded");
+    console.log(
+        "CAMERA: system loaded"
+    );
 
 
-    const cameraSystem = {
+    const system = {
 
         sensitivity: 0.002,
 
@@ -41,7 +46,9 @@ export function createCamera(camera, player) {
         "click",
         () => {
 
-            if (!cameraSystem.locked) {
+            if (
+                !system.locked
+            ) {
 
                 document.body.requestPointerLock();
 
@@ -55,13 +62,14 @@ export function createCamera(camera, player) {
         "pointerlockchange",
         () => {
 
-            cameraSystem.locked =
+            system.locked =
                 document.pointerLockElement ===
                 document.body;
 
+
             console.log(
                 "CAMERA LOCK:",
-                cameraSystem.locked
+                system.locked
             );
 
         }
@@ -69,37 +77,35 @@ export function createCamera(camera, player) {
 
 
     // ======================================
-    // MOUSE
+    // MOUSE LOOK
     // ======================================
 
     document.addEventListener(
         "mousemove",
         (event) => {
 
-            if (!cameraSystem.locked) {
+            if (!system.locked) {
                 return;
             }
 
 
-            cameraSystem.targetYaw -=
+            system.targetYaw -=
                 event.movementX *
-                cameraSystem.sensitivity;
+                system.sensitivity;
 
 
-            cameraSystem.targetPitch -=
+            system.targetPitch -=
                 event.movementY *
-                cameraSystem.sensitivity;
+                system.sensitivity;
 
-
-            // Ограничение вертикального взгляда
 
             const limit =
                 Math.PI / 2 - 0.05;
 
 
-            cameraSystem.targetPitch =
+            system.targetPitch =
                 THREE.MathUtils.clamp(
-                    cameraSystem.targetPitch,
+                    system.targetPitch,
                     -limit,
                     limit
                 );
@@ -117,25 +123,42 @@ export function createCamera(camera, player) {
         const smoothing =
             1 -
             Math.exp(
-                -cameraSystem.smoothness *
+                -system.smoothness *
                 delta
             );
 
 
-        cameraSystem.currentYaw =
+        system.currentYaw =
             THREE.MathUtils.lerp(
-                cameraSystem.currentYaw,
-                cameraSystem.targetYaw,
+                system.currentYaw,
+                system.targetYaw,
                 smoothing
             );
 
 
-        cameraSystem.currentPitch =
+        system.currentPitch =
             THREE.MathUtils.lerp(
-                cameraSystem.currentPitch,
-                cameraSystem.targetPitch,
+                system.currentPitch,
+                system.targetPitch,
                 smoothing
             );
+
+
+        // Передаём направление игроку
+
+        player.yaw =
+            system.currentYaw;
+
+
+        player.pitch =
+            system.currentPitch;
+
+
+        // Камера
+
+        camera.position.copy(
+            player.position
+        );
 
 
         camera.rotation.order =
@@ -143,28 +166,17 @@ export function createCamera(camera, player) {
 
 
         camera.rotation.y =
-            cameraSystem.currentYaw;
+            system.currentYaw;
 
 
         camera.rotation.x =
-            cameraSystem.currentPitch;
-
-
-        // Камера следует за игроком
-
-        camera.position.copy(
-            player.position
-        );
+            system.currentPitch;
 
     }
 
 
-    // ======================================
-    // RETURN
-    // ======================================
-
     return {
-        update: update
+        update
     };
 
 }
