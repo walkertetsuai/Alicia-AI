@@ -2,12 +2,11 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.m
 
 export function createRoom(scene) {
 
-    console.log("ALICIA AI: ROOM v9");
+    console.log("ALICIA AI: ROOM v10");
 
-
-    // ==================================================
-    // ROOM
-    // ==================================================
+    // ==========================================
+    // РАЗМЕР КОРОБКИ
+    // ==========================================
 
     const WIDTH = 50;
     const DEPTH = 40;
@@ -16,59 +15,46 @@ export function createRoom(scene) {
     const WALL = 0.4;
 
 
-    // ==================================================
-    // MATERIALS
-    // ==================================================
+    // ==========================================
+    // МАТЕРИАЛЫ
+    // ==========================================
 
     const floorMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0x765039,
+            color: 0x765238,
             roughness: 0.75
         });
 
-
     const wallMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0xb58b67,
+            color: 0xb58a63,
             roughness: 0.82
         });
 
-
     const ceilingMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0xd8c9b7,
+            color: 0xd8c8b5,
             roughness: 0.95
         });
 
-
-    const woodMaterial =
+    const frameMaterial =
         new THREE.MeshStandardMaterial({
-            color: 0x4a2d1b,
+            color: 0x4b2f1e,
             roughness: 0.65
         });
 
-
-    const glassMaterial =
-        new THREE.MeshPhysicalMaterial({
-
-            color: 0x78c9e5,
-
+    const windowGlass =
+        new THREE.MeshBasicMaterial({
+            color: 0x7fc9df,
             transparent: true,
-
-            opacity: 0.45,
-
-            roughness: 0.05,
-
-            metalness: 0,
-
-            transmission: 0.15
-
+            opacity: 0.35,
+            side: THREE.DoubleSide
         });
 
 
-    // ==================================================
+    // ==========================================
     // BOX
-    // ==================================================
+    // ==========================================
 
     function box(
         width,
@@ -82,17 +68,13 @@ export function createRoom(scene) {
 
         const mesh =
             new THREE.Mesh(
-
                 new THREE.BoxGeometry(
                     width,
                     height,
                     depth
                 ),
-
                 material
-
             );
-
 
         mesh.position.set(
             x,
@@ -100,23 +82,18 @@ export function createRoom(scene) {
             z
         );
 
-
         mesh.castShadow = true;
-
         mesh.receiveShadow = true;
-
 
         scene.add(mesh);
 
-
         return mesh;
-
     }
 
 
-    // ==================================================
-    // FLOOR
-    // ==================================================
+    // ==========================================
+    // ПОЛ
+    // ==========================================
 
     box(
         WIDTH,
@@ -129,9 +106,9 @@ export function createRoom(scene) {
     );
 
 
-    // ==================================================
-    // CEILING
-    // ==================================================
+    // ==========================================
+    // ПОТОЛОК
+    // ==========================================
 
     box(
         WIDTH,
@@ -144,9 +121,29 @@ export function createRoom(scene) {
     );
 
 
-    // ==================================================
-    // LEFT WALL
-    // ==================================================
+    // ==========================================
+    // СТЕНЫ
+    // ==========================================
+
+    box(
+        WIDTH,
+        HEIGHT,
+        WALL,
+        0,
+        HEIGHT / 2,
+        -DEPTH / 2,
+        wallMaterial
+    );
+
+    box(
+        WIDTH,
+        HEIGHT,
+        WALL,
+        0,
+        HEIGHT / 2,
+        DEPTH / 2,
+        wallMaterial
+    );
 
     box(
         WALL,
@@ -157,11 +154,6 @@ export function createRoom(scene) {
         0,
         wallMaterial
     );
-
-
-    // ==================================================
-    // RIGHT WALL
-    // ==================================================
 
     box(
         WALL,
@@ -174,312 +166,180 @@ export function createRoom(scene) {
     );
 
 
-    // ==================================================
-    // FRONT WALL
-    // ==================================================
-
-    box(
-        WIDTH,
-        HEIGHT,
-        WALL,
-        0,
-        HEIGHT / 2,
-        DEPTH / 2,
-        wallMaterial
-    );
-
-
-    // ==================================================
-    // BACK WALL WITH 3 WINDOWS
-    // ==================================================
-
-    const windowWidth = 10;
-
-    const windowHeight = 4;
-
-    const windowBottom = 2;
-
-    const windowTop =
-        windowBottom + windowHeight;
-
-
-    const backZ =
-        -DEPTH / 2;
-
-
-    // ----------------------------------------------
-    // нижняя часть стены
-    // ----------------------------------------------
-
-    box(
-        WIDTH,
-        windowBottom,
-        WALL,
-        0,
-        windowBottom / 2,
-        backZ,
-        wallMaterial
-    );
-
-
-    // ----------------------------------------------
-    // верхняя часть стены
-    // ----------------------------------------------
-
-    box(
-        WIDTH,
-        HEIGHT - windowTop,
-        WALL,
-        0,
-        windowTop +
-        (HEIGHT - windowTop) / 2,
-        backZ,
-        wallMaterial
-    );
-
-
-    // ----------------------------------------------
-    // простенки
-    // ----------------------------------------------
-
-    // край слева
-
-    box(
-        5,
-        windowHeight,
-        WALL,
-        -22.5,
-        windowBottom +
-        windowHeight / 2,
-        backZ,
-        wallMaterial
-    );
-
-
-    // между окном 1 и 2
-
-    box(
-        2.5,
-        windowHeight,
-        WALL,
-        -16.25,
-        windowBottom +
-        windowHeight / 2,
-        backZ,
-        wallMaterial
-    );
-
-
-    // между окном 2 и 3
-
-    box(
-        2.5,
-        windowHeight,
-        WALL,
-        16.25,
-        windowBottom +
-        windowHeight / 2,
-        backZ,
-        wallMaterial
-    );
-
-
-    // край справа
-
-    box(
-        5,
-        windowHeight,
-        WALL,
-        22.5,
-        windowBottom +
-        windowHeight / 2,
-        backZ,
-        wallMaterial
-    );
-
-
-    // ==================================================
-    // WINDOW
-    // ==================================================
+    // ==========================================
+    // СТАРЫЙ ПРОВЕРЕННЫЙ ПОДХОД К ОКНУ
+    // ==========================================
 
     function createWindow(
+        width,
+        height,
         x,
         y,
         z
     ) {
 
-        const group =
-            new THREE.Group();
+        // ------------------------------
+        // СТЕКЛО
+        // ------------------------------
 
-
-        // стекло
-
-        const glass =
+        const windowMesh =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    windowWidth,
-                    windowHeight,
+                    width,
+                    height,
                     0.08
                 ),
 
-                glassMaterial
+                windowGlass
 
             );
 
-
-        group.add(glass);
-
-
-        // ------------------------------------------
-        // рамы
-        // ------------------------------------------
-
-        const left =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.22,
-                    windowHeight + 0.3,
-                    0.3
-                ),
-
-                woodMaterial
-
-            );
-
-
-        left.position.x =
-            -windowWidth / 2;
-
-
-        group.add(left);
-
-
-        const right =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.22,
-                    windowHeight + 0.3,
-                    0.3
-                ),
-
-                woodMaterial
-
-            );
-
-
-        right.position.x =
-            windowWidth / 2;
-
-
-        group.add(right);
-
-
-        const top =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    windowWidth + 0.44,
-                    0.22,
-                    0.3
-                ),
-
-                woodMaterial
-
-            );
-
-
-        top.position.y =
-            windowHeight / 2;
-
-
-        group.add(top);
-
-
-        const bottom =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    windowWidth + 0.44,
-                    0.22,
-                    0.3
-                ),
-
-                woodMaterial
-
-            );
-
-
-        bottom.position.y =
-            -windowHeight / 2;
-
-
-        group.add(bottom);
-
-
-        // центральная рама
-
-        const center =
-            new THREE.Mesh(
-
-                new THREE.BoxGeometry(
-                    0.15,
-                    windowHeight,
-                    0.32
-                ),
-
-                woodMaterial
-
-            );
-
-
-        group.add(center);
-
-
-        // положение окна
-
-        group.position.set(
+        windowMesh.position.set(
             x,
             y,
             z
         );
 
+        scene.add(
+            windowMesh
+        );
 
-        scene.add(group);
+
+        // ------------------------------
+        // РАМА
+        // ------------------------------
+
+        function frame(
+            width,
+            height,
+            x,
+            y
+        ) {
+
+            const mesh =
+                new THREE.Mesh(
+
+                    new THREE.BoxGeometry(
+                        width,
+                        height,
+                        0.18
+                    ),
+
+                    frameMaterial
+
+                );
+
+            mesh.position.set(
+                x,
+                y,
+                z + 0.08
+            );
+
+            scene.add(
+                mesh
+            );
+
+        }
+
+
+        // верх
+
+        frame(
+            width + 0.4,
+            0.2,
+            x,
+            y + height / 2
+        );
+
+
+        // низ
+
+        frame(
+            width + 0.4,
+            0.2,
+            x,
+            y - height / 2
+        );
+
+
+        // левая сторона
+
+        frame(
+            0.2,
+            height,
+            x - width / 2,
+            y
+        );
+
+
+        // правая сторона
+
+        frame(
+            0.2,
+            height,
+            x + width / 2,
+            y
+        );
+
+
+        // центральная вертикальная рама
+
+        frame(
+            0.15,
+            height,
+            x,
+            y
+        );
+
+
+        console.log(
+            "WINDOW CREATED:",
+            x,
+            y,
+            z
+        );
 
     }
 
 
-    // ==================================================
-    // 3 WINDOWS
-    // ==================================================
+    // ==========================================
+    // ОКНА
+    //
+    // Пока просто ставим их НА стену,
+    // как в старом рабочем варианте.
+    // ==========================================
 
     createWindow(
+        7,
+        3.5,
         -10,
         4,
-        backZ - 0.05
+        -20.05
     );
 
 
     createWindow(
+        7,
+        3.5,
         0,
         4,
-        backZ - 0.05
+        -20.05
     );
 
 
     createWindow(
+        7,
+        3.5,
         10,
         4,
-        backZ - 0.05
+        -20.05
     );
 
 
-    // ==================================================
-    // CEILING BEAMS
-    // ==================================================
+    // ==========================================
+    // ПОТОЛОЧНЫЕ БАЛКИ
+    // ==========================================
 
     box(
         WIDTH,
@@ -488,9 +348,8 @@ export function createRoom(scene) {
         0,
         5.7,
         -10,
-        woodMaterial
+        frameMaterial
     );
-
 
     box(
         WIDTH,
@@ -499,9 +358,8 @@ export function createRoom(scene) {
         0,
         5.7,
         0,
-        woodMaterial
+        frameMaterial
     );
-
 
     box(
         WIDTH,
@@ -510,38 +368,33 @@ export function createRoom(scene) {
         0,
         5.7,
         10,
-        woodMaterial
+        frameMaterial
     );
 
 
-    // ==================================================
-    // LIGHT
-    // ==================================================
+    // ==========================================
+    // ОСВЕЩЕНИЕ
+    // ==========================================
 
-    const light =
+    const mainLight =
         new THREE.PointLight(
             0xffdfbd,
             100,
             70
         );
 
-
-    light.position.set(
+    mainLight.position.set(
         0,
         8,
         0
     );
 
+    mainLight.castShadow = true;
 
-    light.castShadow = true;
+    scene.add(
+        mainLight
+    );
 
-
-    scene.add(light);
-
-
-    // ==================================================
-    // AMBIENT
-    // ==================================================
 
     const ambient =
         new THREE.HemisphereLight(
@@ -550,20 +403,19 @@ export function createRoom(scene) {
             1.5
         );
 
+    scene.add(
+        ambient
+    );
 
-    scene.add(ambient);
 
-
-    // ==================================================
+    // ==========================================
     // RETURN
-    // ==================================================
+    // ==========================================
 
     return {
 
         width: WIDTH,
-
         depth: DEPTH,
-
         height: HEIGHT
 
     };
