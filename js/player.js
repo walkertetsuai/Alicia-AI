@@ -5,7 +5,7 @@ import * as THREE from
 // ==========================================
 // ALICIA AI
 // PLAYER SYSTEM
-// PROTOCOL 2
+// PROTOCOL 3
 // ==========================================
 
 
@@ -13,17 +13,15 @@ export function createPlayer(camera) {
 
     const player = {
 
-        // Позиция игрока
-        position: new THREE.Vector3(
-            0,
-            1.7,
-            3
-        ),
+        position:
+            new THREE.Vector3(
+                0,
+                1.7,
+                3
+            ),
 
-        // Скорость движения
         speed: 3.5,
 
-        // Направление взгляда
         yaw: 0,
 
         pitch: 0
@@ -31,14 +29,17 @@ export function createPlayer(camera) {
     };
 
 
-    // Устанавливаем камеру
     camera.position.copy(
         player.position
     );
 
 
+    camera.rotation.order =
+        "YXZ";
+
+
     console.log(
-        "ALICIA AI: Player System создан"
+        "PLAYER: system loaded"
     );
 
 
