@@ -20,7 +20,9 @@ import { createCamera }
 // PROTOCOL 3
 // ==========================================
 
-console.log("ALICIA AI: Protocol 3 starting");
+console.log(
+    "ALICIA AI: Protocol 3 starting"
+);
 
 
 // ==========================================
@@ -31,7 +33,9 @@ const scene =
     new THREE.Scene();
 
 scene.background =
-    new THREE.Color(0x101216);
+    new THREE.Color(
+        0x101216
+    );
 
 
 // ==========================================
@@ -57,10 +61,12 @@ const renderer =
         antialias: true
     });
 
+
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
+
 
 renderer.setPixelRatio(
     Math.min(
@@ -69,7 +75,10 @@ renderer.setPixelRatio(
     )
 );
 
-renderer.shadowMap.enabled = true;
+
+renderer.shadowMap.enabled =
+    true;
+
 
 document
     .getElementById("game")
@@ -106,7 +115,8 @@ mainLight.position.set(
     4
 );
 
-mainLight.castShadow = true;
+mainLight.castShadow =
+    true;
 
 scene.add(
     mainLight
@@ -117,7 +127,9 @@ scene.add(
 // ROOM
 // ==========================================
 
-createRoom(scene);
+createRoom(
+    scene
+);
 
 
 // ==========================================
@@ -125,7 +137,9 @@ createRoom(scene);
 // ==========================================
 
 const player =
-    createPlayer(camera);
+    createPlayer(
+        camera
+    );
 
 
 // ==========================================
@@ -133,7 +147,9 @@ const player =
 // ==========================================
 
 const controls =
-    createControls(player);
+    createControls(
+        player
+    );
 
 
 // ==========================================
@@ -143,7 +159,8 @@ const controls =
 const cameraSystem =
     createCamera(
         camera,
-        player
+        player,
+        renderer
     );
 
 
@@ -159,7 +176,9 @@ window.addEventListener(
             window.innerWidth /
             window.innerHeight;
 
+
         camera.updateProjectionMatrix();
+
 
         renderer.setSize(
             window.innerWidth,
@@ -197,21 +216,15 @@ function animate(currentTime) {
         currentTime;
 
 
-    // Управление
-
     controls.update(
         delta
     );
 
 
-    // Камера
-
     cameraSystem.update(
         delta
     );
 
-
-    // Рендер
 
     renderer.render(
         scene,
@@ -227,7 +240,7 @@ requestAnimationFrame(
 
 
 // ==========================================
-// LOADING SCREEN
+// LOADING
 // ==========================================
 
 const loading =
@@ -235,9 +248,12 @@ const loading =
         "loading"
     );
 
+
 if (loading) {
 
-    loading.style.opacity = "0";
+    loading.style.opacity =
+        "0";
+
 
     setTimeout(
         () => loading.remove(),
