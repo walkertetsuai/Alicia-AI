@@ -1,251 +1,89 @@
-export function setupControls(
-    camera,
-    domElement
-) {
+// Управление дверью
+document.addEventListener('DOMContentLoaded', function() {
+    const door = document.getElementById('mainDoor');
+    if (door) {
+        door.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('open');
+            // Можно добавить звук открытия
+            // const audio = new Audio('door.wav');
+            // audio.play();
+        });
+    }
 
-    const keys = {};
+    // Анимация пламени
+    function animateFlame() {
+        const flames = document.querySelectorAll('.flame');
+        flames.forEach((flame, index) => {
+            const delay = index * 0.3;
+            const duration = 1.2 + Math.random() * 0.8;
+            flame.style.animation = `burn ${duration}s ${delay}s infinite alternate`;
+        });
+    }
 
-
-    let yaw = 0;
-
-    let pitch = 0;
-
-
-    // =================================================
-    // KEYBOARD
-    // =================================================
-
-    window.addEventListener(
-        "keydown",
-        event => {
-
-            keys[event.code] = true;
-
+    // Снег за окном
+    function createSnow() {
+        const view = document.querySelector('.window-view');
+        if (!view) return;
+        // Проверяем, есть ли уже снег
+        if (view.querySelector('.snowflake')) return;
+        for (let i = 0; i < 50; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.style.left = Math.random() * 100 + '%';
+            snowflake.style.top = Math.random() * 100 + '%';
+            snowflake.style.width = (2 + Math.random() * 6) + 'px';
+            snowflake.style.height = snowflake.style.width;
+            snowflake.style.background = 'white';
+            snowflake.style.borderRadius = '50%';
+            snowflake.style.position = 'absolute';
+            snowflake.style.opacity = 0.2 + Math.random() * 0.5;
+            snowflake.style.animation = `snowFall ${15 + Math.random() * 20}s linear infinite`;
+            snowflake.style.animationDelay = Math.random() * 20 + 's';
+            view.appendChild(snowflake);
         }
-    );
+    }
 
-
-    window.addEventListener(
-        "keyup",
-        event => {
-
-            keys[event.code] = false;
-
+    // Добавляем снежинки в DOM
+    const style = document.createElement('style');
+    style.textContent = `
+        .snowflake {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
         }
-    );
-
-
-    // =================================================
-    // MOUSE
-    // =================================================
-
-    domElement.addEventListener(
-        "click",
-        () => {
-
-            domElement.requestPointerLock();
-
+        @keyframes snowFall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0.2; }
         }
-    );
-
-
-    document.addEventListener(
-        "mousemove",
-        event => {
-
-            if (
-                document.pointerLockElement
-                !== domElement
-            ) {
-
-                return;
-
-            }
-
-
-            yaw -=
-                event.movementX *
-                0.002;
-
-
-            pitch -=
-                event.movementY *
-                0.002;
-
-
-            const limit =
-                Math.PI / 2 -
-                0.05;
-
-
-            pitch =
-                Math.max(
-
-                    -limit,
-
-                    Math.min(
-                        limit,
-                        pitch
-                    )
-
-                );
-
+        .window-view {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            height: 100%;
         }
-    );
+    `;
+    document.head.appendChild(style);
 
+    // Запуск
+    createSnow();
+    animateFlame();
 
-    // =================================================
-    // UPDATE
-    // =================================================
+    // Дополнительная интерактивность: клик по камину
+    const fireplace = document.querySelector('.fireplace');
+    if (fireplace) {
+        fireplace.addEventListener('click', function() {
+            const flames = this.querySelectorAll('.flame');
+            flames.forEach(flame => {
+                if (flame.style.opacity === '0') {
+                    flame.style.opacity = '0.8';
+                } else {
+                    flame.style.opacity = '0';
+                }
+            });
+        });
+    }
 
-    return function updateControls(
-        delta
-    ) {
-
-        const speed =
-            6 * delta;
-
-
-        camera.rotation.order =
-            "YXZ";
-
-
-        camera.rotation.y =
-            yaw;
-
-
-        camera.rotation.x =
-            pitch;
-
-
-        const forwardX =
-            -Math.sin(yaw);
-
-
-        const forwardZ =
-            -Math.cos(yaw);
-
-
-        const rightX =
-            Math.cos(yaw);
-
-
-        const rightZ =
-            -Math.sin(yaw);
-
-
-        let nextX =
-            camera.position.x;
-
-
-        let nextZ =
-            camera.position.z;
-
-
-        // W
-
-        if (
-            keys["KeyW"]
-        ) {
-
-            nextX +=
-                forwardX * speed;
-
-            nextZ +=
-                forwardZ * speed;
-
-        }
-
-
-        // S
-
-        if (
-            keys["KeyS"]
-        ) {
-
-            nextX -=
-                forwardX * speed;
-
-            nextZ -=
-                forwardZ * speed;
-
-        }
-
-
-        // A
-
-        if (
-            keys["KeyA"]
-        ) {
-
-            nextX -=
-                rightX * speed;
-
-            nextZ -=
-                rightZ * speed;
-
-        }
-
-
-        // D
-
-        if (
-            keys["KeyD"]
-        ) {
-
-            nextX +=
-                rightX * speed;
-
-            nextZ +=
-                rightZ * speed;
-
-        }
-
-
-        // =================================================
-        // OUTER WALL COLLISION
-        // =================================================
-
-        const limitX =
-            24.2;
-
-        const limitZ =
-            19.2;
-
-
-        nextX =
-            Math.max(
-                -limitX,
-                Math.min(
-                    limitX,
-                    nextX
-                )
-            );
-
-
-        nextZ =
-            Math.max(
-                -limitZ,
-                Math.min(
-                    limitZ,
-                    nextZ
-                )
-            );
-
-
-        camera.position.x =
-            nextX;
-
-
-        camera.position.z =
-            nextZ;
-
-
-        // Высота глаз
-
-        camera.position.y =
-            2;
-
-    };
-
-}
+    console.log('🏠 Комната Алисии загружена. Добро пожаловать в Nexus!');
+});
