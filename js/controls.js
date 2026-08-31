@@ -32,11 +32,14 @@ export function setupControls({
     const PLAYER_HEIGHT =
         1.7;
 
+
     const PLAYER_RADIUS =
         0.45;
 
+
     const MOVE_SPEED =
-        5.0;
+        4.8;
+
 
     const MOUSE_SPEED =
         0.002;
@@ -48,6 +51,7 @@ export function setupControls({
 
     let yaw = 0;
     let pitch = 0;
+
 
     camera.rotation.order =
         "YXZ";
@@ -62,23 +66,31 @@ export function setupControls({
             return;
         }
 
+
         yaw -=
             event.movementX *
             MOUSE_SPEED;
+
 
         pitch -=
             event.movementY *
             MOUSE_SPEED;
 
+
         const limit =
             Math.PI / 2 -
             0.05;
 
+
         pitch =
             THREE.MathUtils.clamp(
+
                 pitch,
+
                 -limit,
+
                 limit
+
             );
 
     }
@@ -89,7 +101,9 @@ export function setupControls({
     // ========================================================
 
     domElement.addEventListener(
+
         "click",
+
         () => {
 
             if (
@@ -102,6 +116,7 @@ export function setupControls({
             }
 
         }
+
     );
 
 
@@ -163,7 +178,9 @@ export function setupControls({
 
 
     window.addEventListener(
+
         "keydown",
+
         event => {
 
             setKey(
@@ -172,11 +189,14 @@ export function setupControls({
             );
 
         }
+
     );
 
 
     window.addEventListener(
+
         "keyup",
+
         event => {
 
             setKey(
@@ -185,20 +205,30 @@ export function setupControls({
             );
 
         }
+
     );
 
 
     window.addEventListener(
+
         "blur",
+
         () => {
 
-            keys.forward = false;
-            keys.backward = false;
+            keys.forward =
+                false;
 
-            keys.left = false;
-            keys.right = false;
+            keys.backward =
+                false;
+
+            keys.left =
+                false;
+
+            keys.right =
+                false;
 
         }
+
     );
 
 
@@ -209,8 +239,10 @@ export function setupControls({
     const forward =
         new THREE.Vector3();
 
+
     const right =
         new THREE.Vector3();
+
 
     const movement =
         new THREE.Vector3();
@@ -223,13 +255,10 @@ export function setupControls({
         camera.rotation.y =
             yaw;
 
+
         camera.rotation.x =
             pitch;
 
-
-        // ----------------------------------------------------
-        // DIRECTION
-        // ----------------------------------------------------
 
         forward.set(
 
@@ -304,16 +333,13 @@ export function setupControls({
         }
 
 
-        // ----------------------------------------------------
-        // NORMALIZE
-        // ----------------------------------------------------
-
         if (
             movement.lengthSq()
             > 0
         ) {
 
             movement.normalize();
+
 
             movement.multiplyScalar(
 
@@ -331,7 +357,7 @@ export function setupControls({
 
 
         // ====================================================
-        // WALL COLLISION
+        // ROOM COLLISION
         // ====================================================
 
         camera.position.x =
@@ -340,10 +366,10 @@ export function setupControls({
                 camera.position.x,
 
                 bounds.minX +
-                    PLAYER_RADIUS,
+                PLAYER_RADIUS,
 
                 bounds.maxX -
-                    PLAYER_RADIUS
+                PLAYER_RADIUS
 
             );
 
@@ -354,27 +380,19 @@ export function setupControls({
                 camera.position.z,
 
                 bounds.minZ +
-                    PLAYER_RADIUS,
+                PLAYER_RADIUS,
 
                 bounds.maxZ -
-                    PLAYER_RADIUS
+                PLAYER_RADIUS
 
             );
 
-
-        // ====================================================
-        // FIX PLAYER HEIGHT
-        // ====================================================
 
         camera.position.y =
             PLAYER_HEIGHT;
 
     }
 
-
-    // ========================================================
-    // PUBLIC API
-    // ========================================================
 
     return {
 
