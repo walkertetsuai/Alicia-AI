@@ -10,10 +10,12 @@ from "./controls.js";
 
 // ============================================================
 // ALICIA AI
-// ROOM CORE v5
+// ROOM CORE v5.2
 // ============================================================
 
-console.log("🦊 Alicia Room v5: boot");
+console.log(
+    "🦊 Alicia Room v5.2: boot"
+);
 
 
 // ============================================================
@@ -23,14 +25,22 @@ console.log("🦊 Alicia Room v5: boot");
 const scene =
     new THREE.Scene();
 
+
 scene.background =
-    new THREE.Color(0xbecbd0);
+    new THREE.Color(
+        0xbecbd0
+    );
+
 
 scene.fog =
     new THREE.Fog(
+
         0xbecbd0,
+
         24,
+
         65
+
     );
 
 
@@ -52,10 +62,25 @@ const camera =
 
     );
 
+
+// ============================================================
+// CORRECT SPAWN POINT
+//
+// ВАЖНО:
+// комната имеет DEPTH = 8.2,
+// поэтому стены примерно на Z +/-4.1.
+//
+// Старый Z = 4.7 был СНАРУЖИ.
+// ============================================================
+
 camera.position.set(
-    1.8,
+
+    0.85,
+
     1.68,
-    4.7
+
+    1.15
+
 );
 
 
@@ -66,41 +91,56 @@ camera.position.set(
 const renderer =
     new THREE.WebGLRenderer({
 
-        antialias: true,
+        antialias:
+            true,
 
         powerPreference:
             "high-performance"
 
     });
 
+
 renderer.setSize(
+
     window.innerWidth,
+
     window.innerHeight
+
 );
+
 
 renderer.setPixelRatio(
 
     Math.min(
+
         window.devicePixelRatio,
+
         2
+
     )
 
 );
 
+
 renderer.shadowMap.enabled =
     true;
+
 
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
 
+
 renderer.outputColorSpace =
     THREE.SRGBColorSpace;
+
 
 renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
+
 renderer.toneMappingExposure =
     1.08;
+
 
 document.body.appendChild(
     renderer.domElement
@@ -143,7 +183,7 @@ const clock =
 
 
 // ============================================================
-// ANIMATION
+// ANIMATION LOOP
 // ============================================================
 
 function animate() {
@@ -152,10 +192,14 @@ function animate() {
         animate
     );
 
+
     const delta =
         Math.min(
+
             clock.getDelta(),
+
             0.04
+
         );
 
 
@@ -190,28 +234,38 @@ function resize() {
     const width =
         window.innerWidth;
 
+
     const height =
         window.innerHeight;
 
 
     camera.aspect =
-        width / height;
+        width /
+        height;
+
 
     camera.updateProjectionMatrix();
 
 
     renderer.setSize(
+
         width,
+
         height,
+
         false
+
     );
 
 
     renderer.setPixelRatio(
 
         Math.min(
+
             window.devicePixelRatio,
+
             2
+
         )
 
     );
@@ -226,35 +280,51 @@ window.addEventListener(
 
 
 window.addEventListener(
+
     "orientationchange",
-    () => setTimeout(
-        resize,
-        120
-    )
+
+    () => {
+
+        setTimeout(
+            resize,
+            120
+        );
+
+    }
+
 );
 
 
 // ============================================================
-// LOADING
+// LOADING SCREEN
 // ============================================================
 
 requestAnimationFrame(
+
     () => {
 
         requestAnimationFrame(
+
             () => {
 
                 document
-                    .getElementById("loading")
-                    ?.classList.add("hidden");
+                    .getElementById(
+                        "loading"
+                    )
+                    ?.classList
+                    .add(
+                        "hidden"
+                    );
 
             }
+
         );
 
     }
+
 );
 
 
 console.log(
-    "✅ Alicia Room v5: running"
+    "✅ Alicia Room v5.2: running"
 );
