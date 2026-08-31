@@ -1,89 +1,385 @@
-// Управление дверью
-document.addEventListener('DOMContentLoaded', function() {
-    const door = document.getElementById('mainDoor');
-    if (door) {
-        door.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.classList.toggle('open');
-            // Можно добавить звук открытия
-            // const audio = new Audio('door.wav');
-            // audio.play();
-        });
+import * as THREE
+from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+
+
+// ============================================================
+// PLAYER CONTROLS
+// ============================================================
+
+export function setupControls({
+
+    camera,
+    domElement,
+    bounds
+
+}) {
+
+    const keys = {
+
+        forward: false,
+        backward: false,
+
+        left: false,
+        right: false
+
+    };
+
+
+    // ========================================================
+    // SETTINGS
+    // ========================================================
+
+    const PLAYER_HEIGHT =
+        1.7;
+
+    const PLAYER_RADIUS =
+        0.45;
+
+    const MOVE_SPEED =
+        5.0;
+
+    const MOUSE_SPEED =
+        0.002;
+
+
+    // ========================================================
+    // CAMERA ROTATION
+    // ========================================================
+
+    let yaw = 0;
+    let pitch = 0;
+
+    camera.rotation.order =
+        "YXZ";
+
+
+    function onMouseMove(event) {
+
+        if (
+            document.pointerLockElement
+            !== domElement
+        ) {
+            return;
+        }
+
+        yaw -=
+            event.movementX *
+            MOUSE_SPEED;
+
+        pitch -=
+            event.movementY *
+            MOUSE_SPEED;
+
+        const limit =
+            Math.PI / 2 -
+            0.05;
+
+        pitch =
+            THREE.MathUtils.clamp(
+                pitch,
+                -limit,
+                limit
+            );
+
     }
 
-    // Анимация пламени
-    function animateFlame() {
-        const flames = document.querySelectorAll('.flame');
-        flames.forEach((flame, index) => {
-            const delay = index * 0.3;
-            const duration = 1.2 + Math.random() * 0.8;
-            flame.style.animation = `burn ${duration}s ${delay}s infinite alternate`;
-        });
+
+    // ========================================================
+    // POINTER LOCK
+    // ========================================================
+
+    domElement.addEventListener(
+        "click",
+        () => {
+
+            if (
+                document.pointerLockElement
+                !== domElement
+            ) {
+
+                domElement.requestPointerLock();
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        "mousemove",
+        onMouseMove
+    );
+
+
+    // ========================================================
+    // KEYBOARD
+    // ========================================================
+
+    function setKey(
+        code,
+        value
+    ) {
+
+        switch (code) {
+
+            case "KeyW":
+            case "ArrowUp":
+
+                keys.forward =
+                    value;
+
+                break;
+
+
+            case "KeyS":
+            case "ArrowDown":
+
+                keys.backward =
+                    value;
+
+                break;
+
+
+            case "KeyA":
+            case "ArrowLeft":
+
+                keys.left =
+                    value;
+
+                break;
+
+
+            case "KeyD":
+            case "ArrowRight":
+
+                keys.right =
+                    value;
+
+                break;
+
+        }
+
     }
 
-    // Снег за окном
-    function createSnow() {
-        const view = document.querySelector('.window-view');
-        if (!view) return;
-        // Проверяем, есть ли уже снег
-        if (view.querySelector('.snowflake')) return;
-        for (let i = 0; i < 50; i++) {
-            const snowflake = document.createElement('div');
-            snowflake.className = 'snowflake';
-            snowflake.style.left = Math.random() * 100 + '%';
-            snowflake.style.top = Math.random() * 100 + '%';
-            snowflake.style.width = (2 + Math.random() * 6) + 'px';
-            snowflake.style.height = snowflake.style.width;
-            snowflake.style.background = 'white';
-            snowflake.style.borderRadius = '50%';
-            snowflake.style.position = 'absolute';
-            snowflake.style.opacity = 0.2 + Math.random() * 0.5;
-            snowflake.style.animation = `snowFall ${15 + Math.random() * 20}s linear infinite`;
-            snowflake.style.animationDelay = Math.random() * 20 + 's';
-            view.appendChild(snowflake);
+
+    window.addEventListener(
+        "keydown",
+        event => {
+
+            setKey(
+                event.code,
+                true
+            );
+
         }
+    );
+
+
+    window.addEventListener(
+        "keyup",
+        event => {
+
+            setKey(
+                event.code,
+                false
+            );
+
+        }
+    );
+
+
+    window.addEventListener(
+        "blur",
+        () => {
+
+            keys.forward = false;
+            keys.backward = false;
+
+            keys.left = false;
+            keys.right = false;
+
+        }
+    );
+
+
+    // ========================================================
+    // MOVEMENT
+    // ========================================================
+
+    const forward =
+        new THREE.Vector3();
+
+    const right =
+        new THREE.Vector3();
+
+    const movement =
+        new THREE.Vector3();
+
+
+    function update(
+        delta
+    ) {
+
+        camera.rotation.y =
+            yaw;
+
+        camera.rotation.x =
+            pitch;
+
+
+        // ----------------------------------------------------
+        // DIRECTION
+        // ----------------------------------------------------
+
+        forward.set(
+
+            -Math.sin(yaw),
+
+            0,
+
+            -Math.cos(yaw)
+
+        );
+
+
+        right.set(
+
+            Math.cos(yaw),
+
+            0,
+
+            -Math.sin(yaw)
+
+        );
+
+
+        movement.set(
+            0,
+            0,
+            0
+        );
+
+
+        if (
+            keys.forward
+        ) {
+
+            movement.add(
+                forward
+            );
+
+        }
+
+
+        if (
+            keys.backward
+        ) {
+
+            movement.sub(
+                forward
+            );
+
+        }
+
+
+        if (
+            keys.right
+        ) {
+
+            movement.add(
+                right
+            );
+
+        }
+
+
+        if (
+            keys.left
+        ) {
+
+            movement.sub(
+                right
+            );
+
+        }
+
+
+        // ----------------------------------------------------
+        // NORMALIZE
+        // ----------------------------------------------------
+
+        if (
+            movement.lengthSq()
+            > 0
+        ) {
+
+            movement.normalize();
+
+            movement.multiplyScalar(
+
+                MOVE_SPEED *
+                delta
+
+            );
+
+
+            camera.position.add(
+                movement
+            );
+
+        }
+
+
+        // ====================================================
+        // WALL COLLISION
+        // ====================================================
+
+        camera.position.x =
+            THREE.MathUtils.clamp(
+
+                camera.position.x,
+
+                bounds.minX +
+                    PLAYER_RADIUS,
+
+                bounds.maxX -
+                    PLAYER_RADIUS
+
+            );
+
+
+        camera.position.z =
+            THREE.MathUtils.clamp(
+
+                camera.position.z,
+
+                bounds.minZ +
+                    PLAYER_RADIUS,
+
+                bounds.maxZ -
+                    PLAYER_RADIUS
+
+            );
+
+
+        // ====================================================
+        // FIX PLAYER HEIGHT
+        // ====================================================
+
+        camera.position.y =
+            PLAYER_HEIGHT;
+
     }
 
-    // Добавляем снежинки в DOM
-    const style = document.createElement('style');
-    style.textContent = `
-        .snowflake {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        @keyframes snowFall {
-            0% { transform: translateY(-10px) rotate(0deg); opacity: 0.8; }
-            100% { transform: translateY(100vh) rotate(360deg); opacity: 0.2; }
-        }
-        .window-view {
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-    `;
-    document.head.appendChild(style);
 
-    // Запуск
-    createSnow();
-    animateFlame();
+    // ========================================================
+    // PUBLIC API
+    // ========================================================
 
-    // Дополнительная интерактивность: клик по камину
-    const fireplace = document.querySelector('.fireplace');
-    if (fireplace) {
-        fireplace.addEventListener('click', function() {
-            const flames = this.querySelectorAll('.flame');
-            flames.forEach(flame => {
-                if (flame.style.opacity === '0') {
-                    flame.style.opacity = '0.8';
-                } else {
-                    flame.style.opacity = '0';
-                }
-            });
-        });
-    }
+    return {
 
-    console.log('🏠 Комната Алисии загружена. Добро пожаловать в Nexus!');
-});
+        update
+
+    };
+
+}
