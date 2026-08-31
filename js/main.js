@@ -10,10 +10,10 @@ from "./controls.js";
 
 // ============================================================
 // ALICIA AI
-// ROOM CORE
+// ROOM CORE v5
 // ============================================================
 
-console.log("🦊 Alicia AI: запуск комнаты");
+console.log("🦊 Alicia Room v5: boot");
 
 
 // ============================================================
@@ -23,18 +23,14 @@ console.log("🦊 Alicia AI: запуск комнаты");
 const scene =
     new THREE.Scene();
 
-
 scene.background =
-    new THREE.Color(
-        0x9caeb7
-    );
-
+    new THREE.Color(0xbecbd0);
 
 scene.fog =
     new THREE.Fog(
-        0x9caeb7,
-        38,
-        95
+        0xbecbd0,
+        24,
+        65
     );
 
 
@@ -45,22 +41,21 @@ scene.fog =
 const camera =
     new THREE.PerspectiveCamera(
 
-        68,
+        66,
 
         window.innerWidth /
         window.innerHeight,
 
         0.05,
 
-        160
+        100
 
     );
 
-
 camera.position.set(
-    0,
-    1.7,
-    5
+    1.8,
+    1.68,
+    4.7
 );
 
 
@@ -78,12 +73,10 @@ const renderer =
 
     });
 
-
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
-
 
 renderer.setPixelRatio(
 
@@ -94,26 +87,20 @@ renderer.setPixelRatio(
 
 );
 
-
 renderer.shadowMap.enabled =
     true;
-
 
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
 
-
 renderer.outputColorSpace =
     THREE.SRGBColorSpace;
-
 
 renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
-
 renderer.toneMappingExposure =
     1.08;
-
 
 document.body.appendChild(
     renderer.domElement
@@ -142,8 +129,7 @@ const controls =
         domElement:
             renderer.domElement,
 
-        bounds:
-            room.bounds
+        room
 
     });
 
@@ -166,16 +152,21 @@ function animate() {
         animate
     );
 
-
     const delta =
         Math.min(
             clock.getDelta(),
-            0.05
+            0.04
         );
 
 
     controls.update(
         delta
+    );
+
+
+    room.update(
+        delta,
+        camera
     );
 
 
@@ -206,7 +197,6 @@ function resize() {
     camera.aspect =
         width / height;
 
-
     camera.updateProjectionMatrix();
 
 
@@ -235,23 +225,36 @@ window.addEventListener(
 );
 
 
-// Mobile landscape
 window.addEventListener(
-
     "orientationchange",
+    () => setTimeout(
+        resize,
+        120
+    )
+);
 
+
+// ============================================================
+// LOADING
+// ============================================================
+
+requestAnimationFrame(
     () => {
 
-        setTimeout(
-            resize,
-            150
+        requestAnimationFrame(
+            () => {
+
+                document
+                    .getElementById("loading")
+                    ?.classList.add("hidden");
+
+            }
         );
 
     }
-
 );
 
 
 console.log(
-    "✅ Alicia AI: сцена готова"
+    "✅ Alicia Room v5: running"
 );
