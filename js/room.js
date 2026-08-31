@@ -1,34 +1,59 @@
 import * as THREE
-    from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 
-export function createRoom(scene) {
+// ============================================================
+// ALICIA ROOM
+// STABLE BASE
+// ============================================================
 
-    // =================================================
-    // ROOM
-    // =================================================
+export function createRoom(
+    scene
+) {
 
-    const WIDTH = 50;
+    const WIDTH =
+        18;
 
-    const DEPTH = 40;
+    const DEPTH =
+        15;
 
-    const HEIGHT = 10;
+    const HEIGHT =
+        4.8;
 
-    const WALL = 0.4;
+    const WALL =
+        0.25;
 
 
-    // =================================================
+    // ========================================================
+    // GROUP
+    // ========================================================
+
+    const room =
+        new THREE.Group();
+
+    room.name =
+        "AliciaRoom";
+
+    scene.add(
+        room
+    );
+
+
+    // ========================================================
     // MATERIALS
-    // =================================================
+    // ========================================================
 
     const floorMaterial =
         new THREE.MeshStandardMaterial({
 
-            color: 0x765238,
+            color:
+                0x6b4d38,
 
-            roughness: 0.78,
+            roughness:
+                0.72,
 
-            metalness: 0.05
+            metalness:
+                0.02
 
         });
 
@@ -36,11 +61,14 @@ export function createRoom(scene) {
     const wallMaterial =
         new THREE.MeshStandardMaterial({
 
-            color: 0xb58a63,
+            color:
+                0xc9b79f,
 
-            roughness: 0.82,
+            roughness:
+                0.9,
 
-            metalness: 0.02
+            metalness:
+                0
 
         });
 
@@ -48,38 +76,62 @@ export function createRoom(scene) {
     const ceilingMaterial =
         new THREE.MeshStandardMaterial({
 
-            color: 0xd7c9b9,
+            color:
+                0xe1d8cc,
 
-            roughness: 0.92,
+            roughness:
+                0.95,
 
-            metalness: 0
+            metalness:
+                0
 
         });
 
 
-    // =================================================
-    // BOX
-    // =================================================
+    const trimMaterial =
+        new THREE.MeshStandardMaterial({
 
-    function createBox(
+            color:
+                0x4b3628,
+
+            roughness:
+                0.72
+
+        });
+
+
+    // ========================================================
+    // HELPER
+    // ========================================================
+
+    function box({
+
         width,
         height,
         depth,
-        x,
-        y,
-        z,
+
+        x = 0,
+        y = 0,
+        z = 0,
+
         material
-    ) {
+
+    }) {
+
+        const geometry =
+            new THREE.BoxGeometry(
+
+                width,
+                height,
+                depth
+
+            );
+
 
         const mesh =
             new THREE.Mesh(
 
-                new THREE.BoxGeometry(
-                    width,
-                    height,
-                    depth
-                ),
-
+                geometry,
                 material
 
             );
@@ -99,7 +151,7 @@ export function createRoom(scene) {
             true;
 
 
-        scene.add(
+        room.add(
             mesh
         );
 
@@ -109,474 +161,600 @@ export function createRoom(scene) {
     }
 
 
-    // =================================================
+    // ========================================================
     // FLOOR
-    // =================================================
+    // ========================================================
 
-    createBox(
+    box({
 
-        WIDTH,
-        0.3,
-        DEPTH,
+        width:
+            WIDTH,
 
-        0,
-        -0.15,
-        0,
+        height:
+            0.25,
 
-        floorMaterial
+        depth:
+            DEPTH,
 
-    );
+        y:
+            -0.125,
+
+        material:
+            floorMaterial
+
+    });
 
 
-    // =================================================
+    // ========================================================
     // CEILING
-    // =================================================
+    // ========================================================
 
-    createBox(
+    box({
 
-        WIDTH,
-        0.3,
-        DEPTH,
+        width:
+            WIDTH,
 
-        0,
-        HEIGHT,
-        0,
+        height:
+            0.2,
 
-        ceilingMaterial
+        depth:
+            DEPTH,
 
-    );
+        y:
+            HEIGHT + 0.1,
+
+        material:
+            ceilingMaterial
+
+    });
 
 
-    // =================================================
+    // ========================================================
     // BACK WALL
-    //
-    // TWO WINDOWS
-    // =================================================
+    // ========================================================
 
-    const windowWidth =
-        7;
+    box({
 
-    const windowHeight =
-        4;
+        width:
+            WIDTH,
 
-    const windowBottom =
-        2;
+        height:
+            HEIGHT,
 
-    const windowTop =
-        windowBottom +
-        windowHeight;
+        depth:
+            WALL,
 
+        y:
+            HEIGHT / 2,
 
-    const window1 =
-        -10;
+        z:
+            -DEPTH / 2,
 
-    const window2 =
-        2;
+        material:
+            wallMaterial
 
-
-    // Нижняя часть
-
-    createBox(
-
-        WIDTH,
-        windowBottom,
-        WALL,
-
-        0,
-        windowBottom / 2,
-        -DEPTH / 2,
-
-        wallMaterial
-
-    );
+    });
 
 
-    // Верхняя часть
+    // ========================================================
+    // FRONT WALL
+    // ========================================================
 
-    createBox(
+    box({
 
-        WIDTH,
-        HEIGHT - windowTop,
-        WALL,
+        width:
+            WIDTH,
 
-        0,
-        windowTop +
-        (HEIGHT - windowTop) / 2,
-        -DEPTH / 2,
+        height:
+            HEIGHT,
 
-        wallMaterial
+        depth:
+            WALL,
 
-    );
+        y:
+            HEIGHT / 2,
 
+        z:
+            DEPTH / 2,
 
-    // Между окнами
+        material:
+            wallMaterial
 
-    createBox(
-
-        window2 -
-        windowWidth / 2 -
-        (
-            window1 +
-            windowWidth / 2
-        ),
-
-        windowHeight,
-        WALL,
-
-        (
-            window1 +
-            windowWidth / 2 +
-            window2 -
-            windowWidth / 2
-        ) / 2,
-
-        windowBottom +
-        windowHeight / 2,
-
-        -DEPTH / 2,
-
-        wallMaterial
-
-    );
+    });
 
 
-    // Слева
-
-    createBox(
-
-        window1 -
-        windowWidth / 2 +
-        WIDTH / 2,
-
-        windowHeight,
-        WALL,
-
-        (
-            -WIDTH / 2 +
-            window1 -
-            windowWidth / 2
-        ) / 2,
-
-        windowBottom +
-        windowHeight / 2,
-
-        -DEPTH / 2,
-
-        wallMaterial
-
-    );
-
-
-    // Справа
-
-    createBox(
-
-        WIDTH / 2 -
-        (
-            window2 +
-            windowWidth / 2
-        ),
-
-        windowHeight,
-        WALL,
-
-        (
-            window2 +
-            windowWidth / 2 +
-            WIDTH / 2
-        ) / 2,
-
-        windowBottom +
-        windowHeight / 2,
-
-        -DEPTH / 2,
-
-        wallMaterial
-
-    );
-
-
-    // =================================================
+    // ========================================================
     // LEFT WALL
-    //
-    // LONG WINDOW
-    // =================================================
+    // ========================================================
 
-    const sideWindowWidth =
-        12;
+    box({
 
-    const sideWindowHeight =
-        4;
+        width:
+            WALL,
 
-    const sideWindowBottom =
-        2;
+        height:
+            HEIGHT,
 
-    const sideWindowZ =
-        -4;
+        depth:
+            DEPTH,
 
+        x:
+            -WIDTH / 2,
 
-    // Перед окном
+        y:
+            HEIGHT / 2,
 
-    const sideFront =
-        sideWindowZ +
-        sideWindowWidth / 2;
+        material:
+            wallMaterial
 
-
-    createBox(
-
-        WALL,
-        HEIGHT,
-        DEPTH / 2 -
-        sideWindowWidth / 2 +
-        sideWindowZ,
-
-        -WIDTH / 2,
-        HEIGHT / 2,
-        (
-            DEPTH / 2 +
-            sideWindowZ +
-            sideWindowWidth / 2
-        ) / 2,
-
-        wallMaterial
-
-    );
+    });
 
 
-    // Задняя часть
-
-    createBox(
-
-        WALL,
-        HEIGHT,
-        DEPTH / 2 -
-        sideWindowWidth / 2 -
-        sideWindowZ,
-
-        -WIDTH / 2,
-        HEIGHT / 2,
-        (
-            sideWindowZ -
-            sideWindowWidth / 2 -
-            DEPTH / 2
-        ) / 2,
-
-        wallMaterial
-
-    );
-
-
-    // Низ окна
-
-    createBox(
-
-        WALL,
-        sideWindowBottom,
-        sideWindowWidth,
-
-        -WIDTH / 2,
-        sideWindowBottom / 2,
-        sideWindowZ,
-
-        wallMaterial
-
-    );
-
-
-    // Верх окна
-
-    createBox(
-
-        WALL,
-        HEIGHT -
-        (
-            sideWindowBottom +
-            sideWindowHeight
-        ),
-        sideWindowWidth,
-
-        -WIDTH / 2,
-
-        sideWindowBottom +
-        sideWindowHeight +
-        (
-            HEIGHT -
-            sideWindowBottom -
-            sideWindowHeight
-        ) / 2,
-
-        sideWindowZ,
-
-        wallMaterial
-
-    );
-
-
-    // =================================================
+    // ========================================================
     // RIGHT WALL
-    //
-    // LARGE ARCH
-    // =================================================
+    // ========================================================
 
-    const archWidth =
-        6;
+    box({
 
-    const archHeight =
-        7;
+        width:
+            WALL,
 
-    const archCenterZ =
-        5;
+        height:
+            HEIGHT,
+
+        depth:
+            DEPTH,
+
+        x:
+            WIDTH / 2,
+
+        y:
+            HEIGHT / 2,
+
+        material:
+            wallMaterial
+
+    });
 
 
-    // Левая часть стены
+    // ========================================================
+    // BASEBOARD
+    // ========================================================
 
-    createBox(
+    const trimHeight =
+        0.16;
 
-        WALL,
-        HEIGHT,
 
-        archCenterZ -
-        archWidth / 2 +
-        DEPTH / 2,
+    box({
 
-        WIDTH / 2,
+        width:
+            WIDTH - WALL,
 
-        HEIGHT / 2,
+        height:
+            trimHeight,
 
-        (
+        depth:
+            0.08,
+
+        y:
+            trimHeight / 2,
+
+        z:
             -DEPTH / 2 +
-            archCenterZ -
-            archWidth / 2
-        ) / 2,
+            WALL,
 
-        wallMaterial
+        material:
+            trimMaterial
 
-    );
-
-
-    // Правая часть стены
-
-    createBox(
-
-        WALL,
-        HEIGHT,
-
-        DEPTH / 2 -
-        (
-            archCenterZ +
-            archWidth / 2
-        ),
-
-        WIDTH / 2,
-
-        HEIGHT / 2,
-
-        (
-            archCenterZ +
-            archWidth / 2 +
-            DEPTH / 2
-        ) / 2,
-
-        wallMaterial
-
-    );
+    });
 
 
-    // Верх арки
+    box({
 
-    createBox(
+        width:
+            WIDTH - WALL,
 
-        WALL,
+        height:
+            trimHeight,
 
-        HEIGHT -
-        archHeight,
+        depth:
+            0.08,
 
-        archWidth,
+        y:
+            trimHeight / 2,
 
-        WIDTH / 2,
+        z:
+            DEPTH / 2 -
+            WALL,
 
-        archHeight +
-        (
-            HEIGHT -
-            archHeight
-        ) / 2,
+        material:
+            trimMaterial
 
-        archCenterZ,
-
-        wallMaterial
-
-    );
+    });
 
 
-    // =================================================
-    // LIGHTING
-    // =================================================
+    box({
 
-    const mainLight =
-        new THREE.PointLight(
-            0xffdfbd,
-            120,
-            100
+        width:
+            0.08,
+
+        height:
+            trimHeight,
+
+        depth:
+            DEPTH,
+
+        x:
+            -WIDTH / 2 +
+            WALL,
+
+        y:
+            trimHeight / 2,
+
+        material:
+            trimMaterial
+
+    });
+
+
+    box({
+
+        width:
+            0.08,
+
+        height:
+            trimHeight,
+
+        depth:
+            DEPTH,
+
+        x:
+            WIDTH / 2 -
+            WALL,
+
+        y:
+            trimHeight / 2,
+
+        material:
+            trimMaterial
+
+    });
+
+
+    // ========================================================
+    // SIMPLE WINDOW DECORATION
+    // ========================================================
+
+    const glassMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x7397a8,
+
+            roughness:
+                0.18,
+
+            metalness:
+                0.08,
+
+            emissive:
+                0x172b34,
+
+            emissiveIntensity:
+                0.25
+
+        });
+
+
+    box({
+
+        width:
+            4.8,
+
+        height:
+            2.4,
+
+        depth:
+            0.05,
+
+        x:
+            -2.5,
+
+        y:
+            2.55,
+
+        z:
+            -DEPTH / 2 +
+            WALL +
+            0.04,
+
+        material:
+            glassMaterial
+
+    });
+
+
+    // window frame
+
+    box({
+
+        width:
+            5.1,
+
+        height:
+            0.12,
+
+        depth:
+            0.12,
+
+        x:
+            -2.5,
+
+        y:
+            3.78,
+
+        z:
+            -DEPTH / 2 +
+            0.31,
+
+        material:
+            trimMaterial
+
+    });
+
+
+    box({
+
+        width:
+            5.1,
+
+        height:
+            0.12,
+
+        depth:
+            0.12,
+
+        x:
+            -2.5,
+
+        y:
+            1.32,
+
+        z:
+            -DEPTH / 2 +
+            0.31,
+
+        material:
+            trimMaterial
+
+    });
+
+
+    box({
+
+        width:
+            0.12,
+
+        height:
+            2.58,
+
+        depth:
+            0.12,
+
+        x:
+            -5.05,
+
+        y:
+            2.55,
+
+        z:
+            -DEPTH / 2 +
+            0.31,
+
+        material:
+            trimMaterial
+
+    });
+
+
+    box({
+
+        width:
+            0.12,
+
+        height:
+            2.58,
+
+        depth:
+            0.12,
+
+        x:
+            0.05,
+
+        y:
+            2.55,
+
+        z:
+            -DEPTH / 2 +
+            0.31,
+
+        material:
+            trimMaterial
+
+    });
+
+
+    // middle frame
+
+    box({
+
+        width:
+            0.08,
+
+        height:
+            2.4,
+
+        depth:
+            0.1,
+
+        x:
+            -2.5,
+
+        y:
+            2.55,
+
+        z:
+            -DEPTH / 2 +
+            0.34,
+
+        material:
+            trimMaterial
+
+    });
+
+
+    // ========================================================
+    // LIGHT
+    // ========================================================
+
+    const hemisphere =
+        new THREE.HemisphereLight(
+
+            0xe8f0ff,
+
+            0x493528,
+
+            1.55
+
         );
 
-    mainLight.position.set(
+    scene.add(
+        hemisphere
+    );
+
+
+    const ceilingLight =
+        new THREE.PointLight(
+
+            0xffddb8,
+
+            75,
+
+            22,
+
+            1.7
+
+        );
+
+
+    ceilingLight.position.set(
         0,
-        8,
+        HEIGHT - 0.6,
         0
     );
 
-    mainLight.castShadow =
+
+    ceilingLight.castShadow =
         true;
 
-    scene.add(
-        mainLight
+
+    ceilingLight.shadow.mapSize.set(
+        1024,
+        1024
     );
 
 
-    const ambient =
-        new THREE.HemisphereLight(
-            0xffead5,
-            0x30251f,
-            1.4
-        );
+    ceilingLight.shadow.bias =
+        -0.0005;
+
 
     scene.add(
-        ambient
+        ceilingLight
     );
 
 
-    // Дополнительный мягкий свет
+    const windowLight =
+        new THREE.DirectionalLight(
 
-    const fillLight =
-        new THREE.PointLight(
-            0xaecbff,
-            35,
-            70
+            0xb9d9ff,
+
+            1.1
+
         );
 
-    fillLight.position.set(
-        -15,
+
+    windowLight.position.set(
+        -4,
         5,
-        -10
+        -8
+    );
+
+
+    windowLight.target.position.set(
+        0,
+        1,
+        0
+    );
+
+
+    scene.add(
+        windowLight
     );
 
     scene.add(
-        fillLight
+        windowLight.target
     );
+
+
+    // ========================================================
+    // COLLISION BOUNDS
+    // ========================================================
+
+    const margin =
+        WALL / 2;
+
+
+    const bounds = {
+
+        minX:
+            -WIDTH / 2 +
+            margin,
+
+        maxX:
+            WIDTH / 2 -
+            margin,
+
+        minZ:
+            -DEPTH / 2 +
+            margin,
+
+        maxZ:
+            DEPTH / 2 -
+            margin
+
+    };
 
 
     console.log(
-        "ALICIA AI: ROOM READY"
+        "✅ Alicia AI: room ready"
     );
 
 
     return {
 
-        width: WIDTH,
+        group:
+            room,
 
-        depth: DEPTH,
+        width:
+            WIDTH,
 
-        height: HEIGHT
+        depth:
+            DEPTH,
+
+        height:
+            HEIGHT,
+
+        bounds
 
     };
 
