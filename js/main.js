@@ -1,56 +1,68 @@
 import * as THREE
-    from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
+from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 import { createRoom }
-    from "./room.js";
-
-import { createPortals }
-    from "./portals.js";
+from "./room.js";
 
 import { setupControls }
-    from "./controls.js";
+from "./controls.js";
 
 
-// =====================================================
+// ============================================================
+// ALICIA AI
+// STABLE ROOM CORE
+// ============================================================
+
+console.log("🦊 Alicia AI: запуск");
+
+
+// ============================================================
 // SCENE
-// =====================================================
+// ============================================================
 
-const scene =
-    new THREE.Scene();
+const scene = new THREE.Scene();
 
 scene.background =
-    new THREE.Color(
-        0x8faab8
+    new THREE.Color(0x9eb4bf);
+
+scene.fog =
+    new THREE.Fog(
+        0x9eb4bf,
+        35,
+        90
     );
 
 
-// =====================================================
+// ============================================================
 // CAMERA
-// =====================================================
+// ============================================================
 
 const camera =
     new THREE.PerspectiveCamera(
-        70,
-        window.innerWidth /
-        window.innerHeight,
-        0.1,
-        300
+        68,
+        window.innerWidth / window.innerHeight,
+        0.05,
+        150
     );
 
 camera.position.set(
     0,
-    2,
-    12
+    1.7,
+    10
 );
 
 
-// =====================================================
+// ============================================================
 // RENDERER
-// =====================================================
+// ============================================================
 
 const renderer =
     new THREE.WebGLRenderer({
-        antialias: true
+
+        antialias: true,
+
+        powerPreference: "high-performance"
+
     });
 
 renderer.setSize(
@@ -65,8 +77,7 @@ renderer.setPixelRatio(
     )
 );
 
-renderer.shadowMap.enabled =
-    true;
+renderer.shadowMap.enabled = true;
 
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
@@ -74,51 +85,56 @@ renderer.shadowMap.type =
 renderer.outputColorSpace =
     THREE.SRGBColorSpace;
 
+renderer.toneMapping =
+    THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure =
+    1.05;
+
 document.body.appendChild(
     renderer.domElement
 );
 
 
-// =====================================================
+// ============================================================
 // ROOM
-// =====================================================
+// ============================================================
 
-createRoom(
-    scene
-);
-
-
-// =====================================================
-// WINDOWS + ARCH
-// =====================================================
-
-createPortals(
-    scene
-);
-
-
-// =====================================================
-// CONTROLS
-// =====================================================
-
-const updateControls =
-    setupControls(
-        camera,
-        renderer.domElement
+const room =
+    createRoom(
+        scene
     );
 
 
-// =====================================================
+// ============================================================
+// CONTROLS
+// ============================================================
+
+const controls =
+    setupControls({
+
+        camera,
+
+        domElement:
+            renderer.domElement,
+
+        bounds:
+            room.bounds
+
+    });
+
+
+// ============================================================
 // CLOCK
-// =====================================================
+// ============================================================
 
 const clock =
     new THREE.Clock();
 
 
-// =====================================================
-// LOOP
-// =====================================================
+// ============================================================
+// ANIMATION
+// ============================================================
 
 function animate() {
 
@@ -126,18 +142,15 @@ function animate() {
         animate
     );
 
-
     const delta =
         Math.min(
             clock.getDelta(),
             0.05
         );
 
-
-    updateControls(
+    controls.update(
         delta
     );
-
 
     renderer.render(
         scene,
@@ -146,27 +159,66 @@ function animate() {
 
 }
 
-animate();
 
-
-// =====================================================
+// ============================================================
 // RESIZE
-// =====================================================
+// ============================================================
+
+function resize() {
+
+    const width =
+        window.innerWidth;
+
+    const height =
+        window.innerHeight;
+
+    camera.aspect =
+        width / height;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        width,
+        height,
+        false
+    );
+
+    renderer.setPixelRatio(
+        Math.min(
+            window.devicePixelRatio,
+            2
+        )
+    );
+
+}
+
 
 window.addEventListener(
     "resize",
+    resize
+);
+
+
+// iPhone / Android landscape fix
+window.addEventListener(
+    "orientationchange",
     () => {
 
-        camera.aspect =
-            window.innerWidth /
-            window.innerHeight;
-
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
+        setTimeout(
+            resize,
+            150
         );
 
     }
+);
+
+
+// ============================================================
+// START
+// ============================================================
+
+animate();
+
+console.log(
+    "✅ Alicia AI: комната запущена стабильно"
 );
