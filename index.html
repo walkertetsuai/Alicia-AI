@@ -2,286 +2,100 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Комната Алисии</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no"
+    >
+
+    <title>Alicia AI — Room</title>
+
     <style>
-        body { margin: 0; overflow: hidden; background: #1a0e08; }
-        canvas { display: block; }
-        #info {
-            position: absolute;
-            bottom: 20px;
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #111;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
+
+        #ui {
+            position: fixed;
             left: 50%;
+            bottom: 20px;
+
             transform: translateX(-50%);
-            color: #c9a84c;
-            font-family: 'Georgia', serif;
-            font-size: 14px;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 20px;
-            border-radius: 20px;
+
+            padding: 10px 16px;
+
+            color: white;
+            background: rgba(0, 0, 0, 0.48);
+
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+
+            backdrop-filter: blur(8px);
+
+            font-size: 13px;
+
             pointer-events: none;
             user-select: none;
-            backdrop-filter: blur(2px);
+
+            z-index: 10;
+        }
+
+        #crosshair {
+            position: fixed;
+
+            left: 50%;
+            top: 50%;
+
+            width: 6px;
+            height: 6px;
+
+            transform: translate(-50%, -50%);
+
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.85);
+
+            pointer-events: none;
+
+            z-index: 10;
         }
     </style>
 </head>
+
 <body>
-    <div id="info">🦊 Комната Алисии — наведи на дверь</div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
-            }
-        }
-    </script>
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+<div id="crosshair"></div>
 
-        // === Сцена, камера, рендер ===
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a0e08);
+<div id="ui">
+    🦊 Клик — управление · WASD — движение · Esc — курсор
+</div>
 
-        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(3, 2.5, 5);
-        camera.lookAt(0, 1, 0);
+<script
+    type="module"
+    src="./js/main.js">
+</script>
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        document.body.appendChild(renderer.domElement);
-
-        // Управление камерой (мышь)
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 1.5, 0);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2.2;
-        controls.minDistance = 2;
-        controls.maxDistance = 10;
-        controls.update();
-
-        // === СВЕТ ===
-        const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
-        scene.add(ambientLight);
-
-        const mainLight = new THREE.DirectionalLight(0xffeedd, 1.2);
-        mainLight.position.set(-3, 8, 5);
-        mainLight.castShadow = true;
-        mainLight.shadow.mapSize.width = 1024;
-        mainLight.shadow.mapSize.height = 1024;
-        scene.add(mainLight);
-
-        // === КОМНАТА ===
-        const roomGroup = new THREE.Group();
-        const wallMat = new THREE.MeshStandardMaterial({ color: 0x6b4226, roughness: 0.9 });
-        const floorMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1b, roughness: 0.9 });
-
-        // Пол
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.set(0, 0, 0);
-        floor.receiveShadow = true;
-        roomGroup.add(floor);
-
-        // Потолок
-        const ceil = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), new THREE.MeshStandardMaterial({ color: 0x2c1a0e, roughness: 0.9 }));
-        ceil.rotation.x = Math.PI / 2;
-        ceil.position.set(0, 3, 0);
-        roomGroup.add(ceil);
-
-        // Задняя стена
-        const backWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3), wallMat);
-        backWall.position.set(0, 1.5, -3);
-        roomGroup.add(backWall);
-
-        // Левая стена
-        const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3), wallMat);
-        leftWall.rotation.y = Math.PI / 2;
-        leftWall.position.set(-3, 1.5, 0);
-        roomGroup.add(leftWall);
-
-        // Правая стена
-        const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3), wallMat);
-        rightWall.rotation.y = -Math.PI / 2;
-        rightWall.position.set(3, 1.5, 0);
-        roomGroup.add(rightWall);
-
-        // === ОКНО ===
-        const windowGroup = new THREE.Group();
-        windowGroup.position.set(0, 1.8, -2.98);
-
-        // Рама
-        const frameMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1b, roughness: 0.7 });
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.8, 0.2), frameMat);
-        windowGroup.add(frame);
-
-        // Стекло
-        const glassMat = new THREE.MeshStandardMaterial({ color: 0x88ccff, transparent: true, opacity: 0.3, roughness: 0.1, metalness: 0.4 });
-        const glass = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.6), glassMat);
-        glass.position.z = 0.12;
-        windowGroup.add(glass);
-
-        // Вид за окном — небо и деревья (имитация)
-        const viewGroup = new THREE.Group();
-        viewGroup.position.z = -0.2;
-
-        // Небо
-        const skyMat = new THREE.MeshStandardMaterial({ color: 0x1a2a4a });
-        const sky = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.0), skyMat);
-        viewGroup.add(sky);
-
-        // Снег (точки)
-        const snowMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, transparent: true, opacity: 0.6 });
-        const snowGeo = new THREE.BufferGeometry();
-        const snowCount = 300;
-        const positions = new Float32Array(snowCount * 3);
-        for (let i = 0; i < snowCount * 3; i++) {
-            positions[i] = (Math.random() - 0.5) * 2.4;
-            if (i % 3 === 1) positions[i] = (Math.random() - 0.5) * 2.0;
-            if (i % 3 === 2) positions[i] = (Math.random() - 0.5) * 0.1;
-        }
-        snowGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const snow = new THREE.Points(snowGeo, snowMat);
-        viewGroup.add(snow);
-
-        windowGroup.add(viewGroup);
-        roomGroup.add(windowGroup);
-
-        // === ДВЕРЬ ===
-        const doorGroup = new THREE.Group();
-        doorGroup.position.set(2.2, 0, -2.0);
-
-        // Коробка двери
-        const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x3d2212, roughness: 0.8 });
-        const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 0.3), doorFrameMat);
-        doorFrame.position.set(0.5, 1.1, 0);
-        doorGroup.add(doorFrame);
-
-        // Дверное полотно
-        const doorMat = new THREE.MeshStandardMaterial({ color: 0x5c341a, roughness: 0.8 });
-        const door = new THREE.Mesh(new THREE.BoxGeometry(0.9, 2.0, 0.12), doorMat);
-        door.position.set(0.5, 1.1, 0.15);
-        doorGroup.add(door);
-
-        // Ручка
-        const handleMat = new THREE.MeshStandardMaterial({ color: 0xc9a84c, roughness: 0.4, metalness: 0.6 });
-        const handle = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), handleMat);
-        handle.position.set(0.85, 1.1, 0.25);
-        doorGroup.add(handle);
-
-        roomGroup.add(doorGroup);
-
-        // === КАМИН ===
-        const fireplaceGroup = new THREE.Group();
-        fireplaceGroup.position.set(-2.2, 0, -2.0);
-
-        const fireMat = new THREE.MeshStandardMaterial({ color: 0x2c1a0e, roughness: 0.9 });
-        const fireplaceBody = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6, 0.8), fireMat);
-        fireplaceBody.position.set(0, 0.8, 0);
-        fireplaceGroup.add(fireplaceBody);
-
-        // Огонь
-        const flameMat = new THREE.MeshStandardMaterial({ color: 0xff5500, emissive: 0xff4400, emissiveIntensity: 0.8 });
-        const flame = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), flameMat);
-        flame.position.set(0, 0.6, 0.3);
-        flame.scale.set(0.8, 1.2, 0.8);
-        fireplaceGroup.add(flame);
-
-        // Маленькие языки пламени
-        const flameSmallMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xff8800, emissiveIntensity: 0.6 });
-        for (let i = 0; i < 3; i++) {
-            const f = new THREE.Mesh(new THREE.SphereGeometry(0.08 + Math.random()*0.1, 6, 6), flameSmallMat);
-            f.position.set((Math.random()-0.5)*0.3, 0.45 + Math.random()*0.2, 0.3 + Math.random()*0.1);
-            fireplaceGroup.add(f);
-        }
-
-        roomGroup.add(fireplaceGroup);
-
-        // === МЕБЕЛЬ (упрощённо) ===
-        // Кресло
-        const chairMat = new THREE.MeshStandardMaterial({ color: 0x5c341a, roughness: 0.7 });
-        const chairGroup = new THREE.Group();
-        chairGroup.position.set(-1.5, 0, 1.5);
-
-        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.6), chairMat);
-        seat.position.set(0, 0.4, 0);
-        chairGroup.add(seat);
-
-        const back = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.1), chairMat);
-        back.position.set(0, 0.7, -0.3);
-        chairGroup.add(back);
-
-        roomGroup.add(chairGroup);
-
-        // Столик
-        const tableMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1b, roughness: 0.8 });
-        const tableGroup = new THREE.Group();
-        tableGroup.position.set(1.5, 0, 1.5);
-
-        const top = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.08, 0.8), tableMat);
-        top.position.set(0, 0.4, 0);
-        tableGroup.add(top);
-
-        roomGroup.add(tableGroup);
-
-        // === КНИЖНЫЙ ШКАФ ===
-        const shelfMat = new THREE.MeshStandardMaterial({ color: 0x3d2212, roughness: 0.8 });
-        const shelfGroup = new THREE.Group();
-        shelfGroup.position.set(-2.8, 0.5, 1.0);
-
-        const shelfBox = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.8, 0.3), shelfMat);
-        shelfGroup.add(shelfBox);
-
-        // Книжки
-        const bookMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.7 });
-        for (let i = 0; i < 4; i++) {
-            const book = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.1 + Math.random()*0.2, 0.2), bookMat);
-            book.position.set(-0.2 + i*0.1, 0.3 + i*0.1, 0.3);
-            shelfGroup.add(book);
-        }
-
-        roomGroup.add(shelfGroup);
-
-        scene.add(roomGroup);
-
-        // === АНИМАЦИЯ ОГНЯ ===
-        let time = 0;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.02;
-
-            // Мерцание огня
-            const flames = fireplaceGroup.children.filter(c => c.material && c.material.emissive);
-            flames.forEach((f, i) => {
-                if (i > 0) {
-                    const scale = 0.8 + 0.4 * Math.sin(time * (1.5 + i * 0.7) + i * 1.2);
-                    f.scale.x = scale * (0.8 + 0.2 * Math.sin(time * 2.1 + i));
-                    f.scale.y = scale * (1.0 + 0.3 * Math.sin(time * 1.8 + i * 0.5));
-                    f.scale.z = scale * (0.8 + 0.2 * Math.sin(time * 2.3 + i * 0.7));
-                }
-            });
-
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // === АДАПТАЦИЯ ПОД РАЗМЕР ЭКРАНА ===
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Подсказка при наведении на дверь (просто в консоль)
-        console.log('🦊 Добро пожаловать в комнату Алисии!');
-        console.log('🚪 Наведи курсор на дверь и покрути камеру.');
-    </script>
 </body>
 </html>
