@@ -3,16 +3,37 @@ from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 
 // ============================================================
-// PLAYER CONTROLS
+// PLAYER CONTROLLER
 // ============================================================
 
 export function setupControls({
 
     camera,
     domElement,
-    bounds
+    room
 
 }) {
+
+    // ========================================================
+    // SETTINGS
+    // ========================================================
+
+    const PLAYER_HEIGHT =
+        1.68;
+
+    const PLAYER_RADIUS =
+        0.32;
+
+    const MOVE_SPEED =
+        3.65;
+
+    const MOUSE_SPEED =
+        0.00205;
+
+
+    // ========================================================
+    // INPUT
+    // ========================================================
 
     const keys = {
 
@@ -25,75 +46,15 @@ export function setupControls({
     };
 
 
-    // ========================================================
-    // SETTINGS
-    // ========================================================
+    let yaw =
+        camera.rotation.y;
 
-    const PLAYER_HEIGHT =
-        1.7;
-
-
-    const PLAYER_RADIUS =
-        0.45;
-
-
-    const MOVE_SPEED =
-        4.8;
-
-
-    const MOUSE_SPEED =
-        0.002;
-
-
-    // ========================================================
-    // CAMERA ROTATION
-    // ========================================================
-
-    let yaw = 0;
-    let pitch = 0;
+    let pitch =
+        camera.rotation.x;
 
 
     camera.rotation.order =
         "YXZ";
-
-
-    function onMouseMove(event) {
-
-        if (
-            document.pointerLockElement
-            !== domElement
-        ) {
-            return;
-        }
-
-
-        yaw -=
-            event.movementX *
-            MOUSE_SPEED;
-
-
-        pitch -=
-            event.movementY *
-            MOUSE_SPEED;
-
-
-        const limit =
-            Math.PI / 2 -
-            0.05;
-
-
-        pitch =
-            THREE.MathUtils.clamp(
-
-                pitch,
-
-                -limit,
-
-                limit
-
-            );
-
-    }
 
 
     // ========================================================
@@ -101,9 +62,7 @@ export function setupControls({
     // ========================================================
 
     domElement.addEventListener(
-
         "click",
-
         () => {
 
             if (
@@ -111,18 +70,163 @@ export function setupControls({
                 !== domElement
             ) {
 
-                domElement.requestPointerLock();
+                domElement
+                    .requestPointerLock?.();
 
             }
 
         }
-
     );
 
 
     document.addEventListener(
         "mousemove",
-        onMouseMove
+        event => {
+
+            if (
+                document.pointerLockElement
+                !== domElement
+            ) {
+                return;
+            }
+
+
+            yaw -=
+                event.movementX *
+                MOUSE_SPEED;
+
+
+            pitch -=
+                event.movementY *
+                MOUSE_SPEED;
+
+
+            pitch =
+                THREE.MathUtils.clamp(
+
+                    pitch,
+
+                    -1.47,
+
+                    1.47
+
+                );
+
+        }
+    );
+
+
+    // ========================================================
+    // MOBILE LOOK
+    // ========================================================
+
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+
+    let touchLooking =
+        false;
+
+
+    domElement.addEventListener(
+        "touchstart",
+        event => {
+
+            if (
+                event.touches.length !== 1
+            ) {
+                return;
+            }
+
+
+            const touch =
+                event.touches[0];
+
+
+            lastTouchX =
+                touch.clientX;
+
+            lastTouchY =
+                touch.clientY;
+
+            touchLooking =
+                true;
+
+        },
+
+        {
+            passive: true
+        }
+    );
+
+
+    domElement.addEventListener(
+        "touchmove",
+        event => {
+
+            if (
+                !touchLooking ||
+                event.touches.length !== 1
+            ) {
+                return;
+            }
+
+
+            const touch =
+                event.touches[0];
+
+
+            const dx =
+                touch.clientX -
+                lastTouchX;
+
+
+            const dy =
+                touch.clientY -
+                lastTouchY;
+
+
+            lastTouchX =
+                touch.clientX;
+
+            lastTouchY =
+                touch.clientY;
+
+
+            yaw -=
+                dx * 0.004;
+
+
+            pitch -=
+                dy * 0.004;
+
+
+            pitch =
+                THREE.MathUtils.clamp(
+
+                    pitch,
+
+                    -1.47,
+
+                    1.47
+
+                );
+
+        },
+
+        {
+            passive: true
+        }
+    );
+
+
+    domElement.addEventListener(
+        "touchend",
+        () => {
+
+            touchLooking =
+                false;
+
+        }
     );
 
 
@@ -178,9 +282,7 @@ export function setupControls({
 
 
     window.addEventListener(
-
         "keydown",
-
         event => {
 
             setKey(
@@ -188,15 +290,24 @@ export function setupControls({
                 true
             );
 
-        }
 
+            if (
+                event.code === "KeyE" &&
+                !event.repeat
+            ) {
+
+                room.interact(
+                    camera
+                );
+
+            }
+
+        }
     );
 
 
     window.addEventListener(
-
         "keyup",
-
         event => {
 
             setKey(
@@ -205,14 +316,11 @@ export function setupControls({
             );
 
         }
-
     );
 
 
     window.addEventListener(
-
         "blur",
-
         () => {
 
             keys.forward =
@@ -228,25 +336,161 @@ export function setupControls({
                 false;
 
         }
-
     );
 
 
     // ========================================================
-    // MOVEMENT
+    // MOVEMENT VECTORS
     // ========================================================
 
     const forward =
         new THREE.Vector3();
 
-
     const right =
         new THREE.Vector3();
-
 
     const movement =
         new THREE.Vector3();
 
+
+    // ========================================================
+    // COLLISION
+    // ========================================================
+
+    function collides(
+        x,
+        z
+    ) {
+
+        const bounds =
+            room.bounds;
+
+
+        if (
+            x - PLAYER_RADIUS <
+            bounds.minX
+        ) {
+            return true;
+        }
+
+
+        if (
+            x + PLAYER_RADIUS >
+            bounds.maxX
+        ) {
+            return true;
+        }
+
+
+        if (
+            z - PLAYER_RADIUS <
+            bounds.minZ
+        ) {
+            return true;
+        }
+
+
+        if (
+            z + PLAYER_RADIUS >
+            bounds.maxZ
+        ) {
+            return true;
+        }
+
+
+        const colliders =
+            room.getColliders();
+
+
+        for (
+            const collider
+            of colliders
+        ) {
+
+            if (
+                collider.enabled === false
+            ) {
+                continue;
+            }
+
+
+            if (
+
+                x + PLAYER_RADIUS >
+                collider.minX &&
+
+                x - PLAYER_RADIUS <
+                collider.maxX &&
+
+                z + PLAYER_RADIUS >
+                collider.minZ &&
+
+                z - PLAYER_RADIUS <
+                collider.maxZ
+
+            ) {
+
+                return true;
+
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
+    function moveWithCollision(
+        dx,
+        dz
+    ) {
+
+        // move X separately so player
+        // slides naturally along objects
+
+        const nextX =
+            camera.position.x +
+            dx;
+
+
+        if (
+            !collides(
+                nextX,
+                camera.position.z
+            )
+        ) {
+
+            camera.position.x =
+                nextX;
+
+        }
+
+
+        const nextZ =
+            camera.position.z +
+            dz;
+
+
+        if (
+            !collides(
+                camera.position.x,
+                nextZ
+            )
+        ) {
+
+            camera.position.z =
+                nextZ;
+
+        }
+
+    }
+
+
+    // ========================================================
+    // UPDATE
+    // ========================================================
 
     function update(
         delta
@@ -254,7 +498,6 @@ export function setupControls({
 
         camera.rotation.y =
             yaw;
-
 
         camera.rotation.x =
             pitch;
@@ -292,54 +535,45 @@ export function setupControls({
         if (
             keys.forward
         ) {
-
             movement.add(
                 forward
             );
-
         }
 
 
         if (
             keys.backward
         ) {
-
             movement.sub(
                 forward
             );
-
         }
 
 
         if (
             keys.right
         ) {
-
             movement.add(
                 right
             );
-
         }
 
 
         if (
             keys.left
         ) {
-
             movement.sub(
                 right
             );
-
         }
 
 
         if (
-            movement.lengthSq()
-            > 0
+            movement.lengthSq() >
+            0
         ) {
 
             movement.normalize();
-
 
             movement.multiplyScalar(
 
@@ -349,43 +583,15 @@ export function setupControls({
             );
 
 
-            camera.position.add(
-                movement
+            moveWithCollision(
+
+                movement.x,
+
+                movement.z
+
             );
 
         }
-
-
-        // ====================================================
-        // ROOM COLLISION
-        // ====================================================
-
-        camera.position.x =
-            THREE.MathUtils.clamp(
-
-                camera.position.x,
-
-                bounds.minX +
-                PLAYER_RADIUS,
-
-                bounds.maxX -
-                PLAYER_RADIUS
-
-            );
-
-
-        camera.position.z =
-            THREE.MathUtils.clamp(
-
-                camera.position.z,
-
-                bounds.minZ +
-                PLAYER_RADIUS,
-
-                bounds.maxZ -
-                PLAYER_RADIUS
-
-            );
 
 
         camera.position.y =
