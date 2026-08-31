@@ -10,26 +10,31 @@ from "./controls.js";
 
 // ============================================================
 // ALICIA AI
-// STABLE ROOM CORE
+// ROOM CORE
 // ============================================================
 
-console.log("🦊 Alicia AI: запуск");
+console.log("🦊 Alicia AI: запуск комнаты");
 
 
 // ============================================================
 // SCENE
 // ============================================================
 
-const scene = new THREE.Scene();
+const scene =
+    new THREE.Scene();
+
 
 scene.background =
-    new THREE.Color(0x9eb4bf);
+    new THREE.Color(
+        0x9caeb7
+    );
+
 
 scene.fog =
     new THREE.Fog(
-        0x9eb4bf,
-        35,
-        90
+        0x9caeb7,
+        38,
+        95
     );
 
 
@@ -39,16 +44,23 @@ scene.fog =
 
 const camera =
     new THREE.PerspectiveCamera(
+
         68,
-        window.innerWidth / window.innerHeight,
+
+        window.innerWidth /
+        window.innerHeight,
+
         0.05,
-        150
+
+        160
+
     );
+
 
 camera.position.set(
     0,
     1.7,
-    10
+    5
 );
 
 
@@ -61,35 +73,47 @@ const renderer =
 
         antialias: true,
 
-        powerPreference: "high-performance"
+        powerPreference:
+            "high-performance"
 
     });
+
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
 
+
 renderer.setPixelRatio(
+
     Math.min(
         window.devicePixelRatio,
         2
     )
+
 );
 
-renderer.shadowMap.enabled = true;
+
+renderer.shadowMap.enabled =
+    true;
+
 
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
 
+
 renderer.outputColorSpace =
     THREE.SRGBColorSpace;
+
 
 renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
+
 renderer.toneMappingExposure =
-    1.05;
+    1.08;
+
 
 document.body.appendChild(
     renderer.domElement
@@ -142,15 +166,18 @@ function animate() {
         animate
     );
 
+
     const delta =
         Math.min(
             clock.getDelta(),
             0.05
         );
 
+
     controls.update(
         delta
     );
+
 
     renderer.render(
         scene,
@@ -158,6 +185,9 @@ function animate() {
     );
 
 }
+
+
+animate();
 
 
 // ============================================================
@@ -172,10 +202,13 @@ function resize() {
     const height =
         window.innerHeight;
 
+
     camera.aspect =
         width / height;
 
+
     camera.updateProjectionMatrix();
+
 
     renderer.setSize(
         width,
@@ -183,11 +216,14 @@ function resize() {
         false
     );
 
+
     renderer.setPixelRatio(
+
         Math.min(
             window.devicePixelRatio,
             2
         )
+
     );
 
 }
@@ -199,9 +235,11 @@ window.addEventListener(
 );
 
 
-// iPhone / Android landscape fix
+// Mobile landscape
 window.addEventListener(
+
     "orientationchange",
+
     () => {
 
         setTimeout(
@@ -210,15 +248,10 @@ window.addEventListener(
         );
 
     }
+
 );
 
 
-// ============================================================
-// START
-// ============================================================
-
-animate();
-
 console.log(
-    "✅ Alicia AI: комната запущена стабильно"
+    "✅ Alicia AI: сцена готова"
 );
