@@ -3,7 +3,14 @@ from "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js";
 
 
 // ============================================================
-// PLAYER CONTROLLER
+// ALICIA PLAYER CONTROLLER
+// v5.2
+//
+// WASD
+// Mouse look
+// Collision
+// Safe spawn
+// Automatic recovery
 // ============================================================
 
 export function setupControls({
@@ -21,14 +28,33 @@ export function setupControls({
     const PLAYER_HEIGHT =
         1.68;
 
+
     const PLAYER_RADIUS =
         0.32;
+
 
     const MOVE_SPEED =
         3.65;
 
+
     const MOUSE_SPEED =
         0.00205;
+
+
+    // ========================================================
+    // SAFE FALLBACK POSITION
+    // ========================================================
+
+    const SAFE_POSITION =
+        new THREE.Vector3(
+
+            0.85,
+
+            PLAYER_HEIGHT,
+
+            1.15
+
+        );
 
 
     // ========================================================
@@ -37,20 +63,31 @@ export function setupControls({
 
     const keys = {
 
-        forward: false,
-        backward: false,
+        forward:
+            false,
 
-        left: false,
-        right: false
+        backward:
+            false,
+
+        left:
+            false,
+
+        right:
+            false
 
     };
 
 
+    // ========================================================
+    // VIEW
+    // ========================================================
+
     let yaw =
-        camera.rotation.y;
+        0;
+
 
     let pitch =
-        camera.rotation.x;
+        0;
 
 
     camera.rotation.order =
@@ -58,16 +95,231 @@ export function setupControls({
 
 
     // ========================================================
+    // COLLISION CHECK
+    // ========================================================
+
+    function collides(
+        x,
+        z
+    ) {
+
+        const bounds =
+            room.bounds;
+
+
+        // ----------------------------------------------------
+        // ROOM BOUNDARIES
+        // ----------------------------------------------------
+
+        if (
+
+            x - PLAYER_RADIUS <
+            bounds.minX
+
+        ) {
+
+            return true;
+
+        }
+
+
+        if (
+
+            x + PLAYER_RADIUS >
+            bounds.maxX
+
+        ) {
+
+            return true;
+
+        }
+
+
+        if (
+
+            z - PLAYER_RADIUS <
+            bounds.minZ
+
+        ) {
+
+            return true;
+
+        }
+
+
+        if (
+
+            z + PLAYER_RADIUS >
+            bounds.maxZ
+
+        ) {
+
+            return true;
+
+        }
+
+
+        // ----------------------------------------------------
+        // OBJECT COLLIDERS
+        // ----------------------------------------------------
+
+        const colliders =
+            room.getColliders();
+
+
+        for (
+            const collider
+            of colliders
+        ) {
+
+            if (
+                collider.enabled ===
+                false
+            ) {
+
+                continue;
+
+            }
+
+
+            const overlapX =
+
+                x +
+                PLAYER_RADIUS >
+
+                collider.minX &&
+
+                x -
+                PLAYER_RADIUS <
+
+                collider.maxX;
+
+
+            const overlapZ =
+
+                z +
+                PLAYER_RADIUS >
+
+                collider.minZ &&
+
+                z -
+                PLAYER_RADIUS <
+
+                collider.maxZ;
+
+
+            if (
+                overlapX &&
+                overlapZ
+            ) {
+
+                return true;
+
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
+    // ========================================================
+    // VALIDATE SPAWN
+    // ========================================================
+
+    function validateSpawn() {
+
+        const bounds =
+            room.bounds;
+
+
+        // first clamp player inside room
+
+        camera.position.x =
+            THREE.MathUtils.clamp(
+
+                camera.position.x,
+
+                bounds.minX +
+                PLAYER_RADIUS +
+                0.05,
+
+                bounds.maxX -
+                PLAYER_RADIUS -
+                0.05
+
+            );
+
+
+        camera.position.z =
+            THREE.MathUtils.clamp(
+
+                camera.position.z,
+
+                bounds.minZ +
+                PLAYER_RADIUS +
+                0.05,
+
+                bounds.maxZ -
+                PLAYER_RADIUS -
+                0.05
+
+            );
+
+
+        camera.position.y =
+            PLAYER_HEIGHT;
+
+
+        // if clamped position is still
+        // inside furniture, use known-safe spawn
+
+        if (
+            collides(
+
+                camera.position.x,
+
+                camera.position.z
+
+            )
+        ) {
+
+            camera.position.copy(
+                SAFE_POSITION
+            );
+
+        }
+
+
+        console.log(
+            "✅ Player spawn:",
+            camera.position
+        );
+
+    }
+
+
+    validateSpawn();
+
+
+    // ========================================================
     // POINTER LOCK
     // ========================================================
 
     domElement.addEventListener(
+
         "click",
+
         () => {
 
             if (
+
                 document.pointerLockElement
-                !== domElement
+                !==
+                domElement
+
             ) {
 
                 domElement
@@ -76,27 +328,41 @@ export function setupControls({
             }
 
         }
+
     );
 
 
+    // ========================================================
+    // MOUSE LOOK
+    // ========================================================
+
     document.addEventListener(
+
         "mousemove",
+
         event => {
 
             if (
+
                 document.pointerLockElement
-                !== domElement
+                !==
+                domElement
+
             ) {
+
                 return;
+
             }
 
 
             yaw -=
+
                 event.movementX *
                 MOUSE_SPEED;
 
 
             pitch -=
+
                 event.movementY *
                 MOUSE_SPEED;
 
@@ -113,120 +379,7 @@ export function setupControls({
                 );
 
         }
-    );
 
-
-    // ========================================================
-    // MOBILE LOOK
-    // ========================================================
-
-    let lastTouchX = 0;
-    let lastTouchY = 0;
-
-    let touchLooking =
-        false;
-
-
-    domElement.addEventListener(
-        "touchstart",
-        event => {
-
-            if (
-                event.touches.length !== 1
-            ) {
-                return;
-            }
-
-
-            const touch =
-                event.touches[0];
-
-
-            lastTouchX =
-                touch.clientX;
-
-            lastTouchY =
-                touch.clientY;
-
-            touchLooking =
-                true;
-
-        },
-
-        {
-            passive: true
-        }
-    );
-
-
-    domElement.addEventListener(
-        "touchmove",
-        event => {
-
-            if (
-                !touchLooking ||
-                event.touches.length !== 1
-            ) {
-                return;
-            }
-
-
-            const touch =
-                event.touches[0];
-
-
-            const dx =
-                touch.clientX -
-                lastTouchX;
-
-
-            const dy =
-                touch.clientY -
-                lastTouchY;
-
-
-            lastTouchX =
-                touch.clientX;
-
-            lastTouchY =
-                touch.clientY;
-
-
-            yaw -=
-                dx * 0.004;
-
-
-            pitch -=
-                dy * 0.004;
-
-
-            pitch =
-                THREE.MathUtils.clamp(
-
-                    pitch,
-
-                    -1.47,
-
-                    1.47
-
-                );
-
-        },
-
-        {
-            passive: true
-        }
-    );
-
-
-    domElement.addEventListener(
-        "touchend",
-        () => {
-
-            touchLooking =
-                false;
-
-        }
     );
 
 
@@ -239,9 +392,12 @@ export function setupControls({
         value
     ) {
 
-        switch (code) {
+        switch (
+            code
+        ) {
 
             case "KeyW":
+
             case "ArrowUp":
 
                 keys.forward =
@@ -251,6 +407,7 @@ export function setupControls({
 
 
             case "KeyS":
+
             case "ArrowDown":
 
                 keys.backward =
@@ -260,6 +417,7 @@ export function setupControls({
 
 
             case "KeyA":
+
             case "ArrowLeft":
 
                 keys.left =
@@ -269,6 +427,7 @@ export function setupControls({
 
 
             case "KeyD":
+
             case "ArrowRight":
 
                 keys.right =
@@ -282,18 +441,31 @@ export function setupControls({
 
 
     window.addEventListener(
+
         "keydown",
+
         event => {
 
             setKey(
+
                 event.code,
+
                 true
+
             );
 
 
+            // ------------------------------------------------
+            // INTERACTION
+            // ------------------------------------------------
+
             if (
-                event.code === "KeyE" &&
+
+                event.code ===
+                "KeyE" &&
+
                 !event.repeat
+
             ) {
 
                 room.interact(
@@ -302,25 +474,65 @@ export function setupControls({
 
             }
 
+
+            // ------------------------------------------------
+            // DEBUG / EMERGENCY RESET
+            //
+            // Press R to return to safe point.
+            // ------------------------------------------------
+
+            if (
+
+                event.code ===
+                "KeyR" &&
+
+                !event.repeat
+
+            ) {
+
+                camera.position.copy(
+                    SAFE_POSITION
+                );
+
+
+                console.log(
+                    "🦊 Player returned to safe position"
+                );
+
+            }
+
         }
+
     );
 
 
     window.addEventListener(
+
         "keyup",
+
         event => {
 
             setKey(
+
                 event.code,
+
                 false
+
             );
 
         }
+
     );
 
 
+    // ========================================================
+    // RESET KEYS ON FOCUS LOSS
+    // ========================================================
+
     window.addEventListener(
+
         "blur",
+
         () => {
 
             keys.forward =
@@ -336,6 +548,7 @@ export function setupControls({
                 false;
 
         }
+
     );
 
 
@@ -346,109 +559,27 @@ export function setupControls({
     const forward =
         new THREE.Vector3();
 
+
     const right =
         new THREE.Vector3();
+
 
     const movement =
         new THREE.Vector3();
 
 
     // ========================================================
-    // COLLISION
+    // MOVE WITH SLIDING COLLISION
     // ========================================================
-
-    function collides(
-        x,
-        z
-    ) {
-
-        const bounds =
-            room.bounds;
-
-
-        if (
-            x - PLAYER_RADIUS <
-            bounds.minX
-        ) {
-            return true;
-        }
-
-
-        if (
-            x + PLAYER_RADIUS >
-            bounds.maxX
-        ) {
-            return true;
-        }
-
-
-        if (
-            z - PLAYER_RADIUS <
-            bounds.minZ
-        ) {
-            return true;
-        }
-
-
-        if (
-            z + PLAYER_RADIUS >
-            bounds.maxZ
-        ) {
-            return true;
-        }
-
-
-        const colliders =
-            room.getColliders();
-
-
-        for (
-            const collider
-            of colliders
-        ) {
-
-            if (
-                collider.enabled === false
-            ) {
-                continue;
-            }
-
-
-            if (
-
-                x + PLAYER_RADIUS >
-                collider.minX &&
-
-                x - PLAYER_RADIUS <
-                collider.maxX &&
-
-                z + PLAYER_RADIUS >
-                collider.minZ &&
-
-                z - PLAYER_RADIUS <
-                collider.maxZ
-
-            ) {
-
-                return true;
-
-            }
-
-        }
-
-
-        return false;
-
-    }
-
 
     function moveWithCollision(
         dx,
         dz
     ) {
 
-        // move X separately so player
-        // slides naturally along objects
+        // ----------------------------------------------------
+        // X AXIS
+        // ----------------------------------------------------
 
         const nextX =
             camera.position.x +
@@ -457,8 +588,11 @@ export function setupControls({
 
         if (
             !collides(
+
                 nextX,
+
                 camera.position.z
+
             )
         ) {
 
@@ -468,6 +602,10 @@ export function setupControls({
         }
 
 
+        // ----------------------------------------------------
+        // Z AXIS
+        // ----------------------------------------------------
+
         const nextZ =
             camera.position.z +
             dz;
@@ -475,13 +613,83 @@ export function setupControls({
 
         if (
             !collides(
+
                 camera.position.x,
+
                 nextZ
+
             )
         ) {
 
             camera.position.z =
                 nextZ;
+
+        }
+
+    }
+
+
+    // ========================================================
+    // SAFETY RECOVERY
+    // ========================================================
+
+    function recoverPlayerIfNeeded() {
+
+        const bounds =
+            room.bounds;
+
+
+        const outsideRoom =
+
+            camera.position.x <
+            bounds.minX -
+
+            1 ||
+
+            camera.position.x >
+            bounds.maxX +
+
+            1 ||
+
+            camera.position.z <
+            bounds.minZ -
+
+            1 ||
+
+            camera.position.z >
+            bounds.maxZ +
+
+            1;
+
+
+        const invalidPosition =
+
+            !Number.isFinite(
+                camera.position.x
+            ) ||
+
+            !Number.isFinite(
+                camera.position.y
+            ) ||
+
+            !Number.isFinite(
+                camera.position.z
+            );
+
+
+        if (
+            outsideRoom ||
+            invalidPosition
+        ) {
+
+            console.warn(
+                "⚠️ Player escaped room. Resetting."
+            );
+
+
+            camera.position.copy(
+                SAFE_POSITION
+            );
 
         }
 
@@ -496,34 +704,62 @@ export function setupControls({
         delta
     ) {
 
+        recoverPlayerIfNeeded();
+
+
+        // ----------------------------------------------------
+        // CAMERA ROTATION
+        // ----------------------------------------------------
+
         camera.rotation.y =
             yaw;
+
 
         camera.rotation.x =
             pitch;
 
 
+        // ----------------------------------------------------
+        // FORWARD VECTOR
+        // ----------------------------------------------------
+
         forward.set(
 
-            -Math.sin(yaw),
+            -Math.sin(
+                yaw
+            ),
 
             0,
 
-            -Math.cos(yaw)
+            -Math.cos(
+                yaw
+            )
 
         );
 
+
+        // ----------------------------------------------------
+        // RIGHT VECTOR
+        // ----------------------------------------------------
 
         right.set(
 
-            Math.cos(yaw),
+            Math.cos(
+                yaw
+            ),
 
             0,
 
-            -Math.sin(yaw)
+            -Math.sin(
+                yaw
+            )
 
         );
 
+
+        // ----------------------------------------------------
+        // MOVEMENT
+        // ----------------------------------------------------
 
         movement.set(
             0,
@@ -535,36 +771,44 @@ export function setupControls({
         if (
             keys.forward
         ) {
+
             movement.add(
                 forward
             );
+
         }
 
 
         if (
             keys.backward
         ) {
+
             movement.sub(
                 forward
             );
+
         }
 
 
         if (
             keys.right
         ) {
+
             movement.add(
                 right
             );
+
         }
 
 
         if (
             keys.left
         ) {
+
             movement.sub(
                 right
             );
+
         }
 
 
@@ -574,6 +818,7 @@ export function setupControls({
         ) {
 
             movement.normalize();
+
 
             movement.multiplyScalar(
 
@@ -594,15 +839,31 @@ export function setupControls({
         }
 
 
+        // ----------------------------------------------------
+        // LOCK PLAYER HEIGHT
+        // ----------------------------------------------------
+
         camera.position.y =
             PLAYER_HEIGHT;
 
     }
 
 
+    // ========================================================
+    // API
+    // ========================================================
+
     return {
 
-        update
+        update,
+
+        reset() {
+
+            camera.position.copy(
+                SAFE_POSITION
+            );
+
+        }
 
     };
 
